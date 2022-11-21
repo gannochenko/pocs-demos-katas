@@ -1,0 +1,18 @@
+node_modules
+**/node_modules
+.idea/workspace.xml
+.idea/libraries
+.DS_Store
+.env
+.env.*
+!.env.example
+.localstack
+.mongo
+
+# terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+/backup/legacy/
+/.builder/
+.data/*
