@@ -6,6 +6,7 @@ node_modules
 .env
 .env.*
 !.env.example
+!.env.local.example
 .localstack
 .mongo
 
@@ -15,4 +16,4 @@ node_modules
 *.tfstate.*
 /backup/legacy/
 /.builder/
-.data/*
+**/.data/*

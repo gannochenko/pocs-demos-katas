@@ -1,4 +1,0 @@
-site_name: POCs, demos, katas
-theme: readthedocs
-docs_dir: pages/
-dev_addr: 127.0.0.1:9000
