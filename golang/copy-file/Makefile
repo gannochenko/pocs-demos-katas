@@ -11,6 +11,7 @@ install:
 	@pip install google.cloud.storage
 	@pip install google-cloud
 	@pip install google-cloud-vision
+	@go mod download
 
 create_resources:
 	@godotenv -f ./.env.local python ./scripts/bootstrap-storage.py
