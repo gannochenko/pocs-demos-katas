@@ -37,7 +37,10 @@ func main() {
        }
     }()
 
-    uploadFile(fileName, fileReader, bucketName, objectPath)
+    err = uploadFile(fileName, fileReader, bucketName, objectPath)
+    if err != nil {
+        panic(err)
+    }
 
     log.Println("Done!")
 }
