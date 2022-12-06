@@ -24,3 +24,6 @@ stop_infra:
 
 run:
 	@godotenv -f ./.env.local go run ./cmd/main.go
+
+test:
+	PROJECT_DIR=${PWD} godotenv -f ./env.local richgo test ./... -v -p=1 -count=1 | tee test.output

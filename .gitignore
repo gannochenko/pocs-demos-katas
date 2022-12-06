@@ -17,3 +17,4 @@ node_modules
 /backup/legacy/
 /.builder/
 **/.data/*
+test.output
