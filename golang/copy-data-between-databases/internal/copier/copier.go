@@ -71,6 +71,8 @@ func (c *Copier) CopyElements(ids []string) error {
 			continue
 		}
 
+		fmt.Printf("%s\n", element)
+
 		err = c.createElement(ctx, dstDBTransaction, element)
 		if err != nil {
 			fmt.Printf("Could not create an element with id %s\n", element.ID)
@@ -124,7 +126,7 @@ func (c *Copier) makeConnections() (srcDBConn *dbr.Connection, dstDBConn *dbr.Co
 		return nil, nil, err
 	}
 
-	dstDB, err := c.makeConnection(c.makeDBInfo(c.options.SrcDBPort, c.options.SrcDBUser, c.options.SrcDBPassword))
+	dstDB, err := c.makeConnection(c.makeDBInfo(c.options.DstDBPort, c.options.DstDBUser, c.options.DstDBPassword))
 	if err != nil {
 		srcDB.Close()
 		return nil, nil, err
