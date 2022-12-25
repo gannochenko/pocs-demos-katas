@@ -63,17 +63,17 @@ func (c *Copier) CopyElements(ids []string) error {
 	for _, id := range ids {
 		element, err := c.getElementByID(ctx, srcDBSession, id)
 		if err != nil {
-			fmt.Printf("Could not read element with id %s", id)
+			fmt.Printf("Could not read element with id %s\n", id)
 			continue
 		}
 		if element.ID == "" {
-			fmt.Printf("Could not read element with id %s: element not found", id)
+			fmt.Printf("Could not read element with id %s: element not found\n", id)
 			continue
 		}
 
 		err = c.createElement(ctx, dstDBTransaction, element)
 		if err != nil {
-			fmt.Printf("Could not create an element with id %s", element.ID)
+			fmt.Printf("Could not create an element with id %s\n", element.ID)
 			continue
 		}
 
@@ -85,7 +85,7 @@ func (c *Copier) CopyElements(ids []string) error {
 		return err
 	}
 
-	fmt.Printf("Done. Items processed: %d", processed)
+	fmt.Printf("Done. Items processed: %d\n", processed)
 
 	return nil
 }
@@ -135,7 +135,7 @@ func (c *Copier) makeConnections() (srcDBConn *dbr.Connection, dstDBConn *dbr.Co
 
 func (c *Copier) makeDBInfo(port int32, user string, password string) string {
 	return fmt.Sprintf(
-		"host=localhost port=%s user=%s password=%s dbname=invoice-module sslmode=disable",
+		"host=localhost port=%d user=%s password=%s dbname=test sslmode=disable",
 		port,
 		user,
 		password,

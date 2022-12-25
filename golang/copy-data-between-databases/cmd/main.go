@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -25,7 +26,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "src-port",
-						Value: "5432",
+						Value: "54321",
 						Usage: "Source instance port",
 					},
 					&cli.StringFlag{
@@ -35,7 +36,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "dst-port",
-						Value: "5432",
+						Value: "54322",
 						Usage: "Destination instance port",
 					},
 					&cli.StringFlag{
@@ -66,6 +67,8 @@ func main() {
 
 					idList, err := util.ReadCSV(filePath)
 
+					fmt.Printf("%s\n", idList)
+
 					copierInstance := copier.New(&copier.Options{
 						SrcDBPort:     int32(srcPortNumber),
 						SrcDBUser:     srcUser,
@@ -75,7 +78,7 @@ func main() {
 						DstDBPassword: dstPassword,
 					})
 
-					err = copierInstance.CopyElements(idList[0])
+					err = copierInstance.CopyElements(idList)
 					if err != nil {
 						panic(err)
 					}
