@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	// TableName holds the name of the table which contains elements we copy
 	TableName = "elements"
 )
 
@@ -25,6 +26,8 @@ type Options struct {
 	DstDBPassword string
 }
 
+// Element describes a structure of an element we copy.
+// The field types could be as well just interface{}, because simply copy-paste it without manipulation.
 type Element struct {
 	ID    string `db:"id"`
 	Title string `db:"title"`
@@ -40,6 +43,7 @@ func New(options *Options) *Copier {
 	}
 }
 
+// CopyElements copies elements under given IDs from the source database to a destination database
 func (c *Copier) CopyElements(ids []string) error {
 	srcDB, dstDB, err := c.makeConnections()
 	if err != nil {
@@ -51,6 +55,8 @@ func (c *Copier) CopyElements(ids []string) error {
 	srcDBSession := srcDB.NewSession(nil)
 	dstDBSession := dstDB.NewSession(nil)
 
+	// for the destination table session we create a transaction,
+	// so in case if there is a problem, the entire operation gets rolled back
 	dstDBTransaction, err := dstDBSession.Begin()
 	if err != nil {
 		return err
@@ -61,22 +67,24 @@ func (c *Copier) CopyElements(ids []string) error {
 
 	processed := 0
 	for _, id := range ids {
+		// for every ID we get an element from the source database
+		// absence of en element is not an error
 		element, err := c.getElementByID(ctx, srcDBSession, id)
 		if err != nil {
 			fmt.Printf("Could not read element with id %s\n", id)
-			continue
+			return err
 		}
 		if element.ID == "" {
 			fmt.Printf("Could not read element with id %s: element not found\n", id)
 			continue
 		}
 
-		fmt.Printf("%s\n", element)
+		fmt.Printf("Copying element %s\n", id)
 
-		err = c.createElement(ctx, dstDBTransaction, element)
+		err = c.saveElement(ctx, dstDBTransaction, element)
 		if err != nil {
 			fmt.Printf("Could not create an element with id %s\n", element.ID)
-			continue
+			return err
 		}
 
 		processed += 1
@@ -92,6 +100,7 @@ func (c *Copier) CopyElements(ids []string) error {
 	return nil
 }
 
+// getElementByID returns an element from the source database, by it's ID
 func (c *Copier) getElementByID(ctx context.Context, session *dbr.Session, id string) (element *Element, err error) {
 	_, err = session.
 		Select("*").
@@ -106,9 +115,11 @@ func (c *Copier) getElementByID(ctx context.Context, session *dbr.Session, id st
 	return element, nil
 }
 
-func (c *Copier) createElement(ctx context.Context, session *dbr.Tx, element *Element) error {
+// saveElement saves a given element to the destination database
+func (c *Copier) saveElement(ctx context.Context, session *dbr.Tx, element *Element) error {
 	columns := []string{"id", "title"}
 
+	// to avoid primary key collisions, the ID column must be different
 	element.ID = uuid.New().String()
 	err := session.InsertInto(TableName).Columns(columns...).Record(element).LoadContext(ctx, &element.ID)
 	if err != nil {
@@ -118,14 +129,17 @@ func (c *Copier) createElement(ctx context.Context, session *dbr.Tx, element *El
 	return nil
 }
 
+// makeConnections creates two connections: for a database to read from, and for a database to write to
 func (c *Copier) makeConnections() (srcDBConn *dbr.Connection, dstDBConn *dbr.Connection, err error) {
 	sql.Register("instrumented-postgres", instrumentedsql.WrapDriver(&pq.Driver{}))
 
+	// making a connection to an instance we read from
 	srcDB, err := c.makeConnection(c.makeDBInfo(c.options.SrcDBPort, c.options.SrcDBUser, c.options.SrcDBPassword))
 	if err != nil {
 		return nil, nil, err
 	}
 
+	// making a connection to an instance we write to
 	dstDB, err := c.makeConnection(c.makeDBInfo(c.options.DstDBPort, c.options.DstDBUser, c.options.DstDBPassword))
 	if err != nil {
 		srcDB.Close()
@@ -135,6 +149,7 @@ func (c *Copier) makeConnections() (srcDBConn *dbr.Connection, dstDBConn *dbr.Co
 	return srcDB, dstDB, nil
 }
 
+// makeDBInfo returns a connection string for a chosen instance
 func (c *Copier) makeDBInfo(port int32, user string, password string) string {
 	return fmt.Sprintf(
 		"host=localhost port=%d user=%s password=%s dbname=test sslmode=disable",
@@ -144,17 +159,21 @@ func (c *Copier) makeDBInfo(port int32, user string, password string) string {
 	)
 }
 
+// makeConnection makes a connection using a provided connection string
 func (c *Copier) makeConnection(dbInfo string) (*dbr.Connection, error) {
+	// make a connection, using a specific driver
 	dbConnection, err := sql.Open("instrumented-postgres", dbInfo)
 	if err != nil {
 		return nil, err
 	}
 
+	// check if the connection is really there
 	err = dbConnection.Ping()
 	if err != nil {
 		return nil, err
 	}
 
+	// create a dbr wrapping connection
 	return &dbr.Connection{
 		DB:            dbConnection,
 		Dialect:       dialect.PostgreSQL,
