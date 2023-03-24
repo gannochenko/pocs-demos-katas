@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"sync"
 
 	"levelsgorm/internal/controller/book"
@@ -21,10 +23,12 @@ func main() {
 
 	ctx := context.Background()
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: mux,
 		BaseContext: func(l net.Listener) context.Context {
-			ctx = context.WithValue(ctx, keyServerAddress, l.Addr().String())
+			address := l.Addr().String()
+			fmt.Println("Listening at " + address)
+			ctx = context.WithValue(ctx, keyServerAddress, address)
 			return ctx
 		},
 	}

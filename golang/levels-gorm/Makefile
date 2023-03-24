@@ -3,3 +3,6 @@ run:
 
 run_local_infra:
 	@docker-compose -f ./infra/docker-compose-local.yml up --build
+
+serialize_env_local:
+	@tr '\n' ';' < ./.env.local
