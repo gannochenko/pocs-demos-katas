@@ -2,14 +2,20 @@ package book
 
 import (
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"net/http"
 
+	"levelsgorm/internal/domain/business"
 	"levelsgorm/internal/rest/book"
 )
 
-type Controller struct{}
+type bookService interface {
+	GetBooks(filter string) (result *business.GetBooksResult, err error)
+}
+
+type Controller struct {
+	BookService bookService
+}
 
 func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	body, err := ioutil.ReadAll(request.Body)
@@ -17,14 +23,35 @@ func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.
 		panic(err)
 	}
 
-	jsonBody := book.Request{}
+	jsonBody := book.GetBooksRequest{}
 	err = json.Unmarshal(body, &jsonBody)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	responseWriter.Header().Set("Content-Type", "application/json")
+	result, err := c.BookService.GetBooks(jsonBody.Filter)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	io.WriteString(responseWriter, "This is my website!\n")
+	bookResponse, err := book.GetBooksResponseFromBusiness(result)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	responseBody, err := json.Marshal(bookResponse)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	responseWriter.Header().Set("Content-Type", "application/json")
+	_, err = responseWriter.Write(responseBody)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

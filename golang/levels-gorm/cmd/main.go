@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"levelsgorm/internal/controller/book"
+	bookService "levelsgorm/internal/service/book"
 )
 
 const (
@@ -16,7 +17,11 @@ const (
 )
 
 func main() {
-	bookController := book.Controller{}
+	bookSvc := &bookService.Service{}
+
+	bookController := book.Controller{
+		BookService: bookSvc,
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/books", bookController.GetBooks)
