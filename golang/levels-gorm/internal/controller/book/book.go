@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"levelsgorm/internal/domain/business"
-	"levelsgorm/internal/rest/book"
+	bookBusiness "levelsgorm/internal/domain/business/book"
+	"levelsgorm/internal/domain/rest/book"
 )
 
 type bookService interface {
-	GetBooks(filter string) (result *business.GetBooksResult, err error)
+	GetBooks(filter string) (result *bookBusiness.GetBooksResult, err error)
 }
 
 type Controller struct {

@@ -1,18 +1,18 @@
 package book
 
 import (
-	"levelsgorm/internal/domain/business"
+	"levelsgorm/internal/domain/business/book"
 )
 
 type Service struct{}
 
-func (s *Service) GetBooks(filter string) (result *business.GetBooksResult, err error) {
-	result = &business.GetBooksResult{
-		Books: []*business.Book{
+func (s *Service) GetBooks(filter string) (result *book.GetBooksResult, err error) {
+	result = &book.GetBooksResult{
+		Books: []*book.Book{
 			{
 				ID:        "123",
 				Title:     "1984",
-				Author:    "Oruell",
+				Author:    "Orwell",
 				IssueYear: 1949,
 			},
 		},

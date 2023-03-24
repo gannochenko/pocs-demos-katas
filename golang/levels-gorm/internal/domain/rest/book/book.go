@@ -1,6 +1,8 @@
 package book
 
-import "levelsgorm/internal/domain/business"
+import (
+	"levelsgorm/internal/domain/business/book"
+)
 
 type Book struct {
 	ID     string `json:"id"`
@@ -8,7 +10,7 @@ type Book struct {
 	Author string `json:"author"`
 }
 
-func FromBusiness(book *business.Book) (result *Book, err error) {
+func FromBusiness(book *book.Book) (result *Book, err error) {
 	return &Book{
 		ID:     book.ID,
 		Title:  book.Title,
@@ -26,7 +28,7 @@ type GetBooksResponse struct {
 	PageNumber int32 `json:"page_number"`
 }
 
-func GetBooksResponseFromBusiness(response *business.GetBooksResult) (result *GetBooksResponse, err error) {
+func GetBooksResponseFromBusiness(response *book.GetBooksResult) (result *GetBooksResponse, err error) {
 	var resultBooks []*Book
 	for _, book := range response.Books {
 		requestBook, err := FromBusiness(book)

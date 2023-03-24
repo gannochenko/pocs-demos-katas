@@ -1,4 +1,4 @@
-package business
+package book
 
 type Book struct {
 	ID        string

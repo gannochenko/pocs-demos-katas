@@ -3,8 +3,7 @@ node_modules
 .idea/workspace.xml
 .idea/libraries
 .DS_Store
-.env
-.env.*
+.env.local
 !.env.example
 !.env.local.example
 .localstack

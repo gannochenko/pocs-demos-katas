@@ -6,3 +6,6 @@ run_local_infra:
 
 serialize_env_local:
 	@tr '\n' ';' < ./.env.local
+
+migrate:
+	@godotenv -f ./.env.local go run ./script/migrate/migrate.go
