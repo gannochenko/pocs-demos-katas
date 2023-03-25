@@ -20,18 +20,19 @@ func FromBusiness(book *book.Book) (result *Book, err error) {
 
 type GetBooksRequest struct {
 	Filter string `json:"filter"`
+	Page   int32  `json:"page"`
 }
 
 type GetBooksResponse struct {
-	Books      []*Book
-	Total      int32 `json:"total"`
-	PageNumber int32 `json:"page_number"`
+	Books      []*Book `json:"books"`
+	Total      int64   `json:"total"`
+	PageNumber int32   `json:"page_number"`
 }
 
-func GetBooksResponseFromBusiness(response *book.GetBooksResult) (result *GetBooksResponse, err error) {
-	var resultBooks []*Book
-	for _, book := range response.Books {
-		requestBook, err := FromBusiness(book)
+func FromBusinessGetBooksResponse(response *book.GetBooksResult) (result *GetBooksResponse, err error) {
+	resultBooks := []*Book{}
+	for _, businessBook := range response.Books {
+		requestBook, err := FromBusiness(businessBook)
 		if err != nil {
 			return nil, err
 		}

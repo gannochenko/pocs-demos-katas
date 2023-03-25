@@ -10,7 +10,7 @@ import (
 )
 
 type bookService interface {
-	GetBooks(filter string) (result *bookBusiness.GetBooksResult, err error)
+	GetBooks(filter string, page int32) (result *bookBusiness.GetBooksResult, err error)
 }
 
 type Controller struct {
@@ -30,13 +30,13 @@ func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	result, err := c.BookService.GetBooks(jsonBody.Filter)
+	result, err := c.BookService.GetBooks(jsonBody.Filter, jsonBody.Page)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bookResponse, err := book.GetBooksResponseFromBusiness(result)
+	bookResponse, err := book.FromBusinessGetBooksResponse(result)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return

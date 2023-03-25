@@ -9,6 +9,6 @@ type Book struct {
 
 type GetBooksResult struct {
 	Books      []*Book
-	Total      int32
+	Total      int64
 	PageNumber int32
 }

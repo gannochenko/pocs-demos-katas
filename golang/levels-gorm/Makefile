@@ -12,3 +12,5 @@ migrate:
 
 seed:
 	@godotenv -f ./.env.local go run ./script/seed/seed.go
+
+# CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

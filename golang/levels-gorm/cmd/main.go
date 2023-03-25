@@ -9,7 +9,9 @@ import (
 	"sync"
 
 	"levelsgorm/internal/controller/book"
+	bookRepository "levelsgorm/internal/repository/book"
 	bookService "levelsgorm/internal/service/book"
+	"levelsgorm/internal/util/db"
 )
 
 const (
@@ -17,8 +19,17 @@ const (
 )
 
 func main() {
-	bookSvc := &bookService.Service{}
+	session, err := db.Connect()
+	if err != nil {
+		panic(err)
+	}
 
+	booksRepo := &bookRepository.Repository{
+		Session: session,
+	}
+	bookSvc := &bookService.Service{
+		BookRepository: booksRepo,
+	}
 	bookController := book.Controller{
 		BookService: bookSvc,
 	}
@@ -38,7 +49,7 @@ func main() {
 		},
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}
