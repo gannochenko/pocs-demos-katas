@@ -9,3 +9,6 @@ serialize_env_local:
 
 migrate:
 	@godotenv -f ./.env.local go run ./script/migrate/migrate.go
+
+seed:
+	@godotenv -f ./.env.local go run ./script/seed/seed.go

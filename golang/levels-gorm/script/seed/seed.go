@@ -11,6 +11,9 @@ func main() {
 		panic(err)
 	}
 
-	// Migrate the schema
-	connection.AutoMigrate(&book.Book{})
+	connection.Create(&book.Book{
+		Title:     "1984",
+		Author:    "Orwell",
+		IssueYear: 1949,
+	})
 }
