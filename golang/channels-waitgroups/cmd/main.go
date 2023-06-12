@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+type CounterValue struct {
+	ChuckID string
+	Value   int32
+}
+
 func main() {
 	numCPUs := runtime.NumCPU()
 
@@ -18,7 +23,7 @@ func main() {
 	defer cancelCtx()
 
 	// need to explicitly call make(), as "var outputChannel chan int32" will not work
-	outputChannel := make(chan int32)
+	outputChannel := make(chan *CounterValue)
 
 	signalChannel := GetSignalChan()
 	go func() {
@@ -43,14 +48,14 @@ func main() {
 		if !open {
 			break
 		}
-		fmt.Println("Received:", msg)
+		fmt.Printf("%s counts %d\n", msg.ChuckID, msg.Value)
 	}
 
 	// wait until all Chucks gracefully shut down
 	wg.Wait()
 }
 
-func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan int32, id string, increment int32) {
+func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan *CounterValue, id string, increment int32) {
 	counter := int32(0)
 	sent := true
 	for {
@@ -67,11 +72,14 @@ func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan int
 
 		if sent {
 			counter += increment
-			fmt.Printf("%s counts: %d\n", id, counter)
+			//fmt.Printf("%s counts: %d\n", id, counter)
 		}
 
 		select {
-		case outputChannel <- counter:
+		case outputChannel <- &CounterValue{
+			ChuckID: id,
+			Value:   counter,
+		}:
 			sent = true
 		default:
 			sent = false
