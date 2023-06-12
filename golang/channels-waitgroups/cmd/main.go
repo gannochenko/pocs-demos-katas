@@ -17,6 +17,9 @@ func main() {
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	defer cancelCtx()
 
+	// need to explicitly call make(), as "var outputChannel chan int32" will not work
+	outputChannel := make(chan int32)
+
 	signalChannel := GetSignalChan()
 	go func() {
 		// reading from the channel. this is a blocking operation
@@ -24,6 +27,7 @@ func main() {
 
 		fmt.Println("Terminating...")
 		cancelCtx()
+		close(signalChannel)
 	}()
 
 	wg := sync.WaitGroup{}
@@ -31,21 +35,24 @@ func main() {
 
 	for i := 0; i < numCPUs; i++ {
 		// fly, my friend
-		go ChuckNorris(ctx, &wg, fmt.Sprintf("Chuck #%d", i), int32(i*10))
+		go ChuckNorris(ctx, &wg, outputChannel, fmt.Sprintf("Chuck #%d", i), int32(i*10))
 	}
 
-	go func() {
-		// after 5 seconds the program decides to exit
-		time.Sleep(5 * time.Second)
-		cancelCtx()
-	}()
+	for {
+		msg, open := <-outputChannel
+		if !open {
+			break
+		}
+		fmt.Println("Received:", msg)
+	}
 
 	// wait until all Chucks gracefully shut down
 	wg.Wait()
 }
 
-func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, id string, increment int32) {
+func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan int32, id string, increment int32) {
 	counter := int32(0)
+	sent := true
 	for {
 		select {
 		case <-ctx.Done():
@@ -58,8 +65,17 @@ func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, id string, increment i
 		// Sleep for 2 seconds
 		time.Sleep(2 * time.Second)
 
-		counter += increment
-		fmt.Printf("%s counts: %d\n", id, counter)
+		if sent {
+			counter += increment
+			fmt.Printf("%s counts: %d\n", id, counter)
+		}
+
+		select {
+		case outputChannel <- counter:
+			sent = true
+		default:
+			sent = false
+		}
 	}
 }
 
