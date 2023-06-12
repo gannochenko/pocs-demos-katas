@@ -22,8 +22,8 @@ func main() {
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	defer cancelCtx()
 
-	// need to explicitly call make(), as "var outputChannel chan int32" will not work
-	outputChannel := make(chan *CounterValue)
+	// the data channel is used to retrieve the results produced by the other threads
+	dataChannel := make(chan *CounterValue)
 
 	signalChannel := GetSignalChan()
 	go func() {
@@ -31,6 +31,8 @@ func main() {
 		<-signalChannel
 
 		fmt.Println("Terminating...")
+
+		// on terminate we cancel the context and close the data channel, so the main thread could move on
 		cancelCtx()
 		close(signalChannel)
 	}()
@@ -40,25 +42,28 @@ func main() {
 
 	for i := 0; i < numCPUs; i++ {
 		// fly, my friend
-		go ChuckNorris(ctx, &wg, outputChannel, fmt.Sprintf("Chuck #%d", i), int32(i*10))
+		go ChuckNorris(ctx, &wg, dataChannel, fmt.Sprintf("Chuck #%d", i), int32(i*10))
 	}
 
+	// try reading from the channel in an endless cycle. This is a blocking operation,
+	// but the main thread doesn't do anything useful anyway
 	for {
-		msg, open := <-outputChannel
+		msg, open := <-dataChannel
 		if !open {
 			break
 		}
 		fmt.Printf("%s counts %d\n", msg.ChuckID, msg.Value)
 	}
 
-	// wait until all Chucks gracefully shut down
+	// wait until all threads gracefully shut down
 	wg.Wait()
 }
 
-func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan *CounterValue, id string, increment int32) {
+func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, dataChannel chan *CounterValue, id string, increment int32) {
 	counter := int32(0)
 	sent := true
 	for {
+		// check if the context wasn't cancelled
 		select {
 		case <-ctx.Done():
 			fmt.Printf("%s has left the building\n", id)
@@ -67,16 +72,17 @@ func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan *Co
 		default:
 		}
 
-		// Sleep for 2 seconds
+		// imitate some heavy duty
 		time.Sleep(2 * time.Second)
 
+		// do actual work only if the previous one was sent
 		if sent {
 			counter += increment
-			//fmt.Printf("%s counts: %d\n", id, counter)
 		}
 
+		// try sending to the channel
 		select {
-		case outputChannel <- &CounterValue{
+		case dataChannel <- &CounterValue{
 			ChuckID: id,
 			Value:   counter,
 		}:
@@ -87,6 +93,7 @@ func ChuckNorris(ctx context.Context, wg *sync.WaitGroup, outputChannel chan *Co
 	}
 }
 
+// GetSignalChan returns a channel that informs about pressing Ctrl+C
 func GetSignalChan() chan os.Signal {
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel,
