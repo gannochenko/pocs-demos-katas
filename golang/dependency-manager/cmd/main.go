@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"dependencymanager/internal/controller/book"
-	bookRepository "dependencymanager/internal/repository/book"
-	bookService "dependencymanager/internal/service/book"
+	"dependencymanager/internal/manager/repository"
+	"dependencymanager/internal/manager/service"
 	"dependencymanager/internal/util/db"
 )
 
@@ -24,14 +24,10 @@ func main() {
 		panic(err)
 	}
 
-	booksRepo := &bookRepository.Repository{
-		Session: session,
-	}
-	bookSvc := &bookService.Service{
-		BookRepository: booksRepo,
-	}
+	svcManager := service.New(session, repository.New(session))
+
 	bookController := book.Controller{
-		BookService: bookSvc,
+		BookService: svcManager.GetBookService(),
 	}
 
 	mux := http.NewServeMux()
