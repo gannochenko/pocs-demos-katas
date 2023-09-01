@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:12.4-alpine
+    restart: always
+    env_file: ../.env.local
+    ports:
+      - '54321:5432'
+    command: "-c log_statement=all"
+    volumes:
+      - levels-gorm-net-pgdata:/var/lib/postgresql/data
+    networks:
+      - levels-gorm-net
+
+volumes:
+  levels-gorm-net-pgdata:
+networks:
+  levels-gorm-net:
