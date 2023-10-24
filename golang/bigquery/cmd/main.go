@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
+	"cloud.google.com/go/bigquery"
 	"github.com/gocraft/dbr/v2"
 	"github.com/gocraft/dbr/v2/dialect"
 	"github.com/lib/pq"
@@ -17,15 +19,8 @@ type DB struct {
 }
 
 func main() {
-	//projectID := os.Getenv("PROJECT_ID")
-	//
-	//ctx := context.Background()
-	//
-	//client, err := bigquery.NewClient(ctx, projectID)
-	//if err != nil {
-	//	log.Fatalf("bigquery.NewClient: %v", err)
-	//}
-	//defer client.Close()
+	projectID := os.Getenv("PROJECT_ID")
+	ctx := context.Background()
 
 	sess, closeConn, err := makeFakeSession()
 	if err != nil {
@@ -39,24 +34,22 @@ func main() {
 			Where("bar = ?", true),
 		10,
 	)
-
 	if err != nil {
 		log.Fatalf("interpolation failure: %v", err)
 	}
 
-	fmt.Printf("%v\n", query)
+	client, err := bigquery.NewClient(ctx, projectID)
+	if err != nil {
+		log.Fatalf("new bigquery client: %v", err)
+	}
+	defer client.Close()
 
-	//query := client.Query(
-	//	`SELECT
-	//		CONCAT(
-	//			'https://stackoverflow.com/questions/',
-	//			CAST(id as STRING)) as url,
-	//		view_count
-	//	FROM ` + "`bigquery-public-data.stackoverflow.posts_questions`" + `
-	//	WHERE tags like '%google-bigquery%'
-	//	ORDER BY view_count DESC
-	//	LIMIT 10;`)
-	//return query.Read(ctx)
+	iterator, err := client.Query(query).Read(ctx)
+	if err != nil {
+		log.Fatalf("bigquery read: %v", err)
+	}
+
+	fmt.Printf("%v\n", iterator)
 }
 
 func prefTable(sql string) string {
