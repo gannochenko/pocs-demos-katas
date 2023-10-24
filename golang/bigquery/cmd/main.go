@@ -20,7 +20,7 @@ const (
 	QueryLimit = 10
 )
 
-type Product struct {
+type Record struct {
 	SKU   string `bigquery:"sku"`
 	Title string `bigquery:"title"`
 }
@@ -64,7 +64,7 @@ func main() {
 	}
 
 	for {
-		var row Product
+		var row Record
 		err := result.Next(&row)
 		if err == iterator.Done {
 			break
@@ -74,6 +74,7 @@ func main() {
 		}
 
 		fmt.Printf("%v\n", row)
+		fmt.Println("--------==============================--------")
 	}
 }
 
