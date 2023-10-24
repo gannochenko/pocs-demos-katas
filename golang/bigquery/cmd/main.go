@@ -56,13 +56,13 @@ func main() {
 
 	client, err := bigquery.NewClient(ctx, projectName, option.WithCredentialsJSON(credentials))
 	if err != nil {
-		log.Fatalf("new bigquery client: %v", err)
+		log.Fatalf("new bigquery client creation error: %v", err)
 	}
 	defer client.Close()
 
 	result, err := client.Query(query).Read(ctx)
 	if err != nil {
-		log.Fatalf("bigquery read: %v", err)
+		log.Fatalf("bigquery read error: %v", err)
 	}
 
 	for {
@@ -86,11 +86,8 @@ func prefTable(sql string) string {
 }
 
 func makeFakeSession() (*dbr.Session, func() error, error) {
-	masterDBInfo := "host= port= user= password= dbname= sslmode=disable"
 	sql.Register("instrumented-postgres", instrumentedsql.WrapDriver(&pq.Driver{}))
-
-	// establishing master connection
-	masterDB, err := sql.Open("instrumented-postgres", masterDBInfo)
+	masterDB, err := sql.Open("instrumented-postgres", "host= port= user= password= dbname= sslmode=disable")
 	if err != nil {
 		return nil, nil, err
 	}
