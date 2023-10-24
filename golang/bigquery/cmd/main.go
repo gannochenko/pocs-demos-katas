@@ -13,6 +13,11 @@ import (
 	"github.com/lib/pq"
 	"github.com/luna-duclos/instrumentedsql"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
+)
+
+const (
+	QueryLimit = 10
 )
 
 type Product struct {
@@ -26,6 +31,10 @@ type DB struct {
 
 func main() {
 	projectName := os.Getenv("PROJECT_NAME")
+	credentialsFile := os.Getenv("CREDENTIALS_FILE")
+
+	credentials, err := os.ReadFile(credentialsFile)
+
 	ctx := context.Background()
 
 	sess, closeConn, err := makeFakeSession()
@@ -37,13 +46,15 @@ func main() {
 	query, err := interpolateBQQuery(
 		sess.Select("sku, title").
 			From(prefTable("products")),
-		10,
+		QueryLimit,
 	)
 	if err != nil {
 		log.Fatalf("interpolation failure: %v", err)
 	}
 
-	client, err := bigquery.NewClient(ctx, projectName)
+	fmt.Printf("EXECUTING: %s\n", query)
+
+	client, err := bigquery.NewClient(ctx, projectName, option.WithCredentialsJSON(credentials))
 	if err != nil {
 		log.Fatalf("new bigquery client: %v", err)
 	}
@@ -61,7 +72,7 @@ func main() {
 			break
 		}
 		if err != nil {
-			log.Fatalf("error iterating through results: %w", err)
+			log.Fatalf("error iterating through results: %v", err)
 		}
 
 		fmt.Printf("%v\n", row)
