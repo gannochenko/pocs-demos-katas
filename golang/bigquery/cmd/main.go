@@ -33,8 +33,6 @@ func main() {
 	projectName := os.Getenv("PROJECT_NAME")
 	credentialsFile := os.Getenv("CREDENTIALS_FILE")
 
-	credentials, err := os.ReadFile(credentialsFile)
-
 	ctx := context.Background()
 
 	sess, closeConn, err := makeFakeSession()
@@ -54,7 +52,7 @@ func main() {
 
 	fmt.Printf("EXECUTING: %s\n", query)
 
-	client, err := bigquery.NewClient(ctx, projectName, option.WithCredentialsJSON(credentials))
+	client, err := bigquery.NewClient(ctx, projectName, option.WithCredentialsFile(credentialsFile))
 	if err != nil {
 		log.Fatalf("new bigquery client creation error: %v", err)
 	}
