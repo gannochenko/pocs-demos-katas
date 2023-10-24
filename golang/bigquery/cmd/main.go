@@ -12,14 +12,20 @@ import (
 	"github.com/gocraft/dbr/v2/dialect"
 	"github.com/lib/pq"
 	"github.com/luna-duclos/instrumentedsql"
+	"google.golang.org/api/iterator"
 )
+
+type Product struct {
+	SKU   string `bigquery:"sku"`
+	Title string `bigquery:"title"`
+}
 
 type DB struct {
 	*dbr.Connection
 }
 
 func main() {
-	projectID := os.Getenv("PROJECT_ID")
+	projectName := os.Getenv("PROJECT_NAME")
 	ctx := context.Background()
 
 	sess, closeConn, err := makeFakeSession()
@@ -29,27 +35,37 @@ func main() {
 	defer closeConn()
 
 	query, err := interpolateBQQuery(
-		sess.Select("foo").
-			From(prefTable("table")).
-			Where("bar = ?", true),
+		sess.Select("sku, title").
+			From(prefTable("products")),
 		10,
 	)
 	if err != nil {
 		log.Fatalf("interpolation failure: %v", err)
 	}
 
-	client, err := bigquery.NewClient(ctx, projectID)
+	client, err := bigquery.NewClient(ctx, projectName)
 	if err != nil {
 		log.Fatalf("new bigquery client: %v", err)
 	}
 	defer client.Close()
 
-	iterator, err := client.Query(query).Read(ctx)
+	result, err := client.Query(query).Read(ctx)
 	if err != nil {
 		log.Fatalf("bigquery read: %v", err)
 	}
 
-	fmt.Printf("%v\n", iterator)
+	for {
+		var row Product
+		err := result.Next(&row)
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("error iterating through results: %w", err)
+		}
+
+		fmt.Printf("%v\n", row)
+	}
 }
 
 func prefTable(sql string) string {
