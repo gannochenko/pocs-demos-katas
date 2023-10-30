@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	"goapp/internal/monitoring"
 )
@@ -16,8 +18,26 @@ const (
 	keyServerAddress   = "serverAddress"
 )
 
+func QueryBooks(ctx context.Context) {
+	defer monitoring.RecordSpan(ctx, metricLabelHandler, "QueryBooks")()
+
+	randomDelay()
+}
+
+func LoadBooks(ctx context.Context) {
+	defer monitoring.RecordSpan(ctx, metricLabelHandler, "LoadBooks")()
+
+	randomDelay()
+	QueryBooks(ctx)
+	randomDelay()
+}
+
 func GetBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	defer monitoring.RecordSpan(request.Context(), metricLabelHandler, "GetBooks")()
+
+	randomDelay()
+	LoadBooks(request.Context())
+	randomDelay()
 
 	responseWriter.WriteHeader(200)
 	_, _ = responseWriter.Write([]byte("returning books - ok"))
@@ -26,6 +46,8 @@ func GetBooks(responseWriter http.ResponseWriter, request *http.Request) {
 func GetAuthors(responseWriter http.ResponseWriter, request *http.Request) {
 	defer monitoring.RecordSpan(request.Context(), metricLabelHandler, "GetAuthors")()
 
+	randomDelay()
+
 	responseWriter.WriteHeader(200)
 	_, _ = responseWriter.Write([]byte("returning authors - ok"))
 }
@@ -33,8 +55,19 @@ func GetAuthors(responseWriter http.ResponseWriter, request *http.Request) {
 func GetChapters(responseWriter http.ResponseWriter, request *http.Request) {
 	defer monitoring.RecordSpan(request.Context(), metricLabelHandler, "GetChapters")()
 
+	randomDelay()
+
 	responseWriter.WriteHeader(200)
 	_, _ = responseWriter.Write([]byte("returning chapters - ok"))
+}
+
+func randomDelay() {
+	min := 1
+	max := 2
+
+	rand.Seed(time.Now().UnixNano())
+	delay := rand.Intn(max-min+1) + min
+	time.Sleep(time.Duration(delay) * time.Second)
 }
 
 func main() {
@@ -44,6 +77,16 @@ func main() {
 	mux.HandleFunc("/chapters", GetChapters)
 
 	ctx := context.Background()
+
+	shutdownMonitoring, prometheusRegistry, err := monitoring.Setup(ctx, "Open Telemetry Demo", "1.0.0")
+	if err != nil {
+		os.Exit(1)
+	}
+
+	defer shutdownMonitoring(ctx)
+
+	monitoring.SetupHTTP(mux, prometheusRegistry)
+
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
 		Handler: mux,
@@ -55,9 +98,9 @@ func main() {
 		},
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
-		panic(err)
+		os.Exit(1)
 	}
 
 	var wg sync.WaitGroup
