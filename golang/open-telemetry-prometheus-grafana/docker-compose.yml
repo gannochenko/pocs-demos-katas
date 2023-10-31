@@ -1,0 +1,62 @@
+version: "3.8"
+
+# https://github.com/vegasbrianc/prometheus/blob/master/docker-compose.yml
+
+volumes:
+  prometheus_data: {}
+  alertmanager_data: {}
+  grafana_data: {}
+#  grafana_data: {}
+
+networks:
+#  front-tier:
+  back-tier:
+
+services:
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+#    links:
+#      - alertmanager:alertmanager
+    #      - pushgateway:pushgateway
+#    depends_on:
+    #      - pushgateway
+    networks:
+      - back-tier
+    restart: always
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - back-tier
+
+  go-app:
+    build:
+      context: .
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    ports:
+      - "9090:9090"
+    restart: always
+#    volumes:
+#      - "./:/build/infra/"
+    networks:
+      - back-tier
