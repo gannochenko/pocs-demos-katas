@@ -1,8 +1,8 @@
 package main
 
 import (
-	"hookspattern/internal/domain/database/author"
-	"hookspattern/internal/domain/database/book"
+	"hookspattern/internal/database/author"
+	"hookspattern/internal/database/book"
 	"hookspattern/internal/util/db"
 )
 

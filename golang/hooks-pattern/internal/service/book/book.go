@@ -1,17 +1,12 @@
 package book
 
 import (
-	"hookspattern/internal/domain/business/book"
-	databaseBook "hookspattern/internal/domain/database/book"
+	"hookspattern/internal/domain/book"
+	"hookspattern/internal/interfaces"
 )
 
-type bookRepository interface {
-	GetBooks(filter string, page int32) (books []*databaseBook.Book, err error)
-	GetBookCount(filter string) (count int64, err error)
-}
-
 type Service struct {
-	BookRepository bookRepository
+	BookRepository interfaces.BookRepository
 }
 
 func (s *Service) GetBooks(filter string, page int32) (result *book.GetBooksResult, err error) {
@@ -38,9 +33,13 @@ func (s *Service) GetBooks(filter string, page int32) (result *book.GetBooksResu
 
 	if len(books) > 0 {
 		for _, dbBook := range books {
-			result.Books = append(result.Books, dbBook.ToBusiness())
+			result.Books = append(result.Books, dbBook.ToDomain())
 		}
 	}
 
 	return result, nil
+}
+
+func (s *Service) DeleteBook(bookID string) error {
+	return s.BookRepository.DeleteBook(bookID)
 }

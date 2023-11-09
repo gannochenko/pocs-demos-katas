@@ -12,3 +12,6 @@ type GetBooksResult struct {
 	Total      int64
 	PageNumber int32
 }
+
+type DeleteBookResult struct {
+}

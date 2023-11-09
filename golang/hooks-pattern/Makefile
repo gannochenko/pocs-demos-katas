@@ -15,5 +15,3 @@ seed:
 
 cleanup:
 	@godotenv -f ./.env.local go run ./script/cleanup/cleanup.go
-
-# CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

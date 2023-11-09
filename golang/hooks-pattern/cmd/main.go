@@ -36,6 +36,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/books", bookController.GetBooks)
+	mux.HandleFunc("/books/delete", bookController.DeleteBook)
 
 	ctx := context.Background()
 	server := &http.Server{

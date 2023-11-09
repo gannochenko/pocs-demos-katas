@@ -1,8 +1,9 @@
 package book
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"hookspattern/internal/domain/database/book"
+	"hookspattern/internal/database/book"
 )
 
 const (
@@ -30,4 +31,17 @@ func (r *Repository) GetBookCount(filter string) (count int64, err error) {
 	}
 	runner.Select("id").Count(&count)
 	return count, nil
+}
+
+func (r *Repository) DeleteBook(bookID string) (err error) {
+	id, err := uuid.Parse(bookID)
+	if err != nil {
+		return err
+	}
+
+	r.Session.Delete(&book.Book{
+		ID: id,
+	})
+
+	return nil
 }

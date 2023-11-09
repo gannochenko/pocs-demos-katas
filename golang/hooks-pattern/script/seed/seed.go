@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/google/uuid"
-	"hookspattern/internal/domain/database/author"
-	"hookspattern/internal/domain/database/book"
+	"hookspattern/internal/database/author"
+	"hookspattern/internal/database/book"
 	"hookspattern/internal/util/db"
 )
 

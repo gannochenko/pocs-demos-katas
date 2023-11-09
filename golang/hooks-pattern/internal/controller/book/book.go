@@ -5,16 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	bookBusiness "hookspattern/internal/domain/business/book"
-	"hookspattern/internal/domain/rest/book"
+	"hookspattern/internal/interfaces"
+	"hookspattern/internal/rest/book"
 )
 
-type bookService interface {
-	GetBooks(filter string, page int32) (result *bookBusiness.GetBooksResult, err error)
-}
-
 type Controller struct {
-	BookService bookService
+	BookService interfaces.BookService
 }
 
 func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.Request) {
@@ -36,13 +32,46 @@ func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	bookResponse, err := book.FromBusinessGetBooksResponse(result)
+	bookResponse, err := book.FromDomainGetBooksResponse(result)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	responseBody, err := json.Marshal(bookResponse)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	responseWriter.Header().Set("Content-Type", "application/json")
+	_, err = responseWriter.Write(responseBody)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *Controller) DeleteBook(responseWriter http.ResponseWriter, request *http.Request) {
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	requestBody := book.DeleteBookRequest{}
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = c.BookService.DeleteBook(requestBody.BookID)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	responseBody, err := json.Marshal(&book.DeleteBookResponse{})
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
