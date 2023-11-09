@@ -14,6 +14,8 @@ type Controller struct {
 }
 
 func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.Request) {
+	ctx := request.Context()
+
 	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		panic(err)
@@ -26,7 +28,7 @@ func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	result, err := c.BookService.GetBooks(jsonBody.Filter, jsonBody.Page)
+	result, err := c.BookService.GetBooks(ctx, jsonBody.Filter, jsonBody.Page)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
@@ -53,6 +55,8 @@ func (c *Controller) GetBooks(responseWriter http.ResponseWriter, request *http.
 }
 
 func (c *Controller) DeleteBook(responseWriter http.ResponseWriter, request *http.Request) {
+	ctx := request.Context()
+
 	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		panic(err)
@@ -65,7 +69,7 @@ func (c *Controller) DeleteBook(responseWriter http.ResponseWriter, request *htt
 		return
 	}
 
-	err = c.BookService.DeleteBook(requestBody.BookID)
+	err = c.BookService.DeleteBook(ctx, requestBody.BookID)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return

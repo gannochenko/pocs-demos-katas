@@ -11,6 +11,8 @@ import (
 	"hookspattern/internal/controller/book"
 	bookRepository "hookspattern/internal/repository/book"
 	bookService "hookspattern/internal/service/book"
+	"hookspattern/internal/service/hooks"
+	"hookspattern/internal/service/updater"
 	"hookspattern/internal/util/db"
 )
 
@@ -24,15 +26,20 @@ func main() {
 		panic(err)
 	}
 
+	hooksSvc := &hooks.Service{}
 	booksRepo := &bookRepository.Repository{
 		Session: session,
 	}
 	bookSvc := &bookService.Service{
 		BookRepository: booksRepo,
+		HooksService:   hooksSvc,
 	}
 	bookController := book.Controller{
 		BookService: bookSvc,
 	}
+	updaterSvc := updater.New(hooksSvc)
+
+	updaterSvc.Init()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/books", bookController.GetBooks)

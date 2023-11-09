@@ -1,15 +1,19 @@
 package book
 
 import (
+	"context"
+
+	"hookspattern/internal/constants"
 	"hookspattern/internal/domain/book"
 	"hookspattern/internal/interfaces"
 )
 
 type Service struct {
 	BookRepository interfaces.BookRepository
+	HooksService   interfaces.HooksService
 }
 
-func (s *Service) GetBooks(filter string, page int32) (result *book.GetBooksResult, err error) {
+func (s *Service) GetBooks(ctx context.Context, filter string, page int32) (result *book.GetBooksResult, err error) {
 	result = &book.GetBooksResult{
 		PageNumber: page,
 		Books:      []*book.Book{},
@@ -40,6 +44,13 @@ func (s *Service) GetBooks(filter string, page int32) (result *book.GetBooksResu
 	return result, nil
 }
 
-func (s *Service) DeleteBook(bookID string) error {
-	return s.BookRepository.DeleteBook(bookID)
+func (s *Service) DeleteBook(ctx context.Context, bookID string) error {
+	err := s.BookRepository.DeleteBook(bookID)
+	if err != nil {
+		return err
+	}
+
+	s.HooksService.Trigger(ctx, constants.EventOnAfterBookDelete, bookID)
+
+	return nil
 }
