@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  hooks-pattern-database:
+    image: postgres:12.4-alpine
+    restart: always
+    env_file: ../.env.local
+    ports:
+      - '5432:5432'
+    command: "-c log_statement=all"
+    volumes:
+      - hooks-pattern-net-pgdata:/var/lib/postgresql/data
+    networks:
+      - hooks-pattern-net
+
+volumes:
+  hooks-pattern-net-pgdata:
+networks:
+  hooks-pattern-net:
