@@ -1,6 +1,10 @@
 package interfaces
 
-import databaseBook "hookspattern/internal/database/book"
+import (
+	"context"
+
+	databaseBook "hookspattern/internal/database/book"
+)
 
 type BookRepository interface {
 	GetBooks(filter string, page int32) (books []*databaseBook.Book, err error)
@@ -9,4 +13,5 @@ type BookRepository interface {
 }
 
 type AuthorRepository interface {
+	RefreshHasBooksFlag(ctx context.Context, condition interface{}) (err error)
 }

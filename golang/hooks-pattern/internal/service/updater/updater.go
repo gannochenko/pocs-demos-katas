@@ -82,6 +82,11 @@ func (s *Service) Process(ctx context.Context) {
 	}()
 
 	fmt.Printf("%v", values)
+
+	err = s.authorRepository.RefreshHasBooksFlag(ctx, nil)
+	if err != nil {
+		fmt.Printf("error: %s", err.Error())
+	}
 }
 
 func (s *Service) GetHTTPMiddleware() func(next http.Handler) http.Handler {
