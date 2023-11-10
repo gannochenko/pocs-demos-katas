@@ -50,7 +50,7 @@ func (s *Service) DeleteBook(ctx context.Context, bookID string) error {
 		return err
 	}
 
-	s.HooksService.Trigger(ctx, constants.EventOnAfterBookDelete, bookID)
+	s.HooksService.Trigger(ctx, constants.EventOnAfterBookDelete, []string{bookID})
 
 	return nil
 }

@@ -47,9 +47,11 @@ func main() {
 
 	updaterSvc.Init()
 
+	updaterMiddleware := updaterSvc.GetHTTPMiddleware()
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("/books", bookController.GetBooks)
-	mux.HandleFunc("/books/delete", bookController.DeleteBook)
+	mux.Handle("/books", updaterMiddleware(http.HandlerFunc(bookController.GetBooks)))
+	mux.Handle("/books/delete", updaterMiddleware(http.HandlerFunc(bookController.DeleteBook)))
 
 	ctx := context.Background()
 	server := &http.Server{

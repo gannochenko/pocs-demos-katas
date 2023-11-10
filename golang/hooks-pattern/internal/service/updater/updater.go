@@ -3,6 +3,7 @@ package updater
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"hookspattern/internal/constants"
 	"hookspattern/internal/interfaces"
@@ -57,13 +58,41 @@ func (s *Service) Init() {
 			fmt.Println("the argument is not of correct type, this is a noop")
 			return
 		}
+
+		fmt.Println("Deletion event processed!")
 	})
 }
 
-func (s *Service) Process() {
+func (s *Service) Process(ctx context.Context) {
+	select {
+	case <-ctx.Done():
+		fmt.Println("Context is done, this is a noop")
+		return
+	default:
+	}
 
+	fmt.Println("Processing!")
+	values, err := s.GetValues(ctx)
+	if err != nil {
+		fmt.Printf("error: %s", err.Error())
+	}
+
+	defer func() {
+		values.affectedBooks = []string{}
+	}()
+
+	fmt.Printf("%v", values)
 }
 
-func (s *Service) GetHTTPMiddleware() {
+func (s *Service) GetHTTPMiddleware() func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := s.WithValue(r.Context())
+			// fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 
+			next.ServeHTTP(w, r.WithContext(ctx))
+
+			s.Process(ctx)
+		})
+	}
 }
