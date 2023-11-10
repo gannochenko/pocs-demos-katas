@@ -7,3 +7,6 @@ type BookRepository interface {
 	GetBookCount(filter string) (count int64, err error)
 	DeleteBook(bookID string) (err error)
 }
+
+type AuthorRepository interface {
+}

@@ -6,24 +6,64 @@ import (
 
 	"hookspattern/internal/constants"
 	"hookspattern/internal/interfaces"
+	"hookspattern/pkg/slice"
 )
 
-type Service struct {
-	hooksService interfaces.HooksService
-	// todo: +authors repository here
+type CtxKeyType string
+
+const (
+	CtxKey CtxKeyType = "updater-values"
+)
+
+type Values struct {
+	affectedBooks []string
 }
 
-func New(hooksService interfaces.HooksService) *Service {
+type Service struct {
+	hooksService     interfaces.HooksService
+	authorRepository interfaces.AuthorRepository
+}
+
+func New(hooksService interfaces.HooksService, authorRepository interfaces.AuthorRepository) *Service {
 	return &Service{
-		hooksService: hooksService,
+		hooksService:     hooksService,
+		authorRepository: authorRepository,
 	}
+}
+
+func (s *Service) WithValue(ctx context.Context) context.Context {
+	return context.WithValue(ctx, CtxKey, &Values{})
+}
+
+func (s *Service) GetValues(ctx context.Context) (*Values, error) {
+	if value, ok := ctx.Value(CtxKey).(*Values); ok {
+		return value, nil
+	}
+
+	return nil, fmt.Errorf("values missing from the context")
 }
 
 func (s *Service) Init() {
 	s.hooksService.On(constants.EventOnAfterBookDelete, func(ctx context.Context, args interface{}) {
-		fmt.Println("Called:")
-		fmt.Printf("%v\n", args)
+		values, err := s.GetValues(ctx)
+		if err != nil {
+			fmt.Printf("error: %s", err.Error())
+			return
+		}
+
+		if ids, ok := args.([]string); ok {
+			values.affectedBooks = slice.Merge(values.affectedBooks, ids)
+		} else {
+			fmt.Println("the argument is not of correct type, this is a noop")
+			return
+		}
 	})
 }
 
-// todo: + middleware maker
+func (s *Service) Process() {
+
+}
+
+func (s *Service) GetHTTPMiddleware() {
+
+}

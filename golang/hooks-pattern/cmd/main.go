@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"hookspattern/internal/controller/book"
+	authorRepository "hookspattern/internal/repository/author"
 	bookRepository "hookspattern/internal/repository/book"
 	bookService "hookspattern/internal/service/book"
 	"hookspattern/internal/service/hooks"
@@ -26,18 +27,23 @@ func main() {
 		panic(err)
 	}
 
-	hooksSvc := &hooks.Service{}
 	booksRepo := &bookRepository.Repository{
 		Session: session,
 	}
+	authorRepo := &authorRepository.Repository{
+		Session: session,
+	}
+
+	hooksSvc := &hooks.Service{}
 	bookSvc := &bookService.Service{
 		BookRepository: booksRepo,
 		HooksService:   hooksSvc,
 	}
+	updaterSvc := updater.New(hooksSvc, authorRepo)
+
 	bookController := book.Controller{
 		BookService: bookSvc,
 	}
-	updaterSvc := updater.New(hooksSvc)
 
 	updaterSvc.Init()
 
