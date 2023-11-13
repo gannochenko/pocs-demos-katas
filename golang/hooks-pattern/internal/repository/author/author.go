@@ -15,7 +15,7 @@ type Repository struct {
 }
 
 func (r *Repository) RefreshHasBooksFlag(ctx context.Context, condition interface{}) (err error) {
-	r.Session.Exec(`
+	_, err = r.Session.Exec(`
 		UPDATE
 			authors
 		SET has_books = bookinfo.book_count > 0
@@ -39,5 +39,5 @@ func (r *Repository) RefreshHasBooksFlag(ctx context.Context, condition interfac
 			authors.id = bookinfo.author_id
 	`, condition).Rows()
 
-	return nil
+	return err
 }
