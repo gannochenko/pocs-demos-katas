@@ -95,6 +95,8 @@ func main() {
 					authors
 						LEFT JOIN books
 								  ON books.author_id = authors.id
+				WHERE
+				    books.deleted_at is null
 				GROUP BY
 					authors.id
 			) AS bookinfo

@@ -45,3 +45,7 @@ func (r *Repository) DeleteBook(bookID string) (err error) {
 
 	return nil
 }
+
+func (r *Repository) GetAuthorIDsByBookIDsSQL(bookIDs []string) *gorm.DB {
+	return r.Session.Model(&book.Book{}).Select([]string{"author_id"}).Where("id IN ? AND deleted_at IS NULL", bookIDs)
+}

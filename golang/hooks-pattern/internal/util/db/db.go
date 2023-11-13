@@ -17,10 +17,10 @@ func Connect() (*gorm.DB, error) {
 		os.Getenv("POSTGRES_DB"),
 		os.Getenv("POSTGRES_DB_PORT"),
 	)
-	connection, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	session, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	return connection, nil
+	return session, nil
 }

@@ -39,7 +39,7 @@ func main() {
 		BookRepository: booksRepo,
 		HooksService:   hooksSvc,
 	}
-	updaterSvc := updater.New(hooksSvc, authorRepo)
+	updaterSvc := updater.New(hooksSvc, booksRepo, authorRepo)
 
 	bookController := book.Controller{
 		BookService: bookSvc,

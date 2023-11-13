@@ -22,13 +22,15 @@ type Values struct {
 
 type Service struct {
 	hooksService     interfaces.HooksService
+	bookRepository   interfaces.BookRepository
 	authorRepository interfaces.AuthorRepository
 }
 
-func New(hooksService interfaces.HooksService, authorRepository interfaces.AuthorRepository) *Service {
+func New(hooksService interfaces.HooksService, bookRepository interfaces.BookRepository, authorRepository interfaces.AuthorRepository) *Service {
 	return &Service{
 		hooksService:     hooksService,
 		authorRepository: authorRepository,
+		bookRepository:   bookRepository,
 	}
 }
 
@@ -81,9 +83,11 @@ func (s *Service) Process(ctx context.Context) {
 		values.affectedBooks = []string{}
 	}()
 
-	fmt.Printf("%v", values)
+	if len(values.affectedBooks) == 0 {
+		return
+	}
 
-	err = s.authorRepository.RefreshHasBooksFlag(ctx, nil)
+	err = s.authorRepository.RefreshHasBooksFlag(ctx, s.bookRepository.GetAuthorIDsByBookIDsSQL(values.affectedBooks))
 	if err != nil {
 		fmt.Printf("error: %s", err.Error())
 	}
