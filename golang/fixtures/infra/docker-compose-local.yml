@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  fixtures-database:
+    image: postgres:12.4-alpine
+    restart: always
+    env_file: ../.env.local
+    ports:
+      - '54323:5432'
+    command: "-c log_statement=all"
+    volumes:
+      - fixtures-net-pgdata:/var/lib/postgresql/data
+    networks:
+      - fixtures-net
+
+volumes:
+  fixtures-net-pgdata:
+networks:
+  fixtures-net:

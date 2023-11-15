@@ -4,6 +4,7 @@ node_modules
 .idea/libraries
 .DS_Store
 .env.local
+.env.test
 !.env.example
 !.env.local.example
 .localstack

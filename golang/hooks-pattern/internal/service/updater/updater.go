@@ -77,6 +77,7 @@ func (s *Service) Process(ctx context.Context) {
 	values, err := s.GetValues(ctx)
 	if err != nil {
 		fmt.Printf("error: %s", err.Error())
+		return
 	}
 
 	defer func() {
@@ -93,6 +94,7 @@ func (s *Service) Process(ctx context.Context) {
 	}
 }
 
+// GetHTTPMiddleware returns a middleware that can later be injected into the HTTP server
 func (s *Service) GetHTTPMiddleware() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
