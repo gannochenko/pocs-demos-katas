@@ -1,4 +1,4 @@
-package book
+package author
 
 import (
 	"context"

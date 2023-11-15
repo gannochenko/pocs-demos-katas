@@ -5,7 +5,9 @@ import (
 	"os"
 	"testing"
 
+	databaseWriter "fixtures/internal/database_writer"
 	authorDomain "fixtures/internal/domain/author"
+	"fixtures/internal/generator"
 	authorRepository "fixtures/internal/repository/author"
 	bookRepository "fixtures/internal/repository/book"
 	authorService "fixtures/internal/service/author"
@@ -49,6 +51,9 @@ func TestGetBooksAndAuthor(t *testing.T) {
 	}
 	authorSvc := authorService.New(booksRepo, authorsRepo)
 
+	gen := generator.New()
+	writer := databaseWriter.New(session)
+
 	type setupFunc func(t *testing.T) *setup
 	type verifyFunc func(t *testing.T, setup *setup, verify *verify)
 
@@ -58,10 +63,33 @@ func TestGetBooksAndAuthor(t *testing.T) {
 	}{
 		"Should return a result": {
 			setupFunc: func(t *testing.T) *setup {
-				return &setup{}
+				writer.Reset()
+
+				author1 := gen.CreateAuthor()
+
+				book1 := gen.CreateBook()
+				book1.AuthorID = author1.ID
+				book2 := gen.CreateBook()
+				book2.AuthorID = author1.ID
+				book3 := gen.CreateBook()
+				book3.AuthorID = author1.ID
+
+				writer.AddAuthor(author1)
+				writer.AddBook(book1)
+				writer.AddBook(book2)
+				writer.AddBook(book3)
+
+				err := writer.Dump()
+				assert.NoError(t, err)
+
+				return &setup{
+					authorID: author1.ID.String(),
+				}
 			},
 			verifyFunc: func(t *testing.T, setup *setup, verify *verify) {
 				assert.NoError(t, verify.err)
+				assert.Equal(t, setup.authorID, verify.result.Author.ID)
+				assert.Equal(t, 3, len(verify.result.Books))
 			},
 		},
 	}

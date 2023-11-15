@@ -3,6 +3,7 @@ package book
 import (
 	"context"
 
+	databaseBook "fixtures/internal/database/book"
 	"fixtures/internal/domain/book"
 	"fixtures/internal/interfaces"
 )
@@ -17,7 +18,12 @@ func (s *Service) GetBooks(ctx context.Context, filter string, page int32) (resu
 		Books:      []*book.Book{},
 	}
 
-	bookCount, err := s.BookRepository.Count(filter)
+	bookCount, err := s.BookRepository.Count(&databaseBook.ListParameters{
+		Page: page,
+		Filter: &databaseBook.ListParametersFilter{
+			Title: &filter,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +34,12 @@ func (s *Service) GetBooks(ctx context.Context, filter string, page int32) (resu
 
 	result.Total = bookCount
 
-	books, err := s.BookRepository.List(filter, page)
+	books, err := s.BookRepository.List(&databaseBook.ListParameters{
+		Page: page,
+		Filter: &databaseBook.ListParametersFilter{
+			Title: &filter,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -30,7 +30,7 @@ func (w *Writer) AddAuthor(author *databaseAuthor.Author) {
 	w.authors = append(w.authors, author)
 }
 
-func (w *Writer) Dump() {
+func (w *Writer) Dump() error {
 	for _, author := range w.authors {
 		w.session.Create(author)
 	}
@@ -38,6 +38,8 @@ func (w *Writer) Dump() {
 	for _, book := range w.books {
 		w.session.Create(book)
 	}
+
+	return nil
 }
 
 func (w *Writer) Reset() {
