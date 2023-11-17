@@ -16,9 +16,11 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	"goapp/internal/config"
 )
 
-func Setup(ctx context.Context, serviceName, serviceVersion string) (shutdown func(context.Context) error, prometheusRegistry *prometheus.Registry, err error) {
+func Setup(ctx context.Context, conf *config.Config) (shutdown func(context.Context) error, prometheusRegistry *prometheus.Registry, err error) {
 	var shutdownFuncs []func(context.Context) error
 
 	shutdown = func(ctx context.Context) error {
@@ -35,7 +37,14 @@ func Setup(ctx context.Context, serviceName, serviceVersion string) (shutdown fu
 		err = errors.Join(inErr, shutdown(ctx))
 	}
 
-	res := resource.Environment()
+	res, err := resource.Merge(resource.Environment(),
+		resource.NewWithAttributes(semconv.SchemaURL,
+			semconv.ServiceName(conf.ServiceName),
+			semconv.ServiceVersion(conf.ServiceVersion),
+		))
+	if err != nil {
+		return shutdown, nil, err
+	}
 
 	//// TODO: Setup trace provider
 	//tracerProvider, err := newTraceProvider(res)
@@ -77,6 +86,8 @@ func createPrometheusRegistry() *prometheus.Registry {
 	registry.MustRegister(collectors.NewGoCollector(
 		collectors.WithGoCollectorRuntimeMetrics(collectors.GoRuntimeMetricsRule{Matcher: regexp.MustCompile("/.*")}),
 	))
+	registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+	//prometheusRegisterer.MustRegister(prometheusCollectors.NewDBStatsCollector(s.pool.DB, s.cfg.DB.Database))
 
 	return registry
 }
@@ -97,10 +108,8 @@ func createMeterProvider(reg prometheus.Registerer, resource *resource.Resource)
 
 	provider := metric.NewMeterProvider(
 		metric.WithResource(resource),
-
-		metric.WithReader(metric.NewPeriodicReader(metricExporter,
-			metric.WithInterval(5*time.Second))),
-
+		// this is only for debugging, it logs the metrics to STDOUT once in 5 seconds
+		metric.WithReader(metric.NewPeriodicReader(metricExporter, metric.WithInterval(5*time.Second))),
 		metric.WithReader(exporter),
 	)
 	return provider, nil

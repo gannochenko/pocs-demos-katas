@@ -6,18 +6,17 @@ volumes:
   prometheus_data: {}
   alertmanager_data: {}
   grafana_data: {}
-#  grafana_data: {}
 
 networks:
-#  front-tier:
-  back-tier:
+#  otel-front-tier:
+  otel-back-tier:
 
 services:
 
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./prometheus/:/etc/prometheus/
+      - ../prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -33,30 +32,27 @@ services:
 #    depends_on:
     #      - pushgateway
     networks:
-      - back-tier
+      - otel-back-tier
     restart: always
 
   grafana:
     image: grafana/grafana-enterprise
-    container_name: grafana
     restart: unless-stopped
     ports:
       - '3000:3000'
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
-      - back-tier
+      - otel-back-tier
 
-  go-app:
+  infra-go-app:
     build:
-      context: .
-      args:
-        GITHUB_USERNAME: ${GITHUB_USERNAME}
-        GITHUB_TOKEN: ${GITHUB_TOKEN}
+      context: ..
+    env_file: ../.env.local
     ports:
-      - "9090:9090"
+      - "9000:9000"
     restart: always
 #    volumes:
 #      - "./:/build/infra/"
     networks:
-      - back-tier
+      - otel-back-tier

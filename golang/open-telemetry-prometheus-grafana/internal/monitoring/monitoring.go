@@ -30,7 +30,13 @@ func RecordSpan(ctx context.Context, metricName string, metricValue string) func
 			log.Printf("could not get histogram: %s\n", err)
 			return
 		}
-		hist.Record(ctx, duration.Milliseconds(), otMetric.WithAttributeSet(attribute.NewSet(attribute.String(metricName, metricValue))))
+		hist.Record(
+			ctx,
+			duration.Milliseconds(),
+			otMetric.WithAttributeSet(
+				attribute.NewSet(attribute.String(metricName, metricValue)),
+			),
+		)
 	}
 }
 

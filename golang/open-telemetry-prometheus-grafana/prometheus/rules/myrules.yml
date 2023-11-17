@@ -1,0 +1,34 @@
+groups:
+  - name: my-rules
+    rules:
+      - record: job:go_app_response_latency:1m
+        expr: rate(go_app_response_latency_sum[1m]) / rate(go_app_response_latency_count[1m])
+
+      - alert: GoAppDown
+        expr: up{job="prom_go_app"} == 0
+        for: 1m
+        annotations:
+          summary: 'Hoppy Molly, the app is down!'
+          description: 'Instance {{ $labels.instance }} is down.'
+          app_link: 'http://localhost:8000/'
+        labels:
+          severity: critical
+          app_type: go
+
+      - alert: GoAppLatencyAbove5sec
+        expr: job:go_app_response_latency:1m >= 5
+        for: 2m
+        labels:
+          severity: critical
+          app_type: go
+
+      - alert: GoAppLatencyAbove2sec
+        expr: 2 < job:go_app_response_latency:1m >= 5
+        for: 2m
+        labels:
+          severity: warning
+          app_type: go
+        annotations:
+          summary: 'Go app latency is over 5 seconds.'
+          description: 'App latency of instance {{ $labels.instance }} of job {{ $labels.job }} is {{ $value }} seconds for more than 5 minutes.'
+          app_link: 'http://localhost:8000/'

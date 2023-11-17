@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"goapp/internal/config"
 	"goapp/internal/monitoring"
 )
 
@@ -71,6 +72,12 @@ func randomDelay() {
 }
 
 func main() {
+	conf := &config.Config{
+		Country:        os.Getenv("COUNTRY"),
+		ServiceName:    os.Getenv("SERVICE_NAME"),
+		ServiceVersion: os.Getenv("SERVICE_VERSION"),
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/books", GetBooks)
 	mux.HandleFunc("/authors", GetAuthors)
@@ -78,7 +85,7 @@ func main() {
 
 	ctx := context.Background()
 
-	shutdownMonitoring, prometheusRegistry, err := monitoring.Setup(ctx, "Open Telemetry Demo", "1.0.0")
+	shutdownMonitoring, prometheusRegistry, err := monitoring.Setup(ctx, conf)
 	if err != nil {
 		os.Exit(1)
 	}
