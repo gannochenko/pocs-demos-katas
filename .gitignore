@@ -18,3 +18,4 @@ node_modules
 /.builder/
 **/.data/*
 test.output
+build
