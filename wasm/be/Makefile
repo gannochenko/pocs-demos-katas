@@ -8,4 +8,5 @@ serialize_env_local:
 	@tr '\n' ';' < ./.env.local
 
 build_lib:
-	 @GOOS=js GOARCH=wasm go build -o build/main.wasm ./lib/main.go
+	@GOOS=js GOARCH=wasm go build -o build/main.wasm ./lib/main.go
+	@mv ./build/main.wasm ../fe/public/

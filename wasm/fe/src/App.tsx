@@ -3,12 +3,17 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
-  const onRunClick = () => {
+  const onRunClick = async () => {
     const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-      console.log(result);
-      go.run(result.instance);
-    });
+    const result = await WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+
+    console.log(result);
+    go.run(result.instance);
+
+    console.log('!!!');
+    // @ts-expect-error Need to extend the window interface later
+    const res = window.foo({name: "Obi", rank: "Master"});
+    console.log(res);
   };
 
   return (
