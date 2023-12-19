@@ -1,37 +1,34 @@
-import React from 'react';
+import React, {useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {getWASM, Item} from "./wasm";
 
 function App() {
+  const [items, setItems] = useState<Item[]>([]);
+
   const onRunClick = async () => {
-    const go = new Go();
-    const result = await WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+    const wasmMethods = await getWASM();
+
+    const result = wasmMethods.getItems({
+      amount: 10,
+    });
 
     console.log(result);
-    go.run(result.instance);
-
-    console.log('!!!');
-    // @ts-expect-error Need to extend the window interface later
-    const res = window.foo({name: "Obi", rank: "Master"});
-    console.log(res);
+    setItems(result.items);
   };
 
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <button onClick={onRunClick}>Fucking execute!</button>
+        <button onClick={onRunClick}>Get items!</button>
+        <div>
+          {
+            items.map(item => {
+              return (<div key={item.id}>{item.title} delivered on {item.date}</div>);
+            })
+          }
+        </div>
       </header>
     </div>
   );
