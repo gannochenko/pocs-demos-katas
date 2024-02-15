@@ -17,14 +17,14 @@ type Controller struct {
 	BookService bookService
 }
 
-func (c *Controller) GetBooks(_ http.ResponseWriter, request *http.Request) ([]byte, error) {
-	body, err := io.ReadAll(request.Body)
+func (c *Controller) GetBooks(_ http.ResponseWriter, request *http.Request) (body []byte, err error) {
+	requestBody, err := io.ReadAll(request.Body)
 	if err != nil {
 		panic(err)
 	}
 
 	jsonBody := book.GetBooksRequest{}
-	err = json.Unmarshal(body, &jsonBody)
+	err = json.Unmarshal(requestBody, &jsonBody)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -39,10 +39,10 @@ func (c *Controller) GetBooks(_ http.ResponseWriter, request *http.Request) ([]b
 		return []byte{}, err
 	}
 
-	responseBody, err := json.Marshal(bookResponse)
+	body, err = json.Marshal(bookResponse)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	return responseBody, nil
+	return body, nil
 }
