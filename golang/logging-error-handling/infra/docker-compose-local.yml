@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:16.2-alpine
+    restart: always
+    env_file: ../.env.local
+    ports:
+      - '54321:5432'
+    command: "-c log_statement=all"
+    volumes:
+      - logging-error-handling-pgdata:/var/lib/postgresql/data
+    networks:
+      - logging-error-handling
+
+volumes:
+  logging-error-handling-pgdata:
+networks:
+  logging-error-handling:
