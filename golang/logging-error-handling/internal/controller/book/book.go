@@ -2,7 +2,6 @@ package book
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -44,8 +43,6 @@ func (c *Controller) GetBooks(_ http.ResponseWriter, request *http.Request) ([]b
 	if err != nil {
 		return []byte{}, err
 	}
-
-	return []byte{}, fmt.Errorf("Oh My Glob")
 
 	return responseBody, nil
 }
