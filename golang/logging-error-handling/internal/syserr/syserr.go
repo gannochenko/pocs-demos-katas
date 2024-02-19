@@ -1,5 +1,13 @@
 package syserr
 
+import (
+	"errors"
+	"fmt"
+	"strings"
+
+	pkgError "github.com/pkg/errors"
+)
+
 type Code string
 
 const (
@@ -51,4 +59,33 @@ func (e Error) GetCode() Code {
 
 func (e Error) GetStack() []ErrorStackItem {
 	return e.stack
+}
+
+type stackTracer interface {
+	StackTrace() pkgError.StackTrace
+}
+
+func GetStack(err error) pkgError.StackTrace {
+	var traceableError stackTracer
+	ok := errors.As(err, &traceableError)
+	if ok {
+		return (traceableError).StackTrace()
+	}
+
+	return pkgError.StackTrace{}
+}
+
+func ConvertStackToStrings(stackTrace pkgError.StackTrace) []string {
+	result := make([]string, 0)
+
+	for _, frame := range stackTrace {
+		result = append(result, fmt.Sprintf("%s:%d\t%n", getFrameFilePath(frame), frame, frame))
+	}
+
+	return result
+}
+
+func getFrameFilePath(frame pkgError.Frame) string {
+	frameString := strings.Split(fmt.Sprintf("%+s", frame), "\n\t")
+	return frameString[1]
 }

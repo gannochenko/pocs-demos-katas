@@ -26,7 +26,7 @@ func (r *Repository) GetBooks(filter string, page int32) (books []*book.Book, er
 }
 
 func (r *Repository) GetBookCount(filter string) (count int64, err error) {
-	return 0, syserr.NewInternalError("could not retrieve book count")
+	return 0, syserr.NewBadInputError("could not retrieve book count")
 
 	runner := r.Session.Table(TableName)
 	if filter != "" {

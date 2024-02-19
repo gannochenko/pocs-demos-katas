@@ -36,7 +36,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/books", httpInternal.RequestWriter(bookController.GetBooks))
+	mux.Handle("/books", httpInternal.ResponseWriter(bookController.GetBooks))
 
 	ctx := context.Background()
 	server := &http.Server{
