@@ -2,6 +2,7 @@ package book
 
 import (
 	"context"
+	"loggingerrorhandling/internal/syserr"
 
 	"loggingerrorhandling/internal/domain/business/book"
 	databaseBook "loggingerrorhandling/internal/domain/database/book"
@@ -27,7 +28,7 @@ func (s *Service) GetBooks(ctx context.Context, filter string, page int32) (resu
 
 	bookCount, err := s.BookRepository.GetBookCount(ctx, filter)
 	if err != nil {
-		return nil, err
+		return nil, syserr.WrapError(err, "could not execute GetBooks()")
 	}
 
 	if bookCount == 0 {

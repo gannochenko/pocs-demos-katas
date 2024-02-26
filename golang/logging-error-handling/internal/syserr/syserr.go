@@ -68,6 +68,10 @@ func (e Error) Error() string {
 	return e.message
 }
 
+func (e Error) SetError(message string) {
+	e.message = message
+}
+
 func (e Error) GetCode() Code {
 	return e.code
 }
@@ -78,6 +82,31 @@ func (e Error) GetStack() []*ErrorStackItem {
 
 func (e Error) GetFields() []*Field {
 	return e.fields
+}
+
+func (e Error) AppendField(field *Field) {
+	e.fields = append(e.fields, field)
+}
+
+func WrapError(err error, message string, fields ...*Field) *Error {
+	wrappedMessage := err.Error()
+	if message != "" {
+		wrappedMessage = fmt.Sprintf("%s: %s", message, wrappedMessage)
+	}
+
+	var systemError *Error
+	ok := errors.As(err, &systemError)
+	if ok {
+		systemError.SetError(wrappedMessage)
+
+		for _, field := range fields {
+			systemError.AppendField(field)
+		}
+
+		return systemError
+	} else {
+		return NewError(InternalCode, wrappedMessage, fields...)
+	}
 }
 
 type stackTracer interface {
