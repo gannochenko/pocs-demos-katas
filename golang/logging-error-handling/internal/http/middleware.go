@@ -1,12 +1,13 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
-	"loggingerrorhandling/internal/context"
+	pkgContext "loggingerrorhandling/internal/context"
 	"loggingerrorhandling/internal/logger"
 	"loggingerrorhandling/internal/syserr"
 )
@@ -17,7 +18,7 @@ const (
 
 func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([]byte, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(context.WithOperationID(r.Context(), extractOperationID(r)))
+		r = r.WithContext(pkgContext.WithOperationID(r.Context(), extractOperationID(r)))
 
 		responseBody, err := controllerFn(w, r)
 
@@ -53,22 +54,13 @@ func logRequest(r *http.Request, err error, httpStatus int) {
 	// todo: we can also log the request body here, if needed
 
 	if err != nil {
-		loggerFn = logger.Error
+		loggerFn = mapErrorToLoggerFunction(err)
 
 		stack := make([]string, 0)
 
 		var systemError *syserr.Error
 		ok := errors.As(err, &systemError)
 		if ok {
-			code := systemError.GetCode()
-
-			switch code {
-			case syserr.NotFoundCode:
-				loggerFn = logger.Warning
-			case syserr.BadInputCode:
-				loggerFn = logger.Warning
-			}
-
 			for _, field := range systemError.GetFields() {
 				fields = append(fields, logger.NewFiled(field.Key, field.Value))
 			}
@@ -99,6 +91,25 @@ func mapErrorToHTTPStatus(err error) int {
 	}
 
 	return http.StatusInternalServerError
+}
+
+func mapErrorToLoggerFunction(err error) func(ctx context.Context, message string, fields ...*logger.Field) {
+	var systemError *syserr.Error
+	ok := errors.As(err, &systemError)
+	if ok {
+		code := systemError.GetCode()
+
+		switch code {
+		case syserr.InternalCode:
+			return logger.Error
+		case syserr.NotFoundCode:
+			return logger.Warning
+		case syserr.BadInputCode:
+			return logger.Warning
+		}
+	}
+
+	return logger.Error
 }
 
 func getErrorStackFormatted(e error) []string {
