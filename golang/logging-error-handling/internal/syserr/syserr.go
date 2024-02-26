@@ -44,18 +44,18 @@ func NewError(code Code, message string, fields ...*Field) *Error {
 	stack := GetStack(pkgError.New(""))
 
 	return &Error{
-		message: message,
-		code:    code,
-		fields:  fields,
-		stack:   stack,
+		Message: message,
+		Code:    code,
+		Fields:  fields,
+		Stack:   stack,
 	}
 }
 
 type Error struct {
-	message string
-	code    Code
-	stack   []*ErrorStackItem
-	fields  []*Field
+	Message string
+	Code    Code
+	Stack   []*ErrorStackItem
+	Fields  []*Field
 }
 
 type ErrorStackItem struct {
@@ -64,28 +64,20 @@ type ErrorStackItem struct {
 	Function string
 }
 
-func (e Error) Error() string {
-	return e.message
+func (e *Error) Error() string {
+	return e.Message
 }
 
-func (e Error) SetError(message string) {
-	e.message = message
+func (e *Error) GetCode() Code {
+	return e.Code
 }
 
-func (e Error) GetCode() Code {
-	return e.code
+func (e *Error) GetStack() []*ErrorStackItem {
+	return e.Stack
 }
 
-func (e Error) GetStack() []*ErrorStackItem {
-	return e.stack
-}
-
-func (e Error) GetFields() []*Field {
-	return e.fields
-}
-
-func (e Error) AppendField(field *Field) {
-	e.fields = append(e.fields, field)
+func (e *Error) GetFields() []*Field {
+	return e.Fields
 }
 
 func WrapError(err error, message string, fields ...*Field) *Error {
@@ -97,10 +89,10 @@ func WrapError(err error, message string, fields ...*Field) *Error {
 	var systemError *Error
 	ok := errors.As(err, &systemError)
 	if ok {
-		systemError.SetError(wrappedMessage)
+		systemError.Message = wrappedMessage
 
 		for _, field := range fields {
-			systemError.AppendField(field)
+			systemError.Fields = append(systemError.Fields, field)
 		}
 
 		return systemError

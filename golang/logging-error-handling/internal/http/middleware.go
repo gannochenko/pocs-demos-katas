@@ -47,13 +47,18 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 func logRequest(r *http.Request, err error, httpStatus int) {
 	loggerFn := logger.Info
 
-	fields := make([]*logger.Field, 2)
+	fields := make([]*logger.Field, 3)
 	fields[0] = logger.NewFiled("method", r.Method)
 	fields[1] = logger.NewFiled("url", fmt.Sprintf("%s?%s", r.URL.Path, r.URL.RawQuery))
+	fields[2] = logger.NewFiled("status", httpStatus)
+
+	message := "request handled"
 
 	// todo: we can also log the request body here, if needed
 
 	if err != nil {
+		message = fmt.Sprintf("%s with error: %s", message, err.Error())
+
 		loggerFn = mapErrorToLoggerFunction(err)
 
 		stack := make([]string, 0)
@@ -73,7 +78,7 @@ func logRequest(r *http.Request, err error, httpStatus int) {
 		fields = append(fields, logger.NewFiled("stack", stack))
 	}
 
-	loggerFn(r.Context(), "request handled", fields...)
+	loggerFn(r.Context(), message, fields...)
 }
 
 func mapErrorToHTTPStatus(err error) int {
