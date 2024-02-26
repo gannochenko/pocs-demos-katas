@@ -26,6 +26,8 @@ func (s *Service) GetBooks(ctx context.Context, filter string, page int32) (resu
 		Books:      []*book.Book{},
 	}
 
+	panic("oh, no!")
+
 	bookCount, err := s.BookRepository.GetBookCount(ctx, filter)
 	if err != nil {
 		return nil, syserr.WrapError(err, "could not execute GetBooks()")

@@ -20,19 +20,26 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(pkgContext.WithOperationID(r.Context(), extractOperationID(r)))
 
+		w.Header().Set("Content-Type", "application/json")
+
+		defer func() {
+			if rec := recover(); rec != nil {
+				httpStatus := http.StatusInternalServerError
+				err := syserr.Internal(fmt.Sprintf("%v", rec))
+
+				writeError(httpStatus, err, w)
+				logRequest(r, err, httpStatus)
+			}
+		}()
+
 		responseBody, err := controllerFn(w, r)
 
 		httpStatus := http.StatusOK
 
-		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
 			httpStatus = mapErrorToHTTPStatus(err)
 
-			w.WriteHeader(httpStatus)
-			responseBody, _ := json.Marshal(&ErrorResponse{
-				Error: err.Error(),
-			})
-			_, _ = w.Write(responseBody)
+			writeError(httpStatus, err, w)
 		} else {
 			w.WriteHeader(httpStatus)
 			if len(responseBody) > 0 {
@@ -42,6 +49,14 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 
 		logRequest(r, err, httpStatus)
 	})
+}
+
+func writeError(httpStatus int, err error, w http.ResponseWriter) {
+	w.WriteHeader(httpStatus)
+	responseBody, _ := json.Marshal(&ErrorResponse{
+		Error: err.Error(),
+	})
+	_, _ = w.Write(responseBody)
 }
 
 func logRequest(r *http.Request, err error, httpStatus int) {
