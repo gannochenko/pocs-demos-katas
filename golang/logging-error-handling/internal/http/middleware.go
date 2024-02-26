@@ -3,14 +3,22 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
+	"loggingerrorhandling/internal/context"
 	"loggingerrorhandling/internal/logger"
 	"loggingerrorhandling/internal/syserr"
 )
 
+const (
+	OperationIDHeaderName = "X-Operation-Id"
+)
+
 func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([]byte, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r = r.WithContext(context.WithOperationID(r.Context(), extractOperationID(r)))
+
 		responseBody, err := controllerFn(w, r)
 
 		httpStatus := http.StatusOK
@@ -38,11 +46,16 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 func logRequest(r *http.Request, err error, httpStatus int) {
 	loggerFn := logger.Info
 
-	// todo: extract verb, path, query and request body and put into fields, along with the request ID and httpStatus
-	// todo: read other fields from the context and also feed to the logging function
+	fields := make([]*logger.Field, 2)
+	fields[0] = logger.NewFiled("method", r.Method)
+	fields[1] = logger.NewFiled("url", fmt.Sprintf("%s?%s", r.URL.Path, r.URL.RawQuery))
+
+	// todo: we can also log the request body here, if needed
 
 	if err != nil {
 		loggerFn = logger.Error
+
+		stack := make([]string, 0)
 
 		var systemError *syserr.Error
 		ok := errors.As(err, &systemError)
@@ -50,15 +63,25 @@ func logRequest(r *http.Request, err error, httpStatus int) {
 			code := systemError.GetCode()
 
 			switch code {
-			case syserr.NotFound:
+			case syserr.NotFoundCode:
 				loggerFn = logger.Warning
-			case syserr.BadInput:
+			case syserr.BadInputCode:
 				loggerFn = logger.Warning
 			}
+
+			for _, field := range systemError.GetFields() {
+				fields = append(fields, logger.NewFiled(field.Key, field.Value))
+			}
+
+			stack = formatErrorStack(systemError.GetStack())
+		} else {
+			stack = getErrorStackFormatted(err)
 		}
+
+		fields = append(fields, logger.NewFiled("stack", stack))
 	}
 
-	loggerFn(r.Context(), "request handled")
+	loggerFn(r.Context(), "request handled", fields...)
 }
 
 func mapErrorToHTTPStatus(err error) int {
@@ -68,12 +91,37 @@ func mapErrorToHTTPStatus(err error) int {
 		code := systemError.GetCode()
 
 		switch code {
-		case syserr.NotFound:
+		case syserr.NotFoundCode:
 			return http.StatusNotFound
-		case syserr.BadInput:
+		case syserr.BadInputCode:
 			return http.StatusBadRequest
 		}
 	}
 
 	return http.StatusInternalServerError
+}
+
+func getErrorStackFormatted(e error) []string {
+	return formatErrorStack(syserr.GetStack(e))
+}
+
+func formatErrorStack(stack []*syserr.ErrorStackItem) []string {
+	result := make([]string, len(stack))
+
+	for index, item := range stack {
+		result[index] = fmt.Sprintf("%s:%s %s", item.File, item.Line, item.Function)
+	}
+
+	return result
+}
+
+func extractOperationID(r *http.Request) string {
+	headers := r.Header
+	for name, value := range headers {
+		if name == OperationIDHeaderName {
+			return value[0]
+		}
+	}
+
+	return ""
 }

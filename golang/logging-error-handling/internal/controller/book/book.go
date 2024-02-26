@@ -1,6 +1,7 @@
 package book
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 )
 
 type bookService interface {
-	GetBooks(filter string, page int32) (result *bookBusiness.GetBooksResult, err error)
+	GetBooks(ctx context.Context, filter string, page int32) (result *bookBusiness.GetBooksResult, err error)
 }
 
 type Controller struct {
@@ -29,7 +30,7 @@ func (c *Controller) GetBooks(_ http.ResponseWriter, request *http.Request) (bod
 		return []byte{}, err
 	}
 
-	result, err := c.BookService.GetBooks(jsonBody.Filter, jsonBody.Page)
+	result, err := c.BookService.GetBooks(request.Context(), jsonBody.Filter, jsonBody.Page)
 	if err != nil {
 		return []byte{}, err
 	}

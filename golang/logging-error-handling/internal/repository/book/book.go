@@ -1,6 +1,8 @@
 package book
 
 import (
+	"context"
+
 	"gorm.io/gorm"
 
 	"loggingerrorhandling/internal/domain/database/book"
@@ -16,7 +18,7 @@ type Repository struct {
 	Session *gorm.DB
 }
 
-func (r *Repository) GetBooks(filter string, page int32) (books []*book.Book, err error) {
+func (r *Repository) GetBooks(ctx context.Context, filter string, page int32) (books []*book.Book, err error) {
 	runner := r.Session.Table(TableName)
 	if filter != "" {
 		runner = runner.Where("title like ?", filter)
@@ -25,8 +27,12 @@ func (r *Repository) GetBooks(filter string, page int32) (books []*book.Book, er
 	return books, nil
 }
 
-func (r *Repository) GetBookCount(filter string) (count int64, err error) {
-	return 0, syserr.NewBadInputError("could not retrieve book count")
+func (r *Repository) GetBookCount(ctx context.Context, filter string) (count int64, err error) {
+	return 0, syserr.BadInput(
+		"could not retrieve book count",
+		syserr.NewFiled("term", filter),
+		syserr.NewFiled("foo", "bar"),
+	)
 
 	runner := r.Session.Table(TableName)
 	if filter != "" {

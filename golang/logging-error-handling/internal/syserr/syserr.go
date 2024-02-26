@@ -11,42 +11,57 @@ import (
 type Code string
 
 const (
-	Internal Code = "internal"
-	BadInput Code = "bad_input"
-	NotFound Code = "not_found"
+	InternalCode Code = "internal"
+	BadInputCode Code = "bad_input"
+	NotFoundCode Code = "not_found"
 )
 
-func NewInternalError(message string) *Error {
-	return &Error{
-		message: message,
-		code:    Internal,
+type Field struct {
+	Key   string
+	Value any
+}
+
+func NewFiled(key string, value any) *Field {
+	return &Field{
+		Key:   key,
+		Value: value,
 	}
 }
 
-func NewBadInputError(message string) *Error {
-	return &Error{
-		message: message,
-		code:    BadInput,
-	}
+func Internal(message string, fields ...*Field) *Error {
+	return NewError(InternalCode, message, fields...)
 }
 
-func NewNotFoundError(message string) *Error {
+func BadInput(message string, fields ...*Field) *Error {
+	return NewError(BadInputCode, message, fields...)
+}
+
+func NotFound(message string, fields ...*Field) *Error {
+	return NewError(NotFoundCode, message, fields...)
+}
+
+func NewError(code Code, message string, fields ...*Field) *Error {
+	stack := GetStack(pkgError.New(""))
+
 	return &Error{
 		message: message,
-		code:    NotFound,
+		code:    code,
+		fields:  fields,
+		stack:   stack,
 	}
 }
 
 type Error struct {
 	message string
 	code    Code
-	stack   []ErrorStackItem
+	stack   []*ErrorStackItem
+	fields  []*Field
 }
 
 type ErrorStackItem struct {
-	file     string
-	line     int
-	function string
+	File     string
+	Line     string
+	Function string
 }
 
 func (e Error) Error() string {
@@ -57,32 +72,38 @@ func (e Error) GetCode() Code {
 	return e.code
 }
 
-func (e Error) GetStack() []ErrorStackItem {
+func (e Error) GetStack() []*ErrorStackItem {
 	return e.stack
+}
+
+func (e Error) GetFields() []*Field {
+	return e.fields
 }
 
 type stackTracer interface {
 	StackTrace() pkgError.StackTrace
 }
 
-func GetStack(err error) pkgError.StackTrace {
+func GetStack(err error) []*ErrorStackItem {
 	var traceableError stackTracer
 	ok := errors.As(err, &traceableError)
 	if ok {
-		return (traceableError).StackTrace()
+		stackTrace := (traceableError).StackTrace()
+
+		result := make([]*ErrorStackItem, len(stackTrace))
+
+		for index, frame := range stackTrace {
+			result[index] = &ErrorStackItem{
+				File:     getFrameFilePath(frame),
+				Line:     fmt.Sprintf("%d", frame),
+				Function: fmt.Sprintf("%s", frame),
+			}
+		}
+
+		return result
 	}
 
-	return pkgError.StackTrace{}
-}
-
-func ConvertStackToStrings(stackTrace pkgError.StackTrace) []string {
-	result := make([]string, 0)
-
-	for _, frame := range stackTrace {
-		result = append(result, fmt.Sprintf("%s:%d\t%n", getFrameFilePath(frame), frame, frame))
-	}
-
-	return result
+	return make([]*ErrorStackItem, 0)
 }
 
 func getFrameFilePath(frame pkgError.Frame) string {

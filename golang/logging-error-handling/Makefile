@@ -4,8 +4,8 @@ run:
 run_local_infra:
 	@docker-compose -f ./infra/docker-compose-local.yml up --build
 
-serialize_env_local:
-	@tr '\n' ';' < ./.env.local
+copy_local_env:
+	@tr '\n' ';' < ./.env.local | pbcopy
 
 migrate:
 	@godotenv -f ./.env.local go run ./script/migrate/migrate.go
