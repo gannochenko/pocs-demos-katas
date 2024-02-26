@@ -29,6 +29,10 @@ func WithOperationID(ctx context.Context, operationID string) context.Context {
 }
 
 func GetOperationID(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+
 	value := ctx.Value(OperationIDKey)
 	if value == nil {
 		return ""
