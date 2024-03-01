@@ -1,0 +1,51 @@
+name: Push on Live environment
+on:
+  release:
+    types: [published]
+
+jobs:
+  validate_tags:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_RELEASE_TAG: ${{ github.ref }}
+    outputs:
+      hasValidTag: ${{ steps.check-provided-tag.outputs.isValid }}
+
+    steps:
+      - name: Check Provided Tag
+        id: check-provided-tag
+        run: |
+          if [[ ${{ github.ref }} =~ refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+              echo "::set-output name=isValid::true"
+          else
+              echo "::set-output name=isValid::false"
+          fi
+
+  build-push:
+    name: Build&push an images to Live
+    needs: [validate_tags]
+    if: needs.validate_tags.outputs.hasValidTag == 'true'
+    runs-on: ubuntu-latest
+    container: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
+    env:
+      GITHUB_RELEASE_TAG: ${{ github.ref }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure gcloud as docker auth helper
+        run: |
+          gcloud auth configure-docker
+
+      - name: GCP Auth
+        run: |
+          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
+          gcloud auth activate-service-account --key-file=./google_sa.json
+
+      - name: Build new image
+        run: |
+          make build_image tag=$GITHUB_RELEASE_TAG
+
+      - name: Push the image
+        run: |
+          make push_image tag=$GITHUB_RELEASE_TAG
