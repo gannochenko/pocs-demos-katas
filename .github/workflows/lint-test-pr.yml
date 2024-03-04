@@ -29,8 +29,10 @@ jobs:
           go-version: "1.22.x"
           cache: false
 
+      - name: CWD
+        run: pwd
+
       - name: Run lint
-        working-directory: ./devops/app
         uses: golangci/golangci-lint-action@v3.4.0
         with:
           version: v1.55.1
