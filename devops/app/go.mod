@@ -1,6 +1,6 @@
 module goapp
 
-go 1.22
+go 1.21
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

@@ -1,6 +1,9 @@
 run:
 	@godotenv -f ./.env.local go run ./cmd/main.go
 
+lint:
+    golangci-lint run --out-format=github-actions -v --timeout=10m0s --config .golangci-lint.yml
+
 build_image:
 	@docker build -t devops-app:$(tag) .
 
