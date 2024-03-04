@@ -1,4 +1,4 @@
-name: Lint, test and push on Staging environment
+name: Lint, test
 on:
   pull_request:
 
@@ -31,6 +31,7 @@ jobs:
 
       - name: Run lint
         uses: golangci/golangci-lint-action@v3.4.0
+        working-directory: ./devops/app
         with:
           version: v1.55.1
           args: -v --timeout=10m0s
