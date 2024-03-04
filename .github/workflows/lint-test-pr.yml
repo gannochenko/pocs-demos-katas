@@ -1,0 +1,46 @@
+name: Lint, test and push on Staging environment
+on:
+  pull_request:
+
+jobs:
+  lint-test-build:
+    name: Run linter, unit tests, build&push an images to Staging
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./devops/app
+
+    steps:
+      - uses: actions/checkout@v2.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            be-supplier-portal:
+              - 'cmd/**'
+              - 'go.mod'
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.22.x"
+          cache: false
+
+      - name: Run lint
+        uses: golangci/golangci-lint-action@v3.4.0
+        with:
+          version: v1.55.1
+          args: -v --timeout=10m0s
+          skip-cache: true
+#
+#      - name: Run tests
+#        run: |
+#          go test -short -mod=mod -v -p=1 -count=1 -coverprofile=./devops/supplier_coverage.txt -covermode=atomic -coverpkg=./go/... ./go/...
+#
+#      - name: GCP Auth
+#        run: |
+#          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
+#          gcloud auth activate-service-account --key-file=./google_sa.json
