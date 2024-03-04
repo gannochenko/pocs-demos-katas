@@ -36,14 +36,9 @@ jobs:
         uses: golangci/golangci-lint-action@v3.4.0
         with:
           version: v1.55.1
-          args: -v --timeout=10m0s
+          args: -v --timeout=10m0s --config .golangci.yml
           skip-cache: true
-#
+
 #      - name: Run tests
 #        run: |
 #          go test -short -mod=mod -v -p=1 -count=1 -coverprofile=./devops/supplier_coverage.txt -covermode=atomic -coverpkg=./go/... ./go/...
-#
-#      - name: GCP Auth
-#        run: |
-#          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
-#          gcloud auth activate-service-account --key-file=./google_sa.json
