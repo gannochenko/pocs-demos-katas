@@ -51,8 +51,8 @@ jobs:
 
       - name: Build new image
         run: |
-          make build_image tag=$IMAGE_TAG
+          make build_image tag=$IMAGE_TAG env=stg
 
       - name: Push the image
         run: |
-          make push_image tag=$IMAGE_TAG
+          make push_image tag=$IMAGE_TAG env=stg
