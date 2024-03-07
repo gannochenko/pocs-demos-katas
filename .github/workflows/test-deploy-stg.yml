@@ -7,7 +7,7 @@ on:
 
 jobs:
   lint-test-build-push:
-    name: Run linter, unit tests, build&push an images to Staging
+    name: Run unit tests, build and push a new image to Staging
     runs-on: ubuntu-latest
     defaults:
       run:

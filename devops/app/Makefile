@@ -8,8 +8,7 @@ test:
 	go test -short -mod=mod -v -p=1 -count=1 ./...
 
 build_image:
-	@echo $(tag)
-	@docker build -t devops-app:$(tag) .
+	@docker build -t asia-east1-docker.pkg.dev/go-app-390716/devops/devops-app:$(tag) .
 
 run_image:
 	@docker run -p 8080:8080 devops-app:$(tag)
