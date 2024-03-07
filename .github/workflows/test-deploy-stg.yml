@@ -38,7 +38,7 @@ jobs:
 
       - name: GCP Auth
         run: |
-          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" > ./google_sa.json
+          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
           gcloud auth activate-service-account --key-file=./google_sa.json
 
       - name: Get image tag

@@ -11,7 +11,7 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"hello": "there2",
+			"hello": "there3",
 		})
 	})
 
