@@ -1,7 +1,9 @@
 name: Lint, test and push on Staging environment
+#on:
+#  push:
+#    branches: [master]
 on:
-  push:
-    branches: [master]
+  pull_request:
 
 jobs:
   lint-test-build-push:
@@ -30,34 +32,27 @@ jobs:
           go-version: "1.21.x"
           cache: false
 
-      - name: Run lint
-        uses: golangci/golangci-lint-action@v3.4.0
-        with:
-          version: v1.55.1
-          args: -v --timeout=10m0s
-          skip-cache: true
-#
-#      - name: Run tests
-#        run: |
-#          go test -short -mod=mod -v -p=1 -count=1 -coverprofile=./devops/supplier_coverage.txt -covermode=atomic -coverpkg=./go/... ./go/...
-#
-#      - name: GCP Auth
-#        run: |
-#          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
-#          gcloud auth activate-service-account --key-file=./google_sa.json
-#
-#      - name: Get image tag
-#        id: commit_hash
-#        run: |
-#          SHORT_COMMIT_HASH=$(git rev-parse --short=7 "$GITHUB_SHA")
-#          echo "IMAGE_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
-#          echo "Commit SHA: $GITHUB_SHA"
-#          echo "Short commit hash: $SHORT_COMMIT_HASH"
-#
-#      - name: Build new image
-#        run: |
-#          make build_image tag=$IMAGE_TAG
-#
-#      - name: Push the image
-#        run: |
-#          make push_image tag=$IMAGE_TAG
+      - name: Run tests
+        run: |
+          go test -short -mod=mod -v -p=1 -count=1 ./...
+
+      - name: GCP Auth
+        run: |
+          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
+          gcloud auth activate-service-account --key-file=./google_sa.json
+
+      - name: Get image tag
+        id: commit_hash
+        run: |
+          SHORT_COMMIT_HASH=$(git rev-parse --short=7 "$GITHUB_SHA")
+          echo "IMAGE_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+          echo "Commit SHA: $GITHUB_SHA"
+          echo "Short commit hash: $SHORT_COMMIT_HASH"
+
+      - name: Build new image
+        run: |
+          make build_image tag=$IMAGE_TAG
+
+      - name: Push the image
+        run: |
+          make push_image tag=$IMAGE_TAG
