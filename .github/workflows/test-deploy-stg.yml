@@ -36,11 +36,6 @@ jobs:
 #        run: |
 #          go test -short -mod=mod -v -p=1 -count=1 ./...
 
-      - name: GCP Auth
-        run: |
-          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
-          gcloud auth activate-service-account --key-file=./google_sa.json
-
       - name: Get image tag
         id: commit_hash
         run: |
@@ -48,6 +43,11 @@ jobs:
           echo "IMAGE_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
           echo "Commit SHA: $GITHUB_SHA"
           echo "Short commit hash: $SHORT_COMMIT_HASH"
+
+      - name: GCP Auth
+        run: |
+          echo "${{secrets.GCP_SERVICE_ACCOUNT}}" | base64 -d > ./google_sa.json
+          gcloud auth activate-service-account --key-file=./google_sa.json
 
       - name: Build new image
         run: |

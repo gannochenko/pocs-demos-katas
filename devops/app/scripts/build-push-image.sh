@@ -24,5 +24,6 @@ fi
 if [ "${ACTION}" = "push" ]
 then
    gcloud config set project "${PROJECT}"
+   gcloud auth configure-docker "${REGION}"
    docker push "${IMAGE}"
 fi
