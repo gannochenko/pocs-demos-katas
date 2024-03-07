@@ -8,6 +8,7 @@ test:
     go test -short -mod=mod -v -p=1 -count=1 ./...
 
 build_image:
+    @echo $(tag)
 	@docker build -t devops-app:$(tag) .
 
 run_image:
