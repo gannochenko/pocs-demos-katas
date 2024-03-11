@@ -1,9 +1,9 @@
-name: Lint, test
+name: Lint and test
 on:
   pull_request:
 
 jobs:
-  lint-test-build:
+  lint-test:
     name: Run linter, unit tests
     runs-on: ubuntu-latest
     defaults:

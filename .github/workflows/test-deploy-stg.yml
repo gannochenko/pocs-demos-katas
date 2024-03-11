@@ -1,10 +1,10 @@
-name: Test and push on Staging environment
+name: Test and deploy to Staging environment
 on:
   push:
     branches: [master]
 
 jobs:
-  lint-test-build-push:
+  test-build-push:
     name: Run unit tests, build and push a new image to Staging
     runs-on: ubuntu-latest
     defaults:

@@ -1,4 +1,4 @@
-name: Push on Live environment
+name: Deploy to Live environment
 on:
   release:
     types: [published]
@@ -22,7 +22,7 @@ jobs:
           fi
 
   build-push:
-    name: Build&push an images to Live
+    name: Build and push the image to Live
     needs: [validate_tags]
     if: needs.validate_tags.outputs.hasValidTag == 'true'
     runs-on: ubuntu-latest
