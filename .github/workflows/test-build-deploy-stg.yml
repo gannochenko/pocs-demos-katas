@@ -1,4 +1,4 @@
-name: Test and deploy to Staging environment
+name: Test, build and deploy to Staging environment
 on:
   push:
     branches: [master]
