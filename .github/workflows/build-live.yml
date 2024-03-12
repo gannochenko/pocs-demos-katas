@@ -26,6 +26,9 @@ jobs:
     needs: [validate_tags]
     if: needs.validate_tags.outputs.hasValidTag == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./devops/app
     env:
       GITHUB_RELEASE_TAG: ${{ github.ref }}
 
