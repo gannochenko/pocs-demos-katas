@@ -18,9 +18,10 @@ const (
 
 func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([]byte, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(pkgContext.WithOperationID(r.Context(), extractOperationID(r)))
+		r = r.WithContext(pkgContext.WithOperationID(r.Context(), extractProvidedOperationID(r)))
 
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(OperationIDHeaderName, pkgContext.GetOperationID(r.Context()))
 
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -38,7 +39,7 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 
 		if err != nil {
 			errorCode := extractErrorCode(err)
-			httpStatus = mapErrorToHTTPStatus(errorCode, err)
+			httpStatus = mapErrorCodeToHTTPStatus(errorCode, err)
 			writeError(httpStatus, extractPublicMessage(errorCode, err), w)
 		} else {
 			w.WriteHeader(httpStatus)
@@ -98,7 +99,7 @@ func logRequest(r *http.Request, err error, httpStatus int) {
 	loggerFn(r.Context(), loggedMessage, fields...)
 }
 
-func mapErrorToHTTPStatus(errorCode syserr.Code, err error) int {
+func mapErrorCodeToHTTPStatus(errorCode syserr.Code, err error) int {
 	switch errorCode {
 	case syserr.NotFoundCode:
 		return http.StatusNotFound
@@ -155,7 +156,7 @@ func formatErrorStack(stack []*syserr.ErrorStackItem) []string {
 	return result
 }
 
-func extractOperationID(r *http.Request) string {
+func extractProvidedOperationID(r *http.Request) string {
 	headers := r.Header
 	for name, value := range headers {
 		if name == OperationIDHeaderName {
