@@ -20,7 +20,7 @@ jobs:
         id: filter
         with:
           filters: |
-            be-supplier-portal:
+            app:
               - 'cmd/**'
               - 'go.mod'
 
