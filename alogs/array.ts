@@ -123,13 +123,39 @@ const binarySearchIterative = <T extends number>(input: T[], element: T): number
 	return -1;
 };
 
+const twoPointersSearch = <T extends number>(array: T[], equalTo: T): [T, T] | null => {
+	let startIndex = 0;
+	let endIndex = array.length - 1;
+
+	while(startIndex <= endIndex) {
+		const startElement = array[startIndex];
+		const endElement = array[endIndex];
+		const sum = startElement + endElement;
+
+		if (sum === equalTo) {
+			return [startElement, endElement];
+		}
+
+		if (sum < equalTo) {
+			startIndex += 1;
+		}
+
+		if (sum > equalTo) {
+			endIndex -= 1;
+		}
+	}
+
+	return null;
+};
+
 function main() {
 	const arr = [4,1,7,5,6];
 
 	const sortedArr = quickSort(arr, 0, arr.length - 1);
 	console.log(sortedArr);
 	
-	console.log(binarySearchIterative(sortedArr, 5));
+	// console.log(binarySearchIterative(sortedArr, 5));
+	console.log(twoPointersSearch(sortedArr, 10));
 }
 
 main();
