@@ -25,7 +25,7 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 		defer func() {
 			if rec := recover(); rec != nil {
 				httpStatus := http.StatusInternalServerError
-				err := syserr.Internal(fmt.Sprintf("PANIC: %v", rec))
+				err := syserr.NewInternal(fmt.Sprintf("PANIC: %v", rec))
 
 				writeError(httpStatus, err, w)
 				logRequest(r, err, httpStatus)
