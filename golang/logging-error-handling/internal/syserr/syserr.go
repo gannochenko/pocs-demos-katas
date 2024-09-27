@@ -114,6 +114,28 @@ func GetStackFormatted(err error) []string {
 	return formatStack(extractStackFromGenericError(err))
 }
 
+func GetCode(err error) Code {
+	if err == nil {
+		return InternalCode
+	}
+
+	for {
+		if sErr, ok := err.(*Error); ok {
+			return sErr.GetCode()
+		}
+
+		switch x := err.(type) {
+		case interface{ Unwrap() error }:
+			err = x.Unwrap()
+			if err == nil {
+				return InternalCode
+			}
+		default:
+			return InternalCode
+		}
+	}
+}
+
 func formatStack(stack []*ErrorStackItem) []string {
 	result := make([]string, len(stack))
 	for index, stackItem := range stack {
