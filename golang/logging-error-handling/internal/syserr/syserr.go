@@ -136,6 +136,27 @@ func GetCode(err error) Code {
 	}
 }
 
+func GetFields(err error) []*Field {
+	var result []*Field
+
+	for {
+		if err == nil {
+			return result
+		}
+
+		if sErr, ok := err.(*Error); ok {
+			result = append(result, sErr.GetFields()...)
+		}
+
+		switch x := err.(type) {
+		case interface{ Unwrap() error }:
+			err = x.Unwrap()
+		default:
+			return result
+		}
+	}
+}
+
 func formatStack(stack []*ErrorStackItem) []string {
 	result := make([]string, len(stack))
 	for index, stackItem := range stack {
