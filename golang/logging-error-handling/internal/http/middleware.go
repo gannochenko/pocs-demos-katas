@@ -87,7 +87,7 @@ func logRequest(r *http.Request, err error, httpStatus int) {
 
 			stack = formatErrorStack(systemError.GetStack())
 		} else {
-			stack = getErrorStackFormatted(err)
+			stack = syserr.GetStackFormatted(err)
 		}
 
 		fields = append(fields, logger.NewFiled("stack", stack))
@@ -130,10 +130,6 @@ func mapErrorToLoggerFunction(err error) func(ctx context.Context, message strin
 	}
 
 	return logger.Error
-}
-
-func getErrorStackFormatted(e error) []string {
-	return formatErrorStack(syserr.GetStack(e))
 }
 
 func formatErrorStack(stack []*syserr.ErrorStackItem) []string {
