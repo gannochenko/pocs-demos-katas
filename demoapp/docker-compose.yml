@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+
+    postgres:
+        image: postgres
+        restart: always
+        env_file:
+            - '.env.local'
+        volumes:
+            - './.data/postgres:/var/lib/postgresql/data'
