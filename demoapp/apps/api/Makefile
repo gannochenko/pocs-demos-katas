@@ -12,3 +12,6 @@ migrate:
 
 seed:
 	@godotenv -f ./.env.local go run ./script/seed/seed.go
+
+generate_stubs:
+	@openapi-generator generate -i ./openapi.yaml -g go-server -o ./go-server

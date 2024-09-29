@@ -1,8 +1,8 @@
 package main
 
 import (
-	"levelsgorm/internal/domain/database/book"
-	"levelsgorm/internal/util/db"
+	"api/internal/domain/database/book"
+	"api/internal/util/db"
 )
 
 func main() {

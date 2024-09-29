@@ -6,11 +6,17 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
 
+	"github.com/gorilla/mux"
+
+	"api/internal/controller"
 	"api/internal/controller/book"
 	bookRepository "api/internal/repository/book"
+	"api/internal/service"
 	bookService "api/internal/service/book"
+	"api/internal/util"
 	"api/internal/util/db"
 )
 
@@ -19,6 +25,9 @@ const (
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	session, err := db.Connect()
 	if err != nil {
 		panic(err)
@@ -34,13 +43,21 @@ func main() {
 		BookService: bookSvc,
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/books", bookController.GetBooks)
+	PetAPIService := service.NewPetAPIService()
+	PetAPIController := controller.NewPetAPIController(PetAPIService)
 
-	ctx := context.Background()
+	StoreAPIService := service.NewStoreAPIService()
+	StoreAPIController := controller.NewStoreAPIController(StoreAPIService)
+
+	router := mux.NewRouter()
+
+	router.HandleFunc("/books", bookController.GetBooks)
+
+	util.PopulateRouter(router, PetAPIController, StoreAPIController)
+
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
-		Handler: mux,
+		Handler: router,
 		BaseContext: func(l net.Listener) context.Context {
 			address := l.Addr().String()
 			fmt.Println("Listening at " + address)
@@ -54,7 +71,11 @@ func main() {
 		panic(err)
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	wg.Wait()
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
+	<-sig
+
+	cancel()
+	_ = server.Shutdown(ctx)
 }
