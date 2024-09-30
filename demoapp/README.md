@@ -21,7 +21,7 @@ cp .env.example .env.local
 ### Run infra
 
 ~~~shell
-make run_infra
+make run_local_infra
 ~~~
 
 ### Run API app
@@ -40,3 +40,4 @@ make run app=dashboard
 * Alerting and O11y with Prometheus, Grafana and OpsGenie
 * Logging with Grafana Loki
 * Proper migrations
+* Better support for Swagger rebuilds, possible migration to Protobuf

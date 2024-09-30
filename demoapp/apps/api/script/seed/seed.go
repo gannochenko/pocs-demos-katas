@@ -2,12 +2,12 @@ package main
 
 import (
 	"api/internal/dto"
-	"api/internal/service"
+	"api/internal/service/config"
 	"api/internal/util/db"
 )
 
 func main() {
-	configService := service.NewConfigService()
+	configService := config.NewConfigService()
 	config, err := configService.GetConfig()
 	if err != nil {
 		panic(err)

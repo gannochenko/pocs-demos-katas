@@ -6,7 +6,7 @@ import (
 	"api/internal/dto"
 )
 
-type Writer struct {
+type Builder struct {
 	session *gorm.DB
 
 	pets          []*dto.Pet
@@ -17,8 +17,8 @@ type Writer struct {
 	orders        []*dto.Order
 }
 
-func NewBuilder(session *gorm.DB) *Writer {
-	writer := &Writer{
+func NewBuilder(session *gorm.DB) *Builder {
+	writer := &Builder{
 		session: session,
 	}
 	writer.resetArrays()
@@ -26,117 +26,143 @@ func NewBuilder(session *gorm.DB) *Writer {
 	return writer
 }
 
-func (w *Writer) AddPet(pet *dto.Pet) {
-	w.pets = append(w.pets, pet)
+func (b *Builder) AddPet(pet *dto.Pet) {
+	b.pets = append(b.pets, pet)
 }
 
-func (w *Writer) AddPets(pets ...*dto.Pet) *Writer {
+func (b *Builder) AddPets(pets ...*dto.Pet) *Builder {
 	for _, pet := range pets {
-		w.AddPet(pet)
+		b.AddPet(pet)
 	}
 
-	return w
+	return b
 }
 
-func (w *Writer) AddPetTag(petTag *dto.PetTag) {
-	w.petTags = append(w.petTags, petTag)
+func (b *Builder) AddPetTag(petTag *dto.PetTag) {
+	b.petTags = append(b.petTags, petTag)
 }
 
-func (w *Writer) AddPetTags(petTags ...*dto.PetTag) *Writer {
+func (b *Builder) AddPetTags(petTags ...*dto.PetTag) *Builder {
 	for _, petTag := range petTags {
-		w.AddPetTag(petTag)
+		b.AddPetTag(petTag)
 	}
 
-	return w
+	return b
 }
 
-func (w *Writer) AddPetCategory(petCategory *dto.PetCategory) {
-	w.petCategories = append(w.petCategories, petCategory)
+func (b *Builder) AddPetCategory(petCategory *dto.PetCategory) {
+	b.petCategories = append(b.petCategories, petCategory)
 }
 
-func (w *Writer) AddPetCategories(petCategories ...*dto.PetCategory) *Writer {
+func (b *Builder) AddPetCategories(petCategories ...*dto.PetCategory) *Builder {
 	for _, petCategory := range petCategories {
-		w.AddPetCategory(petCategory)
+		b.AddPetCategory(petCategory)
 	}
 
-	return w
+	return b
 }
 
-func (w *Writer) AddCustomer(customer *dto.Customer) {
-	w.customers = append(w.customers, customer)
+func (b *Builder) AddCustomer(customer *dto.Customer) {
+	b.customers = append(b.customers, customer)
 }
 
-func (w *Writer) AddCustomers(customers ...*dto.Customer) *Writer {
+func (b *Builder) AddCustomers(customers ...*dto.Customer) *Builder {
 	for _, customer := range customers {
-		w.AddCustomer(customer)
+		b.AddCustomer(customer)
 	}
 
-	return w
+	return b
 }
 
-func (w *Writer) AddOrder(order *dto.Order) {
-	w.orders = append(w.orders, order)
+func (b *Builder) AddOrder(order *dto.Order) {
+	b.orders = append(b.orders, order)
 }
 
-func (w *Writer) AddOrders(orders ...*dto.Order) *Writer {
+func (b *Builder) AddOrders(orders ...*dto.Order) *Builder {
 	for _, order := range orders {
-		w.AddOrder(order)
+		b.AddOrder(order)
 	}
 
-	return w
+	return b
 }
 
-func (w *Writer) AddAddress(address *dto.Address) {
-	w.addresses = append(w.addresses, address)
+func (b *Builder) AddAddress(address *dto.Address) {
+	b.addresses = append(b.addresses, address)
 }
 
-func (w *Writer) AddAddresses(addresses ...*dto.Address) *Writer {
+func (b *Builder) AddAddresses(addresses ...*dto.Address) *Builder {
 	for _, address := range addresses {
-		w.AddAddress(address)
+		b.AddAddress(address)
 	}
 
-	return w
+	return b
 }
 
-func (w *Writer) Submit() error {
-	for _, pet := range w.pets {
-		w.session.Create(pet)
+func (b *Builder) Submit() error {
+	for _, pet := range b.pets {
+		res := b.session.Create(pet)
+		if res.Error != nil {
+			return res.Error
+		}
 	}
 
-	for _, petTag := range w.petTags {
-		w.session.Create(petTag)
+	for _, petTag := range b.petTags {
+		res := b.session.Create(petTag)
+		if res.Error != nil {
+			return res.Error
+		}
 	}
 
-	for _, petCategory := range w.petCategories {
-		w.session.Create(petCategory)
+	for _, petCategory := range b.petCategories {
+		res := b.session.Create(petCategory)
+		if res.Error != nil {
+			return res.Error
+		}
 	}
 
-	for _, customer := range w.customers {
-		w.session.Create(customer)
+	for _, customer := range b.customers {
+		res := b.session.Create(customer)
+		if res.Error != nil {
+			return res.Error
+		}
 	}
 
-	for _, order := range w.orders {
-		w.session.Create(order)
+	for _, order := range b.orders {
+		res := b.session.Create(order)
+		if res.Error != nil {
+			return res.Error
+		}
 	}
 
-	for _, address := range w.addresses {
-		w.session.Create(address)
+	for _, address := range b.addresses {
+		res := b.session.Create(address)
+		if res.Error != nil {
+			return res.Error
+		}
 	}
 
 	return nil
 }
 
-func (w *Writer) Reset() *Writer {
-	w.resetArrays()
+func (b *Builder) Reset() *Builder {
+	b.resetArrays()
 
-	return w
+	return b
 }
 
-func (w *Writer) resetArrays() {
-	w.pets = make([]*dto.Pet, 0)
-	w.petCategories = make([]*dto.PetCategory, 0)
-	w.petTags = make([]*dto.PetTag, 0)
-	w.customers = make([]*dto.Customer, 0)
-	w.orders = make([]*dto.Order, 0)
-	w.addresses = make([]*dto.Address, 0)
+func (b *Builder) SelectPets(filter string) (result []*dto.Pet, err error) {
+	queryResult := b.session.Table("pets").Where(filter).Find(&result)
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+	return result, nil
+}
+
+func (b *Builder) resetArrays() {
+	b.pets = make([]*dto.Pet, 0)
+	b.petCategories = make([]*dto.PetCategory, 0)
+	b.petTags = make([]*dto.PetTag, 0)
+	b.customers = make([]*dto.Customer, 0)
+	b.orders = make([]*dto.Order, 0)
+	b.addresses = make([]*dto.Address, 0)
 }

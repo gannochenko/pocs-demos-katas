@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 
 	"api/internal/domain"
+	"api/internal/util/db"
 )
 
 type Pet struct {
@@ -12,7 +13,7 @@ type Pet struct {
 	ID        uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4()"`
 	Name      string           `db:"name"`
 	Status    domain.PetStatus `db:"status"`
-	PhotoUrls []string         `gorm:"type:TEXT[]" db:"photo_urls"`
+	PhotoUrls []string         `gorm:"type:text[]"`
 }
 
 //func (p *Pet) ToDomain() *domain.Pet {
@@ -23,3 +24,12 @@ type Pet struct {
 //		IssueYear: p.IssueYear,
 //	}
 //}
+
+type ListPetFilter struct {
+	ID *string
+}
+
+type ListPetParameters struct {
+	Filter     *ListPetFilter
+	Pagination *db.Pagination
+}

@@ -14,7 +14,7 @@ import (
 	petV3 "api/internal/controller/pet/v3"
 	storeV3 "api/internal/controller/store/v3"
 	"api/internal/factory"
-	"api/internal/service"
+	"api/internal/service/config"
 	"api/internal/util"
 	"api/internal/util/db"
 )
@@ -27,13 +27,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	configService := service.NewConfigService()
-	config, err := configService.GetConfig()
+	configService := config.NewConfigService()
+	conf, err := configService.GetConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	session, err := db.Connect(config.Postgres.DatabaseDSN)
+	session, err := db.Connect(conf.Postgres.DatabaseDSN)
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +48,7 @@ func main() {
 	)
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.HTTPPort),
+		Addr:    fmt.Sprintf(":%d", conf.HTTPPort),
 		Handler: router,
 		BaseContext: func(l net.Listener) context.Context {
 			address := l.Addr().String()

@@ -16,7 +16,6 @@ import (
 	"api/internal/domain"
 
 	"context"
-	"os"
 )
 
 // PetService defines the api actions for the PetAPI service
@@ -24,14 +23,16 @@ import (
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type PetService interface {
-	AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
-	DeletePet(context.Context, int64, string) (*domain.DeletePetResponse, error)
-	ListPets(context.Context, string) (*domain.ListPetsResponse, error)
-	FindPetsByTags(context.Context, []string) (*domain.FindPetsByTagsResponse, error)
-	GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)
-	UpdatePet(context.Context, *domain.Pet) (*domain.UpdatePetResponse, error)
-	UpdatePetWithForm(context.Context, int64, string, string) (*domain.UpdatePetWithFormResponse, error)
-	UploadFile(context.Context, int64, string, *os.File) (*domain.UploadFileResponse, error)
+	AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetResponse, error)
+	UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error)
+	//AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
+	//DeletePet(context.Context, int64, string) (*domain.DeletePetResponse, error)
+	//ListPets(context.Context, string) (*domain.ListPetsResponse, error)
+	//FindPetsByTags(context.Context, []string) (*domain.FindPetsByTagsResponse, error)
+	//GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)
+	//UpdatePet(context.Context, *domain.Pet) (*domain.UpdatePetResponse, error)
+	//UpdatePetWithForm(context.Context, int64, string, string) (*domain.UpdatePetWithFormResponse, error)
+	//UploadFile(context.Context, int64, string, *os.File) (*domain.UploadFileResponse, error)
 }
 
 // StoreService defines the api actions for the StoreAPI service

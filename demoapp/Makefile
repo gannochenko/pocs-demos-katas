@@ -18,14 +18,15 @@ list_resources: ## List all local resources
 
 remove_resources: ## Remove all local resources
 
-seed_database:
-	#@$(MAKE) -C ./apps/service_name/ seed_database
-
-migrate_databases: ## Migrate databases of all applications
-	#@$(MAKE) -C ./apps/service_name/ migrate_database
-
 run_local_infra: ## Run the infrastructure locally
 	@docker-compose up
+
+run_test_infra: ## Run the infrastructure for testing
+	docker-compose -f ./docker-compose-test.yml down
+	docker-compose -f ./docker-compose-test.yml up
+
+run_test_infra_migration:
+	@$(MAKE) -C ./apps/api/ run_test_infra_migration
 
 #stop_infra: ## Run the infrastructure locally
 #	@docker-compose stop

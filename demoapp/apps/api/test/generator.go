@@ -26,9 +26,6 @@ func (g *Generator) CreatePet() *dto.Pet {
 		ID:     g.CreateUUID(),
 		Name:   gofakeit.Name(),
 		Status: domain.PetStatusAvailable,
-		PhotoUrls: []string{
-			gofakeit.URL(),
-		},
 	}
 }
 

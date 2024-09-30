@@ -24,18 +24,22 @@ func New(session *gorm.DB, repositoryFactory *repository.Factory) *Factory {
 	}
 }
 
-func (m *Factory) GetPetService() interfaces.PetService {
-	if m.petService == nil {
-		m.petService = pet.NewPetService()
-	}
-
-	return m.petService
+func (f *Factory) GetRepositoryFactory() *repository.Factory {
+	return f.repositoryFactory
 }
 
-func (m *Factory) GetStoreService() interfaces.StoreService {
-	if m.storeService == nil {
-		m.storeService = store.NewStoreService()
+func (f *Factory) GetPetService() interfaces.PetService {
+	if f.petService == nil {
+		f.petService = pet.NewPetService()
 	}
 
-	return m.storeService
+	return f.petService
+}
+
+func (f *Factory) GetStoreService() interfaces.StoreService {
+	if f.storeService == nil {
+		f.storeService = store.NewStoreService()
+	}
+
+	return f.storeService
 }
