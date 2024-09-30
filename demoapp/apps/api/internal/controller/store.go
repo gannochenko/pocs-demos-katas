@@ -52,17 +52,17 @@ func NewStoreAPIController(storeService interfaces.StoreService, opts ...StoreAP
 func (c *StoreAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"DeleteOrder": util.Route{
-			strings.ToUpper("Delete"),
+			strings.ToUpper("Post"),
 			"/v3/store/order/{orderId}",
 			c.DeleteOrder,
 		},
 		"GetInventory": util.Route{
-			strings.ToUpper("Get"),
+			strings.ToUpper("Post"),
 			"/v3/store/inventory",
 			c.GetInventory,
 		},
 		"GetOrderById": util.Route{
-			strings.ToUpper("Get"),
+			strings.ToUpper("Post"),
 			"/v3/store/order/{orderId}",
 			c.GetOrderById,
 		},

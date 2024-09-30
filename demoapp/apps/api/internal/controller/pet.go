@@ -50,42 +50,42 @@ func NewPetAPIController(petService interfaces.PetService, opts ...PetAPIOption)
 // Routes returns all the api routes for the PetAPIController
 func (c *PetAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
-		"AddPet": util.Route{
+		"AddPet": {
 			strings.ToUpper("Post"),
 			"/v3/pet",
 			c.AddPet,
 		},
-		"DeletePet": util.Route{
-			strings.ToUpper("Delete"),
+		"DeletePet": {
+			strings.ToUpper("Post"),
 			"/v3/pet/{petId}",
 			c.DeletePet,
 		},
-		"FindPetsByStatus": util.Route{
-			strings.ToUpper("Get"),
+		"FindPetsByStatus": {
+			strings.ToUpper("Post"),
 			"/v3/pet/findByStatus",
 			c.FindPetsByStatus,
 		},
-		"FindPetsByTags": util.Route{
-			strings.ToUpper("Get"),
+		"FindPetsByTags": {
+			strings.ToUpper("Post"),
 			"/v3/pet/findByTags",
 			c.FindPetsByTags,
 		},
-		"GetPetById": util.Route{
-			strings.ToUpper("Get"),
+		"GetPetById": {
+			strings.ToUpper("Post"),
 			"/v3/pet/{petId}",
 			c.GetPetById,
 		},
-		"UpdatePet": util.Route{
-			strings.ToUpper("Put"),
+		"UpdatePet": {
+			strings.ToUpper("Post"),
 			"/v3/pet",
 			c.UpdatePet,
 		},
-		"UpdatePetWithForm": util.Route{
+		"UpdatePetWithForm": {
 			strings.ToUpper("Post"),
 			"/v3/pet/{petId}",
 			c.UpdatePetWithForm,
 		},
-		"UploadFile": util.Route{
+		"UploadFile": {
 			strings.ToUpper("Post"),
 			"/v3/pet/{petId}/uploadImage",
 			c.UploadFile,
