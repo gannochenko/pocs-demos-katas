@@ -107,7 +107,11 @@ func (c *PetAPIController) AddPet(w http.ResponseWriter, r *http.Request) error 
 	if err := api.AssertPetConstraints(petParam); err != nil {
 		return err
 	}
-	result, err := c.petService.AddPet(r.Context(), petParam)
+	domainPet, err := petParam.ToDomain()
+	if err != nil {
+		return err
+	}
+	result, err := c.petService.AddPet(r.Context(), domainPet)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err
@@ -212,7 +216,11 @@ func (c *PetAPIController) UpdatePet(w http.ResponseWriter, r *http.Request) err
 	if err := api.AssertPetConstraints(petParam); err != nil {
 		return err
 	}
-	result, err := c.petService.UpdatePet(r.Context(), petParam)
+	domainPet, err := petParam.ToDomain()
+	if err != nil {
+		return err
+	}
+	result, err := c.petService.UpdatePet(r.Context(), domainPet)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err

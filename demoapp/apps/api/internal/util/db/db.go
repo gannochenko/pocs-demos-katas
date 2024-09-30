@@ -1,14 +1,12 @@
 package db
 
 import (
-	"os"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func Connect() (*gorm.DB, error) {
-	connection, err := gorm.Open(postgres.Open(os.Getenv("DB_DSN")), &gorm.Config{})
+func Connect(dsn string) (*gorm.DB, error) {
+	connection, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

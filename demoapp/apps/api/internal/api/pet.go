@@ -1,6 +1,9 @@
 package api
 
 import (
+	"github.com/jinzhu/copier"
+
+	"api/internal/domain"
 	httpUtil "api/internal/util/http"
 	"api/pkg/syserr"
 )
@@ -48,4 +51,14 @@ func AssertPetConstraints(obj Pet) error {
 		}
 	}
 	return nil
+}
+
+func (p *Pet) ToDomain() (*domain.Pet, error) {
+	result := &domain.Pet{}
+	err := copier.Copy(result, p)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
 }

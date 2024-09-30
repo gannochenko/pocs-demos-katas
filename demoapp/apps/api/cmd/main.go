@@ -12,10 +12,8 @@ import (
 	"github.com/gorilla/mux"
 
 	"api/internal/controller"
-	"api/internal/controller/book"
-	bookRepository "api/internal/repository/book"
+	"api/internal/factory"
 	"api/internal/service"
-	bookService "api/internal/service/book"
 	"api/internal/util"
 	"api/internal/util/db"
 )
@@ -28,35 +26,27 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	session, err := db.Connect()
+	configService := service.NewConfigService()
+	config, err := configService.GetConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	booksRepo := &bookRepository.Repository{
-		Session: session,
-	}
-	bookSvc := &bookService.Service{
-		BookRepository: booksRepo,
-	}
-	bookController := book.Controller{
-		BookService: bookSvc,
+	session, err := db.Connect(config.Postgres.DatabaseDSN)
+	if err != nil {
+		panic(err)
 	}
 
-	PetAPIService := service.NewPetAPIService()
-	PetAPIController := controller.NewPetAPIController(PetAPIService)
+	serviceFactory := factory.MakeServiceFactory(session)
 
-	StoreAPIService := service.NewStoreAPIService()
-	StoreAPIController := controller.NewStoreAPIController(StoreAPIService)
+	PetAPIController := controller.NewPetAPIController(serviceFactory.GetPetService())
+	StoreAPIController := controller.NewStoreAPIController(serviceFactory.GetStoreService())
 
 	router := mux.NewRouter()
-
-	router.HandleFunc("/books", bookController.GetBooks)
-
 	util.PopulateRouter(router, PetAPIController, StoreAPIController)
 
 	server := &http.Server{
-		Addr:    ":" + os.Getenv("PORT"),
+		Addr:    fmt.Sprintf(":%d", config.HTTPPort),
 		Handler: router,
 		BaseContext: func(l net.Listener) context.Context {
 			address := l.Addr().String()

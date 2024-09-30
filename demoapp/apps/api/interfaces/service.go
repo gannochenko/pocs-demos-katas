@@ -44,3 +44,7 @@ type StoreService interface {
 	GetOrderById(context.Context, int64) (*domain.GetOrderByIdResponse, error)
 	PlaceOrder(context.Context, api.Order) (*domain.PlaceOrderResponse, error)
 }
+
+type ConfigService interface {
+	GetConfig() (*domain.Config, error)
+}

@@ -24,11 +24,11 @@ seed_database:
 migrate_databases: ## Migrate databases of all applications
 	#@$(MAKE) -C ./apps/service_name/ migrate_database
 
-run_infra: ## Run the infrastructure locally
+run_local_infra: ## Run the infrastructure locally
 	@docker-compose up
 
-stop_infra: ## Run the infrastructure locally
-	@docker-compose stop
+#stop_infra: ## Run the infrastructure locally
+#	@docker-compose stop
 
 run: ## Run an application
 ifeq ($(app),)
