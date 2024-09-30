@@ -3,7 +3,7 @@ package util
 import (
 	"net/http"
 
-	openapi "api/internal/bullshit"
+	httpUtil "api/internal/util/http"
 )
 
 type AppHandler func(http.ResponseWriter, *http.Request) error
@@ -12,7 +12,7 @@ func withErrorHandler(h AppHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := h(w, r)
 		if err != nil {
-			_ = openapi.EncodeJSONResponse(err.Error(), func(i int) *int { return &i }(http.StatusBadRequest), w)
+			_ = httpUtil.EncodeJSONResponse(err.Error(), ToPtr(http.StatusBadRequest), w)
 		}
 	}
 }

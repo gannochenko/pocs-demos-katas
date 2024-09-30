@@ -13,15 +13,18 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
 
-	"github.com/GIT_USER_ID/GIT_REPO_ID/go"
 	"github.com/gorilla/mux"
 
 	"api/interfaces"
+	"api/internal/api"
 	"api/internal/util"
+	httpUtil "api/internal/util/http"
+	"api/pkg/syserr"
 )
 
 // StoreAPIController binds http requests to an api petService and writes the petService results to the http response
@@ -74,22 +77,20 @@ func (c *StoreAPIController) GetRoutes() map[string]util.Route {
 // DeleteOrder - Delete purchase order by ID
 func (c *StoreAPIController) DeleteOrder(w http.ResponseWriter, r *http.Request) error {
 	params := mux.Vars(r)
-	orderIdParam, err := _go.parseNumericParameter[int64](
+	orderIdParam, err := httpUtil.ParseNumericParameter[int64](
 		params["orderId"],
-		_go.WithRequire[int64](_go.parseInt64),
+		httpUtil.WithRequire[int64](httpUtil.ParseInt64),
 	)
 	if err != nil {
-		c.errorHandler(w, r, &_go.ParsingError{Param: "orderId", Err: err}, nil)
-		return
+		return syserr.Wrap(err, syserr.BadInputCode, "could not delete order", syserr.F("param", "orderId"))
 	}
 	result, err := c.service.DeleteOrder(r.Context(), orderIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
+		return err
 	}
 	// If no error, encode the body and the result code
-	_ = _go.EncodeJSONResponse(result.Body, &result.Code, w)
+	return httpUtil.EncodeJSONResponse(result, nil, w)
 }
 
 // GetInventory - Returns pet inventories by status
@@ -97,57 +98,50 @@ func (c *StoreAPIController) GetInventory(w http.ResponseWriter, r *http.Request
 	result, err := c.service.GetInventory(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
+		return err
 	}
 	// If no error, encode the body and the result code
-	_ = _go.EncodeJSONResponse(result.Body, &result.Code, w)
+	return httpUtil.EncodeJSONResponse(result, nil, w)
 }
 
 // GetOrderById - Find purchase order by ID
 func (c *StoreAPIController) GetOrderById(w http.ResponseWriter, r *http.Request) error {
 	params := mux.Vars(r)
-	orderIdParam, err := _go.parseNumericParameter[int64](
+	orderIdParam, err := httpUtil.ParseNumericParameter[int64](
 		params["orderId"],
-		_go.WithRequire[int64](_go.parseInt64),
+		httpUtil.WithRequire[int64](httpUtil.ParseInt64),
 	)
 	if err != nil {
-		c.errorHandler(w, r, &_go.ParsingError{Param: "orderId", Err: err}, nil)
-		return
+		return syserr.Wrap(err, syserr.BadInputCode, "could not get order by id", syserr.F("param", "orderId"))
 	}
 	result, err := c.service.GetOrderById(r.Context(), orderIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
+		return err
 	}
 	// If no error, encode the body and the result code
-	_ = _go.EncodeJSONResponse(result.Body, &result.Code, w)
+	return httpUtil.EncodeJSONResponse(result, nil, w)
 }
 
 // PlaceOrder - Place an order for a pet
 func (c *StoreAPIController) PlaceOrder(w http.ResponseWriter, r *http.Request) error {
-	orderParam := _go.Order{}
+	orderParam := api.Order{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&orderParam); err != nil && !errors.Is(err, io.EOF) {
-		c.errorHandler(w, r, &_go.ParsingError{Err: err}, nil)
-		return
+		return syserr.Wrap(err, syserr.BadInputCode, "could not place order")
 	}
-	if err := _go.AssertOrderRequired(orderParam); err != nil {
-		c.errorHandler(w, r, err, nil)
-		return
+	if err := api.AssertOrderRequired(orderParam); err != nil {
+		return err
 	}
-	if err := _go.AssertOrderConstraints(orderParam); err != nil {
-		c.errorHandler(w, r, err, nil)
-		return
+	if err := api.AssertOrderConstraints(orderParam); err != nil {
+		return err
 	}
 	result, err := c.service.PlaceOrder(r.Context(), orderParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
+		return err
 	}
 	// If no error, encode the body and the result code
-	_ = _go.EncodeJSONResponse(result.Body, &result.Code, w)
+	return httpUtil.EncodeJSONResponse(result, nil, w)
 }

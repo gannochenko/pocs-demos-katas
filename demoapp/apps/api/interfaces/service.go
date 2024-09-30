@@ -13,6 +13,8 @@ package interfaces
 
 import (
 	"api/internal/api"
+	"api/internal/domain"
+
 	"context"
 	"os"
 )
@@ -22,14 +24,14 @@ import (
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type PetService interface {
-	AddPet(context.Context, api.Pet) (ImplResponse, error)
-	DeletePet(context.Context, int64, string) (ImplResponse, error)
-	FindPetsByStatus(context.Context, string) (ImplResponse, error)
-	FindPetsByTags(context.Context, []string) (ImplResponse, error)
-	GetPetById(context.Context, int64) (ImplResponse, error)
-	UpdatePet(context.Context, api.Pet) (ImplResponse, error)
-	UpdatePetWithForm(context.Context, int64, string, string) (ImplResponse, error)
-	UploadFile(context.Context, int64, string, *os.File) (ImplResponse, error)
+	AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
+	DeletePet(context.Context, int64, string) (*domain.DeletePetResponse, error)
+	FindPetsByStatus(context.Context, string) (*domain.FindPetsByStatusResponse, error)
+	FindPetsByTags(context.Context, []string) (*domain.FindPetsByTagsResponse, error)
+	GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)
+	UpdatePet(context.Context, *domain.Pet) (*domain.UpdatePetResponse, error)
+	UpdatePetWithForm(context.Context, int64, string, string) (*domain.UpdatePetWithFormResponse, error)
+	UploadFile(context.Context, int64, string, *os.File) (*domain.UploadFileResponse, error)
 }
 
 // StoreService defines the api actions for the StoreAPI service
@@ -37,8 +39,8 @@ type PetService interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type StoreService interface {
-	DeleteOrder(context.Context, int64) (ImplResponse, error)
-	GetInventory(context.Context) (ImplResponse, error)
-	GetOrderById(context.Context, int64) (ImplResponse, error)
-	PlaceOrder(context.Context, api.Order) (ImplResponse, error)
+	DeleteOrder(context.Context, int64) (*domain.DeleteOrderResponse, error)
+	GetInventory(context.Context) (*domain.GetInventoryResponse, error)
+	GetOrderById(context.Context, int64) (*domain.GetOrderByIdResponse, error)
+	PlaceOrder(context.Context, api.Order) (*domain.PlaceOrderResponse, error)
 }

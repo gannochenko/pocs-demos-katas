@@ -11,9 +11,10 @@ import (
 type Code string
 
 const (
-	InternalCode Code = "internal"
-	BadInputCode Code = "bad_input"
-	NotFoundCode Code = "not_found"
+	InternalCode       Code = "internal"
+	BadInputCode       Code = "bad_input"
+	NotFoundCode       Code = "not_found"
+	NotImplementedCode Code = "not_implemented"
 )
 
 type Error struct {
@@ -52,6 +53,10 @@ func NewBadInput(message string, fields ...*Field) *Error {
 
 func NewNotFound(message string, fields ...*Field) *Error {
 	return New(NotFoundCode, message, fields...)
+}
+
+func NewNotImplemented(message string, fields ...*Field) *Error {
+	return New(NotImplementedCode, message, fields...)
 }
 
 func New(code Code, message string, fields ...*Field) *Error {
