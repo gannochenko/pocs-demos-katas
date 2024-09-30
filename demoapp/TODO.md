@@ -1,7 +1,7 @@
 BE:
 +++ Logger and error handler
-* Operation ID
 * Working with DB
+* Operation ID
 * Auth0
 * One unit test example
   * Data creator

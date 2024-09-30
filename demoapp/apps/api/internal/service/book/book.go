@@ -1,8 +1,9 @@
 package book
 
 import (
-	"api/internal/domain/business/book"
 	databaseBook "api/internal/domain/database/book"
+
+	"api/internal/bullshit/business/book"
 )
 
 type bookRepository interface {

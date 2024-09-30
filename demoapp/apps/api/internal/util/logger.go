@@ -14,7 +14,7 @@ func withLogger(h AppHandler) AppHandler {
 		err := h(w, r)
 
 		fields := make([]*logger.Field, 1)
-		fields[0] = logger.F("query", fmt.Sprintf("%s %s", r.Method, r.URL))
+		fields[0] = logger.F("query", fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 
 		ctx := r.Context()
 		if err != nil {

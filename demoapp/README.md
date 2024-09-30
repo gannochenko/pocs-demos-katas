@@ -31,3 +31,12 @@ make run_infra
 ~~~shell
 make run app=dashboard
 ~~~
+
+### Further improvements
+
+* Deploy somewhere :)
+* CI/CD
+* Upload files directly to S3 or GCS
+* Alerting and O11y with Prometheus, Grafana and OpsGenie
+* Logging with Grafana Loki
+* Proper migrations

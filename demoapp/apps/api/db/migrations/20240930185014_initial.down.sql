@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS "pet_categories";
+DROP TABLE IF EXISTS "pet_tags";
+DROP TABLE IF EXISTS "customers";
+DROP TABLE IF EXISTS "orders";
+DROP TABLE IF EXISTS "addresses";
+DROP TABLE IF EXISTS "pets";

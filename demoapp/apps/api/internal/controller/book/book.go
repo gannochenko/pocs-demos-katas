@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	bookBusiness "api/internal/domain/business/book"
-	"api/internal/domain/rest/book"
+	bookBusiness "api/internal/bullshit/business/book"
+	"api/internal/bullshit/rest/book"
 )
 
 type bookService interface {

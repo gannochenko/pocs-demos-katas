@@ -5,7 +5,8 @@ import (
 
 	"api/interfaces"
 	"api/internal/factory/repository"
-	"api/internal/service"
+	"api/internal/service/pet"
+	"api/internal/service/store"
 )
 
 type Factory struct {
@@ -25,7 +26,7 @@ func New(session *gorm.DB, repositoryFactory *repository.Factory) *Factory {
 
 func (m *Factory) GetPetService() interfaces.PetService {
 	if m.petService == nil {
-		m.petService = service.NewPetService()
+		m.petService = pet.NewPetService()
 	}
 
 	return m.petService
@@ -33,7 +34,7 @@ func (m *Factory) GetPetService() interfaces.PetService {
 
 func (m *Factory) GetStoreService() interfaces.StoreService {
 	if m.storeService == nil {
-		m.storeService = service.NewStoreService()
+		m.storeService = store.NewStoreService()
 	}
 
 	return m.storeService

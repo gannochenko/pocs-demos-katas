@@ -1,7 +1,7 @@
 package book
 
 import (
-	"api/internal/domain/business/book"
+	"api/internal/bullshit/business/book"
 )
 
 type Book struct {

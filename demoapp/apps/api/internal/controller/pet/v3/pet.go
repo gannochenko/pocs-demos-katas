@@ -60,12 +60,12 @@ func (c *PetAPIController) GetRoutes() map[string]util.Route {
 			"/v3/pet/get",
 			c.DeletePet,
 		},
-		"FindPetsByStatus": {
+		"ListPets": {
 			strings.ToUpper("Post"),
 			"/v3/pet/find",
 			c.FindPetsByStatus,
 		},
-		"GetPetById": {
+		"GetPetByID": {
 			strings.ToUpper("Post"),
 			"/v3/pet/get",
 			c.GetPetById,
@@ -140,7 +140,7 @@ func (c *PetAPIController) FindPetsByStatus(w http.ResponseWriter, r *http.Reque
 		param := "available"
 		statusParam = param
 	}
-	result, err := c.petService.FindPetsByStatus(r.Context(), statusParam)
+	result, err := c.petService.ListPets(r.Context(), statusParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err

@@ -9,12 +9,12 @@ import (
 )
 
 type Pet struct {
-	Id        int64    `json:"id,omitempty"`
-	Name      string   `json:"name"`
-	Category  Category `json:"category,omitempty"`
-	PhotoUrls []string `json:"photoUrls"`
-	Tags      []Tag    `json:"tags,omitempty"`
-	Status    string   `json:"status,omitempty"`
+	Id        int64       `json:"id,omitempty"`
+	Name      string      `json:"name"`
+	Category  PetCategory `json:"category,omitempty"`
+	PhotoUrls []string    `json:"photoUrls"`
+	Tags      []PetTag    `json:"tags,omitempty"`
+	Status    string      `json:"status,omitempty"`
 }
 
 // AssertPetRequired checks if the required fields are not zero-ed

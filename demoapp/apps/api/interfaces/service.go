@@ -26,7 +26,7 @@ import (
 type PetService interface {
 	AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
 	DeletePet(context.Context, int64, string) (*domain.DeletePetResponse, error)
-	FindPetsByStatus(context.Context, string) (*domain.FindPetsByStatusResponse, error)
+	ListPets(context.Context, string) (*domain.ListPetsResponse, error)
 	FindPetsByTags(context.Context, []string) (*domain.FindPetsByTagsResponse, error)
 	GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)
 	UpdatePet(context.Context, *domain.Pet) (*domain.UpdatePetResponse, error)
