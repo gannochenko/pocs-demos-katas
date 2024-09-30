@@ -10,7 +10,7 @@ import (
 	"api/internal/dto"
 )
 
-func New() *Generator {
+func NewGenerator() *Generator {
 	return &Generator{}
 }
 

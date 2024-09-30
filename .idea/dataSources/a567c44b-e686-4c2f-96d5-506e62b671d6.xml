@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.51">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>781</IntrospectionStateNumber>
+      <IntrospectionStateNumber>787</IntrospectionStateNumber>
       <ServerVersion>17.0</ServerVersion>
       <StartupTime>1727692698</StartupTime>
       <TimeZones>true ACDT
@@ -1398,7 +1398,7 @@ true posixrules
 13219||10|C|G
 13219||-9223372036854775808|U|G
 13219||10|U|G</Grants>
-      <IntrospectionStateNumber>781</IntrospectionStateNumber>
+      <IntrospectionStateNumber>787</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>demoapp</OwnerName>
     </database>
@@ -4854,8 +4854,8 @@ true posixrules
     <schema id="266" parent="2" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>781</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2024-09-30.19:22:28</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>787</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2024-09-30.19:25:21</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>532</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -5005,7 +5005,7 @@ true posixrules
     </table>
     <table id="283" parent="266" name="schema_migrations">
       <ObjectId>16437</ObjectId>
-      <StateNumber>780</StateNumber>
+      <StateNumber>786</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
@@ -5473,7 +5473,7 @@ true posixrules
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16440</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>780</StateNumber>
+      <StateNumber>786</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
