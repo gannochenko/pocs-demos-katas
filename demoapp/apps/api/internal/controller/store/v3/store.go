@@ -9,7 +9,7 @@
  * Contact: apiteam@swagger.io
  */
 
-package controller
+package v3
 
 import (
 	"encoding/json"
@@ -53,22 +53,22 @@ func (c *StoreAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"DeleteOrder": util.Route{
 			strings.ToUpper("Post"),
-			"/v3/store/order/{orderId}",
+			"/v3/store/order/delete",
 			c.DeleteOrder,
 		},
 		"GetInventory": util.Route{
 			strings.ToUpper("Post"),
-			"/v3/store/inventory",
+			"/v3/store/inventory/list",
 			c.GetInventory,
 		},
 		"GetOrderById": util.Route{
 			strings.ToUpper("Post"),
-			"/v3/store/order/{orderId}",
+			"/v3/store/order/get",
 			c.GetOrderById,
 		},
 		"PlaceOrder": util.Route{
 			strings.ToUpper("Post"),
-			"/v3/store/order",
+			"/v3/store/order/place",
 			c.PlaceOrder,
 		},
 	}

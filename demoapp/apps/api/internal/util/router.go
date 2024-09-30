@@ -1,6 +1,8 @@
 package util
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
@@ -18,7 +20,10 @@ func PopulateRouter(router *mux.Router, routables ...Routable) {
 	for _, routable := range routables {
 		routes := routable.GetRoutes()
 		for _, route := range routes {
-			router.HandleFunc(route.Pattern, withErrorHandler(route.HandlerFunc)).Methods(route.Method)
+			router.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
+				handler := withErrorHandler(withLogger(route.HandlerFunc))
+				_ = handler(w, r)
+			}).Methods(route.Method)
 		}
 	}
 }

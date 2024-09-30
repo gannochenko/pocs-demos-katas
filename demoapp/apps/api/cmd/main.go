@@ -11,7 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"api/internal/controller"
+	petV3 "api/internal/controller/pet/v3"
+	storeV3 "api/internal/controller/store/v3"
 	"api/internal/factory"
 	"api/internal/service"
 	"api/internal/util"
@@ -39,11 +40,12 @@ func main() {
 
 	serviceFactory := factory.MakeServiceFactory(session)
 
-	PetAPIController := controller.NewPetAPIController(serviceFactory.GetPetService())
-	StoreAPIController := controller.NewStoreAPIController(serviceFactory.GetStoreService())
-
 	router := mux.NewRouter()
-	util.PopulateRouter(router, PetAPIController, StoreAPIController)
+	util.PopulateRouter(
+		router,
+		petV3.NewPetAPIController(serviceFactory.GetPetService()),
+		storeV3.NewStoreAPIController(serviceFactory.GetStoreService()),
+	)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.HTTPPort),

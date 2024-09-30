@@ -1,5 +1,9 @@
 package util
 
+import "net/http"
+
+type AppHandler func(http.ResponseWriter, *http.Request) error
+
 func FromPtr[T any](value *T, defaultValue T) T {
 	if value != nil {
 		return *value

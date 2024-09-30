@@ -7,7 +7,7 @@
  * Contact: apiteam@swagger.io
  */
 
-package controller
+package v3
 
 import (
 	"encoding/json"
@@ -47,48 +47,33 @@ func NewPetAPIController(petService interfaces.PetService, opts ...PetAPIOption)
 	return controller
 }
 
-// Routes returns all the api routes for the PetAPIController
+// GetRoutes returns all the api routes for the PetAPIController
 func (c *PetAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"AddPet": {
 			strings.ToUpper("Post"),
-			"/v3/pet",
+			"/v3/pet/create",
 			c.AddPet,
 		},
 		"DeletePet": {
 			strings.ToUpper("Post"),
-			"/v3/pet/{petId}",
+			"/v3/pet/get",
 			c.DeletePet,
 		},
 		"FindPetsByStatus": {
 			strings.ToUpper("Post"),
-			"/v3/pet/findByStatus",
+			"/v3/pet/find",
 			c.FindPetsByStatus,
-		},
-		"FindPetsByTags": {
-			strings.ToUpper("Post"),
-			"/v3/pet/findByTags",
-			c.FindPetsByTags,
 		},
 		"GetPetById": {
 			strings.ToUpper("Post"),
-			"/v3/pet/{petId}",
+			"/v3/pet/get",
 			c.GetPetById,
 		},
 		"UpdatePet": {
 			strings.ToUpper("Post"),
-			"/v3/pet",
+			"/v3/pet/update",
 			c.UpdatePet,
-		},
-		"UpdatePetWithForm": {
-			strings.ToUpper("Post"),
-			"/v3/pet/{petId}",
-			c.UpdatePetWithForm,
-		},
-		"UploadFile": {
-			strings.ToUpper("Post"),
-			"/v3/pet/{petId}/uploadImage",
-			c.UploadFile,
 		},
 	}
 }
