@@ -1,10 +1,13 @@
 import React from 'react';
 import {PageLayout, SEO} from "../../components";
+import {Container} from "@mui/joy";
 
 export function HomePage() {
 	return (
 		<PageLayout>
-			Hello there
+			<Container>
+				Hello
+			</Container>
 		</PageLayout>
 	);
 }
