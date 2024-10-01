@@ -4982,6 +4982,7 @@ true posixrules
     </table>
     <table id="281" parent="266" name="pet_tags">
       <ObjectId>16514</ObjectId>
+      <Outdated>1</Outdated>
       <StateNumber>768</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>

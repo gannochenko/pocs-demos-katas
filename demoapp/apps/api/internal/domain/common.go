@@ -31,10 +31,10 @@ func SanitizePaginationRequest(request *PaginationRequest) *PaginationRequest {
 }
 
 type PaginationResponse struct {
-	PageNumber int32
-	PageSize   int32
-	PageCount  int64
-	Total      int64
+	PageNumber int32 `json:"page_number"`
+	PageSize   int32 `json:"page_size"`
+	PageCount  int64 `json:"page_count"`
+	Total      int64 `json:"total"`
 }
 
 func NewPaginationResponseFromRequest(request *PaginationRequest, total int64) *PaginationResponse {

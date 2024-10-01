@@ -19,10 +19,10 @@ generate_stubs:
 new_migration:
 	migrate create -ext sql -dir db/migrations $(name)
 
-run_migrations:
-	@godotenv -f ./.env.local $(MAKE) drop_db
-	@godotenv -f ./.env.local $(MAKE) create_db
-	@godotenv -f ./.env.local $(MAKE) migrate_db
+#run_migrations:
+#	@godotenv -f ./.env.local $(MAKE) drop_db
+#	@godotenv -f ./.env.local $(MAKE) create_db
+#	@godotenv -f ./.env.local $(MAKE) migrate_db
 
 run_test_infra_migration:
 	@godotenv -f ./.env.local $(MAKE) drop_test_db

@@ -27,7 +27,7 @@ type PetService interface {
 	AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetResponse, error)
 	UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error)
 	//AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
-	//DeletePet(context.Context, int64, string) (*domain.DeletePetResponse, error)
+	DeletePet(context.Context, string) (*domain.DeletePetResponse, error)
 	//ListPets(context.Context, string) (*domain.ListPetsResponse, error)
 	//FindPetsByTags(context.Context, []string) (*domain.FindPetsByTagsResponse, error)
 	//GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)

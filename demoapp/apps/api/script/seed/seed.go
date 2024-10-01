@@ -1,22 +1,34 @@
 package main
 
 import (
-	"api/internal/dto"
 	"api/internal/service/config"
 	"api/internal/util/db"
+	"api/test"
 )
 
 func main() {
 	configService := config.NewConfigService()
-	config, err := configService.GetConfig()
+	conf, err := configService.GetConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	connection, err := db.Connect(config.Postgres.DatabaseDSN)
+	session, err := db.Connect(conf.Postgres.DatabaseDSN)
 	if err != nil {
 		panic(err)
 	}
 
-	connection.Create(&dto.Pet{})
+	dataGenerator := test.NewGenerator()
+	dataBuilder := test.NewBuilder(session)
+
+	pet1 := dataGenerator.CreatePet()
+	pet2 := dataGenerator.CreatePet()
+
+	err = dataBuilder.
+		Reset().
+		AddPets(pet1, pet2).
+		Submit()
+	if err != nil {
+		panic(err)
+	}
 }

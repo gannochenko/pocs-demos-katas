@@ -43,7 +43,7 @@ func (s *Service) UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.Updat
 }
 
 // DeletePet - Deletes a pet
-func (s *Service) DeletePet(ctx context.Context, petId int64, apiKey string) (*domain.DeletePetResponse, error) {
+func (s *Service) DeletePet(ctx context.Context, petId string) (*domain.DeletePetResponse, error) {
 	return nil, syserr.NewNotImplemented("method not implemented")
 }
 

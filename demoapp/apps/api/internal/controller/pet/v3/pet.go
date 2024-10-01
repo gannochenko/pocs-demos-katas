@@ -11,16 +11,12 @@ package v3
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
 	"net/http"
-	"os"
 	"strings"
-
-	"github.com/gorilla/mux"
 
 	"api/interfaces"
 	"api/internal/api"
+	"api/internal/domain"
 	"api/internal/util"
 	httpUtil "api/internal/util/http"
 	"api/pkg/syserr"
@@ -60,20 +56,15 @@ func (c *PetAPIController) GetRoutes() map[string]util.Route {
 			"/v3/pet/get",
 			c.DeletePet,
 		},
-		"ListPets": {
-			strings.ToUpper("Post"),
-			"/v3/pet/find",
-			c.FindPetsByStatus,
-		},
-		"GetPetByID": {
-			strings.ToUpper("Post"),
-			"/v3/pet/get",
-			c.GetPetById,
-		},
 		"UpdatePet": {
 			strings.ToUpper("Post"),
 			"/v3/pet/update",
 			c.UpdatePet,
+		},
+		"ListPets": {
+			strings.ToUpper("Post"),
+			"/v3/pet/list",
+			c.ListPets,
 		},
 	}
 }
@@ -107,16 +98,7 @@ func (c *PetAPIController) AddPet(w http.ResponseWriter, r *http.Request) error 
 
 // DeletePet - Deletes a pet
 func (c *PetAPIController) DeletePet(w http.ResponseWriter, r *http.Request) error {
-	params := mux.Vars(r)
-	petIdParam, err := httpUtil.ParseNumericParameter[int64](
-		params["petId"],
-		httpUtil.WithRequire[int64](httpUtil.ParseInt64),
-	)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not delete a pet", syserr.F("param", "petID"))
-	}
-	apiKeyParam := r.Header.Get("api_key")
-	result, err := c.petService.DeletePet(r.Context(), petIdParam, apiKeyParam)
+	result, err := c.petService.DeletePet(r.Context(), "")
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err
@@ -125,8 +107,8 @@ func (c *PetAPIController) DeletePet(w http.ResponseWriter, r *http.Request) err
 	return httpUtil.EncodeJSONResponse(result, nil, w)
 }
 
-// FindPetsByStatus - Finds Pets by status
-func (c *PetAPIController) FindPetsByStatus(w http.ResponseWriter, r *http.Request) error {
+// ListPets - Finds Pets by status
+func (c *PetAPIController) ListPets(w http.ResponseWriter, r *http.Request) error {
 	query, err := httpUtil.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		return syserr.Wrap(err, syserr.BadInputCode, "could not find pets")
@@ -140,45 +122,9 @@ func (c *PetAPIController) FindPetsByStatus(w http.ResponseWriter, r *http.Reque
 		param := "available"
 		statusParam = param
 	}
-	result, err := c.petService.ListPets(r.Context(), statusParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		return err
-	}
-	// If no error, encode the body and the result code
-	return httpUtil.EncodeJSONResponse(result, nil, w)
-}
-
-// FindPetsByTags - Finds Pets by tags
-func (c *PetAPIController) FindPetsByTags(w http.ResponseWriter, r *http.Request) error {
-	query, err := httpUtil.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not find pets by tags")
-	}
-	var tagsParam []string
-	if query.Has("tags") {
-		tagsParam = strings.Split(query.Get("tags"), ",")
-	}
-	result, err := c.petService.FindPetsByTags(r.Context(), tagsParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		return err
-	}
-	// If no error, encode the body and the result code
-	return httpUtil.EncodeJSONResponse(result, nil, w)
-}
-
-// GetPetById - Find pet by ID
-func (c *PetAPIController) GetPetById(w http.ResponseWriter, r *http.Request) error {
-	params := mux.Vars(r)
-	petIdParam, err := httpUtil.ParseNumericParameter[int64](
-		params["petId"],
-		httpUtil.WithRequire[int64](httpUtil.ParseInt64),
-	)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not get a pet by id", syserr.F("param", "petID"))
-	}
-	result, err := c.petService.GetPetById(r.Context(), petIdParam)
+	result, err := c.petService.ListPets(r.Context(), &domain.ListPetsRequest{
+		Status: domain.PetStatus(statusParam),
+	})
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err
@@ -206,79 +152,6 @@ func (c *PetAPIController) UpdatePet(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 	result, err := c.petService.UpdatePet(r.Context(), domainPet)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		return err
-	}
-	// If no error, encode the body and the result code
-	return httpUtil.EncodeJSONResponse(result, nil, w)
-}
-
-// UpdatePetWithForm - Updates a pet in the store with form data
-func (c *PetAPIController) UpdatePetWithForm(w http.ResponseWriter, r *http.Request) error {
-	params := mux.Vars(r)
-	query, err := httpUtil.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not update a pet with form")
-	}
-	petIdParam, err := httpUtil.ParseNumericParameter[int64](
-		params["petId"],
-		httpUtil.WithRequire[int64](httpUtil.ParseInt64),
-	)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not update a pet with form", syserr.F("param", "petId"))
-	}
-	var nameParam string
-	if query.Has("name") {
-		param := query.Get("name")
-
-		nameParam = param
-	} else {
-	}
-	var statusParam string
-	if query.Has("status") {
-		param := query.Get("status")
-
-		statusParam = param
-	} else {
-	}
-	result, err := c.petService.UpdatePetWithForm(r.Context(), petIdParam, nameParam, statusParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		return err
-	}
-	// If no error, encode the body and the result code
-	return httpUtil.EncodeJSONResponse(result, nil, w)
-}
-
-// UploadFile - uploads an image
-func (c *PetAPIController) UploadFile(w http.ResponseWriter, r *http.Request) error {
-	params := mux.Vars(r)
-	query, err := httpUtil.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not update file")
-	}
-	petIdParam, err := httpUtil.ParseNumericParameter[int64](
-		params["petId"],
-		httpUtil.WithRequire[int64](httpUtil.ParseInt64),
-	)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not upload file form", syserr.F("param", "petId"))
-	}
-	var additionalMetadataParam string
-	if query.Has("additionalMetadata") {
-		param := query.Get("additionalMetadata")
-
-		additionalMetadataParam = param
-	} else {
-	}
-	bodyParam := &os.File{}
-	d := json.NewDecoder(r.Body)
-	d.DisallowUnknownFields()
-	if err := d.Decode(&bodyParam); err != nil && !errors.Is(err, io.EOF) {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not update file")
-	}
-	result, err := c.petService.UploadFile(r.Context(), petIdParam, additionalMetadataParam, bodyParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err
