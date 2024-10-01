@@ -14,6 +14,7 @@ package interfaces
 import (
 	"api/internal/api"
 	"api/internal/domain"
+	"api/internal/types"
 
 	"context"
 )
@@ -26,14 +27,8 @@ type PetService interface {
 	ListPets(ctx context.Context, request *domain.ListPetsRequest) (*domain.ListPetsResponse, error)
 	AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetResponse, error)
 	UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error)
-	//AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
 	DeletePet(context.Context, string) (*domain.DeletePetResponse, error)
-	//ListPets(context.Context, string) (*domain.ListPetsResponse, error)
-	//FindPetsByTags(context.Context, []string) (*domain.FindPetsByTagsResponse, error)
 	//GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)
-	//UpdatePet(context.Context, *domain.Pet) (*domain.UpdatePetResponse, error)
-	//UpdatePetWithForm(context.Context, int64, string, string) (*domain.UpdatePetWithFormResponse, error)
-	//UploadFile(context.Context, int64, string, *os.File) (*domain.UploadFileResponse, error)
 }
 
 // StoreService defines the api actions for the StoreAPI service
@@ -49,4 +44,8 @@ type StoreService interface {
 
 type ConfigService interface {
 	GetConfig() (*domain.Config, error)
+}
+
+type AuthService interface {
+	WithAuth(next types.Handler) types.Handler
 }

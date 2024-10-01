@@ -38,11 +38,12 @@ func main() {
 		panic(err)
 	}
 
-	serviceFactory := factory.MakeServiceFactory(session)
+	serviceFactory := factory.MakeServiceFactory(session, configService)
 
 	router := mux.NewRouter()
 	util.PopulateRouter(
 		router,
+		serviceFactory.GetAuthService(),
 		petV3.NewPetAPIController(serviceFactory.GetPetService()),
 		storeV3.NewStoreAPIController(serviceFactory.GetStoreService()),
 	)

@@ -3,7 +3,9 @@ package util
 import (
 	"net/http"
 
+	"api/internal/types"
 	httpUtil "api/internal/util/http"
+	"api/pkg/logger"
 	"api/pkg/syserr"
 )
 
@@ -20,9 +22,9 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func withErrorHandler(h AppHandler) AppHandler {
+func withErrorHandler(next types.Handler) types.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		err := h(w, r)
+		err := next(w, r)
 		if err != nil {
 			code := syserr.GetCode(err)
 			httpCode := errorToHTTPError[code]
@@ -37,7 +39,10 @@ func withErrorHandler(h AppHandler) AppHandler {
 				response.Message = "internal error occurred"
 			}
 
-			_ = httpUtil.EncodeJSONResponse(response, ToPtr(httpCode), w)
+			writeErr := httpUtil.EncodeJSONResponse(response, ToPtr(httpCode), w)
+			if writeErr != nil {
+				logger.Error(r.Context(), "could not write the error response")
+			}
 		}
 
 		return err

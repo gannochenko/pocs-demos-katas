@@ -47,24 +47,28 @@ func NewPetAPIController(petService interfaces.PetService, opts ...PetAPIOption)
 func (c *PetAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"AddPet": {
-			strings.ToUpper("Post"),
-			"/v3/pet/create",
-			c.AddPet,
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/v3/pet/create",
+			HandlerFunc: c.AddPet,
+			Protected:   true,
 		},
 		"DeletePet": {
-			strings.ToUpper("Post"),
-			"/v3/pet/get",
-			c.DeletePet,
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/v3/pet/get",
+			HandlerFunc: c.DeletePet,
+			Protected:   true,
 		},
 		"UpdatePet": {
-			strings.ToUpper("Post"),
-			"/v3/pet/update",
-			c.UpdatePet,
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/v3/pet/update",
+			HandlerFunc: c.UpdatePet,
+			Protected:   true,
 		},
 		"ListPets": {
-			strings.ToUpper("Post"),
-			"/v3/pet/list",
-			c.ListPets,
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/v3/pet/list",
+			HandlerFunc: c.ListPets,
+			Protected:   true,
 		},
 	}
 }

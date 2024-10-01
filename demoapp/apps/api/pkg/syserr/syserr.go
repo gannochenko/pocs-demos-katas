@@ -13,6 +13,7 @@ type Code string
 const (
 	InternalCode       Code = "internal"
 	BadInputCode       Code = "bad_input"
+	UnauthorisedCode   Code = "unauthorised"
 	NotFoundCode       Code = "not_found"
 	NotImplementedCode Code = "not_implemented"
 )
@@ -49,6 +50,10 @@ func NewInternal(message string, fields ...*Field) *Error {
 
 func NewBadInput(message string, fields ...*Field) *Error {
 	return New(BadInputCode, message, fields...)
+}
+
+func NewUnauthorized(message string, fields ...*Field) *Error {
+	return New(UnauthorisedCode, message, fields...)
 }
 
 func NewNotFound(message string, fields ...*Field) *Error {

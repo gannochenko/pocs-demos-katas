@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"api/internal/types"
 	"api/pkg/logger"
 	"api/pkg/syserr"
 )
 
-func withLogger(h AppHandler) AppHandler {
+func withLogger(next types.Handler) types.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		err := h(w, r)
+		err := next(w, r)
 
 		fields := make([]*logger.Field, 1)
 		fields[0] = logger.F("query", fmt.Sprintf("%s %s", r.Method, r.RequestURI))

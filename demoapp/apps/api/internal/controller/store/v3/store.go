@@ -52,24 +52,28 @@ func NewStoreAPIController(storeService interfaces.StoreService, opts ...StoreAP
 func (c *StoreAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"DeleteOrder": util.Route{
-			strings.ToUpper("Post"),
-			"/v3/store/order/delete",
-			c.DeleteOrder,
+			Method: strings.ToUpper("Post"),
+			Pattern: "/v3/store/order/delete",
+			HandlerFunc: c.DeleteOrder,
+			Protected: true,
 		},
 		"GetInventory": util.Route{
-			strings.ToUpper("Post"),
-			"/v3/store/inventory/list",
-			c.GetInventory,
+			Method: strings.ToUpper("Post"),
+			Pattern: "/v3/store/inventory/list",
+			HandlerFunc: c.GetInventory,
+			Protected: true,
 		},
 		"GetOrderById": util.Route{
-			strings.ToUpper("Post"),
-			"/v3/store/order/get",
-			c.GetOrderById,
+			Method: strings.ToUpper("Post"),
+			Pattern: "/v3/store/order/get",
+			HandlerFunc: c.GetOrderById,
+			Protected: true,
 		},
 		"PlaceOrder": util.Route{
-			strings.ToUpper("Post"),
-			"/v3/store/order/place",
-			c.PlaceOrder,
+			Method: strings.ToUpper("Post"),
+			Pattern: "/v3/store/order/place",
+			HandlerFunc: c.PlaceOrder,
+			Protected: true,
 		},
 	}
 }

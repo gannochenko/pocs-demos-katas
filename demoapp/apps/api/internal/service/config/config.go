@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	mu     sync.Mutex
+	initMu sync.Mutex
 	config *domain.Config
 }
 
@@ -22,8 +22,8 @@ func (c *Config) GetConfig() (*domain.Config, error) {
 		return c.config, nil
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.initMu.Lock()
+	defer c.initMu.Unlock()
 
 	var config domain.Config
 	err := envconfig.Process("", &config)

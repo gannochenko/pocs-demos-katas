@@ -1,15 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+import './globals.css';
+import {Routes, Route} from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
+import {HomePage} from "./pages/HomePage";
+import {ApplicationLayout, Providers} from "./components";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+      <Providers>
+          <ApplicationLayout>
+              <Routes>
+                  <Route index element={<HomePage />} />
+              </Routes>
+          </ApplicationLayout>
+      </Providers>
   </React.StrictMode>
 );
 

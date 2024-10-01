@@ -10,6 +10,7 @@ import (
 
 	"api/internal/domain"
 	"api/internal/factory"
+	"api/internal/service/config"
 	"api/internal/util/db"
 	"api/test"
 )
@@ -29,7 +30,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestListPets(t *testing.T) {
-	serviceFactory := factory.MakeServiceFactory(session)
+	configService := config.NewConfigService()
+	serviceFactory := factory.MakeServiceFactory(session, configService)
 	dataGenerator := test.NewGenerator()
 	dataBuilder := test.NewBuilder(session)
 	ctx := context.Background()
