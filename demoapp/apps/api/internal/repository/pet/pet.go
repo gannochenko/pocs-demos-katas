@@ -3,6 +3,7 @@ package pet
 import (
 	"context"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 
 	"api/internal/dto"
@@ -54,7 +55,10 @@ func (r *Repository) applyFilter(runner *gorm.DB, parameters *dto.ListPetParamet
 		if parameters.Filter != nil {
 			filter := parameters.Filter
 			if filter.ID != nil {
-				runner = runner.Where("id = ?", filter.ID)
+				runner = runner.Where("id = ANY(?)", pq.Array(filter.ID))
+			}
+			if filter.Status != nil {
+				runner = runner.Where("status = ?", filter.Status)
 			}
 		}
 	}

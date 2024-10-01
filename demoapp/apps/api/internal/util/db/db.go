@@ -3,6 +3,8 @@ package db
 import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"api/internal/domain"
 )
 
 func Connect(dsn string) (*gorm.DB, error) {
@@ -23,13 +25,20 @@ func GetRunner(session *gorm.DB, tx *gorm.DB) *gorm.DB {
 }
 
 type Pagination struct {
-	PageNumber int
-	PageSize   int
+	PageNumber int32
+	PageSize   int32
+}
+
+func NewPaginationFromDomainRequest(pagination *domain.PaginationRequest) *Pagination {
+	return &Pagination{
+		PageSize:   pagination.PageSize,
+		PageNumber: pagination.PageNumber,
+	}
 }
 
 func ApplyPagination(runner *gorm.DB, pagination *Pagination) *gorm.DB {
 	if pagination != nil {
-		runner = runner.Offset(int(pagination.PageNumber * pagination.PageSize)).Limit(pagination.PageSize)
+		runner = runner.Offset(int((pagination.PageNumber - 1) * pagination.PageSize)).Limit(int(pagination.PageSize))
 	}
 
 	return runner

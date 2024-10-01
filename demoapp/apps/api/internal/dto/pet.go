@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
 	"api/internal/domain"
@@ -16,17 +17,19 @@ type Pet struct {
 	PhotoUrls []string         `gorm:"type:text[]"`
 }
 
-//func (p *Pet) ToDomain() *domain.Pet {
-//	return &domain.Pet{
-//		ID:        p.ID.String(),
-//		Title:     p.Title,
-//		Author:    p.Author,
-//		IssueYear: p.IssueYear,
-//	}
-//}
+func (p *Pet) ToDomain() (*domain.Pet, error) {
+	result := &domain.Pet{}
+	err := copier.Copy(result, p)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
 
 type ListPetFilter struct {
-	ID *string
+	ID     []string
+	Status *domain.PetStatus
 }
 
 type ListPetParameters struct {

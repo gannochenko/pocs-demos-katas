@@ -19,7 +19,7 @@ const (
 )
 
 type Pet struct {
-	Id        int64       `json:"id,omitempty"`
+	ID        string      `json:"id,omitempty"`
 	Name      string      `json:"name"`
 	Category  PetCategory `json:"category,omitempty"`
 	PhotoUrls []string    `json:"photoUrls"`
@@ -31,7 +31,16 @@ type AddPetResponse struct{}
 
 type DeletePetResponse struct{}
 
-type ListPetsResponse struct{}
+type ListPetsRequest struct {
+	Status     PetStatus
+	IDs        []string
+	Pagination *PaginationRequest
+}
+
+type ListPetsResponse struct {
+	Pets       []*Pet
+	Pagination *PaginationResponse
+}
 
 type FindPetsByTagsResponse struct{}
 

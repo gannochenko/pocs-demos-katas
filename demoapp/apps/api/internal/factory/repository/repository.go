@@ -39,3 +39,11 @@ func (m *Factory) GetPetTagRepository() interfaces.PetTagRepository {
 
 	return m.petTagRepository
 }
+
+func (m *Factory) GetPetCategoryRepository() interfaces.PetCategoryRepository {
+	if m.petCategoryRepository == nil {
+		m.petCategoryRepository = nil
+	}
+
+	return m.petCategoryRepository
+}

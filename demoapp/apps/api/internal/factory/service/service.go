@@ -30,7 +30,11 @@ func (f *Factory) GetRepositoryFactory() *repository.Factory {
 
 func (f *Factory) GetPetService() interfaces.PetService {
 	if f.petService == nil {
-		f.petService = pet.NewPetService()
+		f.petService = pet.NewPetService(
+			f.repositoryFactory.GetPetRepository(),
+			f.repositoryFactory.GetPetTagRepository(),
+			f.repositoryFactory.GetPetCategoryRepository(),
+		)
 	}
 
 	return f.petService

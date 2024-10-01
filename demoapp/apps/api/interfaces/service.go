@@ -23,6 +23,7 @@ import (
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type PetService interface {
+	ListPets(ctx context.Context, request *domain.ListPetsRequest) (*domain.ListPetsResponse, error)
 	AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetResponse, error)
 	UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error)
 	//AddPet(context.Context, *domain.Pet) (*domain.AddPetResponse, error)
