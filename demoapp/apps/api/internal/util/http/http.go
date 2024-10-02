@@ -12,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"api/internal/domain"
+	"api/internal/types"
 )
 
 const (
@@ -19,6 +22,18 @@ const (
 	errMsgMinValueConstraint = "provided parameter is not respecting minimum value constraint"
 	errMsgMaxValueConstraint = "provided parameter is not respecting maximum value constraint"
 )
+
+func WithCORS(config *domain.Config, next types.Handler) types.Handler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		if config.Env == "dev" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "*")
+		}
+
+		return next(w, r)
+	}
+}
 
 // EncodeJSONResponse uses the json encoder to write an interface to the http response with an optional status code
 func EncodeJSONResponse(i interface{}, status *int, w http.ResponseWriter) error {

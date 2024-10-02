@@ -14,4 +14,5 @@ type Config struct {
 	LogLevel string         `envconfig:"LOG_LEVEL" default:"info" desc:"logging level"`
 	HTTPPort int            `envconfig:"HTTP_PORT" default:"4545" desc:"http service level"`
 	Auth0    Auth0Config    `envconfig:"AUTH0"`
+	Env      string         `envconfig:"ENV"`
 }

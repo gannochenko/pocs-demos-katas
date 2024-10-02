@@ -43,6 +43,7 @@ func main() {
 	router := mux.NewRouter()
 	util.PopulateRouter(
 		router,
+		conf,
 		serviceFactory.GetAuthService(),
 		petV3.NewPetAPIController(serviceFactory.GetPetService()),
 		storeV3.NewStoreAPIController(serviceFactory.GetStoreService()),

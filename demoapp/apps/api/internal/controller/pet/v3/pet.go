@@ -68,7 +68,7 @@ func (c *PetAPIController) GetRoutes() map[string]util.Route {
 			Method:      strings.ToUpper("Post"),
 			Pattern:     "/v3/pet/list",
 			HandlerFunc: c.ListPets,
-			Protected:   true,
+			Protected:   false,
 		},
 	}
 }

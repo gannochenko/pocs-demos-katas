@@ -5,10 +5,8 @@ export const FooterRoot = styled("div")``;
 
 export const Wrapper = styled("div")`
   padding: ${spacing(2)};
-  ${breakpointDown("md")} {
-    flex-direction: column;
-    text-align: center;
-  }
+  flex-direction: column;
+  text-align: center;
 `;
 
 export const Left = styled("div")`

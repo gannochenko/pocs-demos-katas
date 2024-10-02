@@ -17,6 +17,7 @@ import { menu } from '../../menu';
 import { siteMetadata } from '../../meta/site';
 
 import { MenuPropsType } from './type';
+import {Typography} from "../Typography";
 
 // import { AuthWidget } from '../../../../bullshit/AuthWidget';
 
@@ -33,7 +34,9 @@ export const Menu: FC<MenuPropsType> = () => {
         <MenuRoot>
             <MenuInnerContainer>
                 <MenuHome to="/" onClick={onMobileItemClick}>
-                    {siteMetadata.logoText}
+                    <Typography>
+                        {siteMetadata.logoText}
+                    </Typography>
                 </MenuHome>
                 <MenuRight>
                     <MenuItems>
