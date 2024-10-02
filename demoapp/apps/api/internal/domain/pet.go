@@ -38,8 +38,8 @@ type ListPetsRequest struct {
 }
 
 type ListPetsResponse struct {
-	Pets       []*Pet
-	Pagination *PaginationResponse
+	Pets       []*Pet              `json:"pets"`
+	Pagination *PaginationResponse `json:"pagination"`
 }
 
 type FindPetsByTagsResponse struct{}

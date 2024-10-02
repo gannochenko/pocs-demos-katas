@@ -29,6 +29,11 @@ func WithCORS(config *domain.Config, next types.Handler) types.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "*")
 			w.Header().Set("Access-Control-Allow-Headers", "*")
+
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusOK)
+				return nil
+			}
 		}
 
 		return next(w, r)

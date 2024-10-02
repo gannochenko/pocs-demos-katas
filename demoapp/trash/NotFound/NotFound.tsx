@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 
 import { NotFoundRoot, Image, Message, Code, Explanation, Left } from './style';
 import { NotFoundFramePropsType } from './type';
-import { Link } from '../../dashboard/src/components/Link';
-import { Copyright } from '../../dashboard/src/components/Copyright';
+import { Link } from '../../apps/dashboard/src/components/Link';
+import { Copyright } from '../../apps/dashboard/src/components/Copyright';
 
 export const NotFound: FC<NotFoundFramePropsType> = ({
     children,

@@ -1,6 +1,6 @@
 import { Ref, useCallback } from 'react';
 import { AuthWidgetPropsType } from '../type';
-import { AuthState } from '../../../dashboard/src/states';
+import { AuthState } from '../../../apps/dashboard/src/states';
 
 export const useAuthWidget = (
     ref: Ref<HTMLDivElement>,

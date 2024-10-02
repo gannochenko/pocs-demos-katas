@@ -20,12 +20,6 @@ import (
 	"api/pkg/syserr"
 )
 
-const (
-	missingJWTErrorMessage       = "Requires authentication"
-	invalidJWTErrorMessage       = "Bad credentials"
-	permissionDeniedErrorMessage = "Permission denied"
-)
-
 type Service struct {
 	initMu        sync.Mutex
 	configService interfaces.ConfigService

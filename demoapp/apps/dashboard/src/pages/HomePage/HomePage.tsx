@@ -5,7 +5,7 @@ import {PetList} from "../../components/PetList/PetList";
 
 export function HomePage() {
 	return (
-		<PageLayout>
+		<PageLayout title="Pets" displayPageTitle>
 			<Container>
 				<PetList />
 			</Container>

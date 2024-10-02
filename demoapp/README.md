@@ -1,5 +1,33 @@
 # Demo APP
 
+This is a Golang + React demo cloud-native app. No bullshit, only production-tested code.
+
+Features:
+
+* Backend
+  * ✅ Golang
+  * ✅ GORM
+  * ✅ Dependency injection
+  * ✅ Error handling
+  * ✅ Logging
+  * ✅ Unit/integration testing
+  * ✅ Data fixture generator
+  * ✅ Docker
+  * ⌛ Authentication
+  * ❌ CICD
+  * ❌ S3 / GCS
+  * ❌ O11y (metrics, Prometheus, Grafana)
+* Frontend
+  * ✅ TypeScript
+  * ✅ React
+  * ✅ create-react-app
+  * ✅ react router
+  * ✅ mui/joy
+  * ✅ react-hooks
+  * ✅ unstated-next
+  * ❌ Unit testing
+  * ❌ Authentication
+
 ## Running locally
 
 ### Pre-requisites
@@ -12,10 +40,14 @@ Install [Golang](https://github.com/moovweb/gvm) and [Node](https://github.com/n
 make install
 ~~~
 
-### Copy and modify .env.local
+### Prepare env vars
 
 ~~~
+cd apps/api
 cp .env.example .env.local
+# populate the values
+cd ../dashboard
+cp .env.example .env
 ~~~
 
 ### Run infra
@@ -24,7 +56,19 @@ cp .env.example .env.local
 make run_local_infra
 ~~~
 
+### Prepare database
+
+~~~shell
+cd apps/api
+make migrate_db
+make seed
+~~~
+
 ### Run API app
+
+~~~shell
+make run app=api
+~~~
 
 ### Run Dashboard app
 
@@ -35,9 +79,6 @@ make run app=dashboard
 ### Further improvements
 
 * Deploy somewhere :)
-* CI/CD
-* Upload files directly to S3 or GCS
 * Alerting and O11y with Prometheus, Grafana and OpsGenie
 * Logging with Grafana Loki
-* Proper migrations
 * Better support for Swagger rebuilds, possible migration to Protobuf

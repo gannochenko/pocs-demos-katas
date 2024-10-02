@@ -10,7 +10,7 @@ import {
     AuthWidgetUserName,
 } from './style';
 import { useAuthWidget } from './hooks/useAuthWidget';
-import { Link } from '../../dashboard/src/components/Link';
+import { Link } from '../../apps/dashboard/src/components/Link';
 
 const anchorOrigin = {
     vertical: 'bottom',

@@ -14,6 +14,7 @@ export const PageLayout: FC<PageLayoutPropsType> = (props) => {
             <SEO {...seoProps} />
             {showTitle && (
                 <Typography variant="plain" component="h1">
+                    <br/>
                     <Container>{title}</Container>
                 </Typography>
             )}
