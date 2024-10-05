@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -24,6 +25,7 @@ type Service struct {
 	initMu        sync.Mutex
 	configService interfaces.ConfigService
 	validator     *validator.Validator
+	issuer        string
 }
 
 func New(configService interfaces.ConfigService) *Service {
@@ -39,33 +41,6 @@ type CustomClaims struct {
 func (c CustomClaims) Validate(ctx context.Context) error {
 	return nil
 }
-
-//func (c CustomClaims) HasPermissions(expectedClaims []string) bool {
-//	if len(expectedClaims) == 0 {
-//		return false
-//	}
-//	for _, scope := range expectedClaims {
-//		if !helpers.Contains(c.Permissions, scope) {
-//			return false
-//		}
-//	}
-//	return true
-//}
-
-//func ValidatePermissions(expectedClaims []string, next http.Handler) http.Handler {
-//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		token := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-//		claims := token.CustomClaims.(*CustomClaims)
-//		if !claims.HasPermissions(expectedClaims) {
-//			errorMessage := ErrorMessage{Message: permissionDeniedErrorMessage}
-//			if err := helpers.WriteJSON(w, http.StatusForbidden, errorMessage); err != nil {
-//				log.Printf("Failed to write error message: %v", err)
-//			}
-//			return
-//		}
-//		next.ServeHTTP(w, r)
-//	})
-//}
 
 func (s *Service) GetValidator() (*validator.Validator, error) {
 	if s.validator != nil {
@@ -87,6 +62,8 @@ func (s *Service) GetValidator() (*validator.Validator, error) {
 	if err != nil {
 		log.Fatalf("Failed to parse the issuer url: %v", err)
 	}
+
+	s.issuer = issuerURL.String()
 
 	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
 
@@ -134,6 +111,40 @@ func (s *Service) WithAuth(next types.Handler) types.Handler {
 
 		fmt.Printf("%v", claims)
 
+		userInfo, err := s.getUserInfo(s.issuer+"userinfo", token)
+		if err != nil {
+			return syserr.Wrap(err, syserr.InternalCode, "could not retrieve user info")
+		}
+
+		fmt.Printf("%v", userInfo)
+
 		return next(w, r)
 	}
+}
+
+func (s *Service) getUserInfo(url string, accessToken string) (string, error) {
+	// Create a new HTTP request to the userinfo endpoint
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", err
+	}
+
+	// Add the access token in the Authorization header
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+
+	// Perform the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
 }
