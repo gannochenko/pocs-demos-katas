@@ -1,17 +1,17 @@
-import {getToken} from "./token";
-
 const apiUrl = process.env.REACT_APP_API_URL;
 
-export const fetchJSON = (uri: string, body?: Record<string, unknown>) => {
-	const token = getToken();
+export const fetchJSON = async (uri: string, body: Record<string, unknown> | null, token: string) => {
+	const headers: Record<string, string> = {
+		'Content-Type': 'application/json',
+	};
+	if (token) {
+		headers['Authorization'] = `Bearer ${token}`
+	}
 
-	// todo: retry upon invalid token
-	return window.fetch(`${apiUrl}${uri}`, {
+	const result = await window.fetch(`${apiUrl}${uri}`, {
 		method: 'POST',
-		body: body ? JSON.stringify(body) : "",
-		headers: {
-			'Content-Type': 'application/json',
-			// 'Authorization': `Bearer ${token}`,
-		},
-	}).then((result) => result.json());
+		body: body ? JSON.stringify(body) : "{}",
+		headers,
+	});
+	return await result.json();
 };

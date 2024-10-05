@@ -1,5 +1,6 @@
 import { styled } from "@mui/joy";
 import { Link } from "react-router-dom";
+import {typography} from "../../util/mixins";
 
 const css = `
   color: inherit;
@@ -16,9 +17,11 @@ const css = `
 `;
 
 export const LinkRegular = styled("a")`
-  ${css}
+  ${css};
+  ${typography("body-md")};
 `;
 
 export const LinkRR = styled(Link)`
   ${css}
+  ${typography("body-md")};
 `;

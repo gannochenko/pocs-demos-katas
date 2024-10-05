@@ -5,6 +5,7 @@ import {Routes, Route} from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 import {HomePage} from "./pages/HomePage";
 import {ApplicationLayout, Providers} from "./components";
+import {NotFoundPage} from "./pages/NotFoundPage";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,6 +16,10 @@ root.render(
           <ApplicationLayout>
               <Routes>
                   <Route index element={<HomePage />} />
+                  <Route
+                      path="*"
+                      element={<NotFoundPage />}
+                  />
               </Routes>
           </ApplicationLayout>
       </Providers>

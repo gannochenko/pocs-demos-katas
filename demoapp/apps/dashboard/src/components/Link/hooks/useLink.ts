@@ -1,7 +1,6 @@
 import { LinkProps } from "../type";
 
-export const useLink = (props: LinkProps) => {
-  let { href, target, referrerPolicy } = props;
+export const useLink = ({ href, target, referrerPolicy, children, ...resProps }: LinkProps) => {
   let showRRLink = true;
 
   href = href ?? "/";
@@ -13,13 +12,17 @@ export const useLink = (props: LinkProps) => {
   }
 
   return {
-    rootProps: {
-      ...props,
+    regularLinkProps: {
+      ...resProps,
       href,
-      to: href,
       target,
-      referrerPolicy,
+      rel: referrerPolicy,
+    },
+    routerLinkProps: {
+      ...resProps,
+      to: href,
     },
     showRRLink,
+    children,
   };
 };

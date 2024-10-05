@@ -15,8 +15,8 @@ const listPetsResponseDecoder = JsonDecoder.object(
 	"ListPetsResponse"
 );
 
-export const listPets = async (request: ListPetsRequest): Promise<ListPetsResponse> => {
-	const response = await fetchJSON('/v3/pet/list');
+export const listPets = async (request: ListPetsRequest, token: string): Promise<ListPetsResponse> => {
+	const response = await fetchJSON('/v3/pet/list', null, token);
 
 	return listPetsResponseDecoder.decodeToPromise(response);
 };

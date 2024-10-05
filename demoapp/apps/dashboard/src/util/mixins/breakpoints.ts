@@ -1,22 +1,22 @@
 import { ThemedProps } from "../type";
+import {Breakpoint, Breakpoints} from "@mui/system/createTheme/createBreakpoints";
 
 // https://mui.com/joy-ui/customization/default-theme-viewer/
-export type BreakpointNameType = "lg" | "sm" | "md" | "xs" | "xl";
 
 export const breakpointUp =
-  (breakpointName: BreakpointNameType) =>
+  (breakpointName: Breakpoint) =>
   ({ theme }: ThemedProps) =>
     theme?.breakpoints.up(breakpointName) ?? "@media";
 
 export const breakpointDown =
-  (breakpointName: BreakpointNameType) =>
+  (breakpointName: Breakpoint) =>
   ({ theme }: ThemedProps) =>
     theme?.breakpoints.down(breakpointName) ?? "@media";
 
 export const breakpointBetween =
   (
-    breakpointStartName: BreakpointNameType,
-    breakpointEndName: BreakpointNameType
+    breakpointStartName: Breakpoint,
+    breakpointEndName: Breakpoint
   ) =>
   ({ theme }: ThemedProps) =>
     theme?.breakpoints.between(breakpointStartName, breakpointEndName) &&

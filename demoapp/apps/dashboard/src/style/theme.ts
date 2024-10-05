@@ -16,6 +16,18 @@ declare module "@mui/joy/styles" {
     default: true;
     easier: true;
   }
+
+  interface ColorSchemeOverrides {
+    default: true;
+    contrast: true;
+    active: true;
+    pronounced: true;
+
+    header: true;
+    subHeader: true;
+    footer: true;
+    subtle: true;
+  }
 }
 
 // https://mui.com/joy-ui/customization/default-theme-viewer/
@@ -25,31 +37,31 @@ export const theme = extendTheme({
     light: {
       palette: {
         background: {
-          default: "#fefefe",
-          contrast: "#efeeee",
-          active: "#dedede",
-          pronounced: "#707070",
-
-          header: "#efeeee",
-          subHeader: "#f8f8f8",
-          footer: "#252525",
-          subtle: "#f8f8f8",
+          // body: "#fefefe",
+    //       contrast: "#efeeee",
+    //       active: "#dedede",
+    //       pronounced: "#707070",
+    //
+    //       header: "#efeeee",
+    //       subHeader: "#f8f8f8",
+    //       footer: "#252525",
+    //       subtle: "#f8f8f8",
         },
         text: {
-          default: "#2a2a2a",
-          easier: "#484848",
+          primary: "#2a2a2a",
+          // easier: "#484848",
         },
       },
     },
     dark: {
       palette: {
         background: {
-          header: "#000",
-          subHeader: "#000",
-          default: "#000",
+          // header: "#000",
+          // subHeader: "#000",
+          // default: "#000",
         },
         text: {
-          default: "#fff",
+          // default: "#fff",
         },
       },
     },
@@ -70,8 +82,16 @@ export const theme = extendTheme({
       fontFamily: "Montserrat",
       fontWeight: 500,
     },
-    // @ts-expect-error
-    body1: {
+    "body-lg": {
+      fontFamily: "Victor Mono",
+    },
+    "body-md": {
+      fontFamily: "Victor Mono",
+    },
+    "body-sm": {
+      fontFamily: "Victor Mono",
+    },
+    "body-xs": {
       fontFamily: "Victor Mono",
     },
   },

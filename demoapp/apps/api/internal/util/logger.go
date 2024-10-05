@@ -5,21 +5,31 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
+
 	"api/internal/types"
+	pkgCtx "api/pkg/ctx"
 	"api/pkg/logger"
 	"api/pkg/syserr"
 )
 
-func withLogger(next types.Handler) types.Handler {
+func WithLogger(next types.Handler) types.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
+		operationID := uuid.New().String()
+		ctx := pkgCtx.WithOperationID(r.Context(), operationID)
+		r = r.WithContext(ctx)
+
+		w.Header().Set("X-Operation-ID", operationID)
+
 		err := next(w, r)
 
 		fields := make([]*logger.Field, 1)
 		fields[0] = logger.F("query", fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 
-		ctx := r.Context()
+		ctx = r.Context()
 		if err != nil {
-			logByErrorCode(ctx, err, fields...)
+			LogByErrorCode(ctx, errors.Wrap(err, "request handles with errors"), fields...)
 		} else {
 			logger.Info(ctx, "request handled", fields...)
 		}
@@ -37,7 +47,7 @@ var (
 	}
 )
 
-func logByErrorCode(ctx context.Context, err error, fields ...*logger.Field) {
+func LogByErrorCode(ctx context.Context, err error, fields ...*logger.Field) {
 	code := syserr.GetCode(err)
 	fn := errorToLogLevel[code]
 	if fn == nil {
@@ -47,7 +57,7 @@ func logByErrorCode(ctx context.Context, err error, fields ...*logger.Field) {
 	fields = append(fields, convertErrorFieldsToLoggerFields(syserr.GetFields(err))...)
 	fields = append(fields, logger.F("stack", syserr.GetStackFormatted(err)))
 
-	fn(ctx, fmt.Sprintf("request handled with error: %s", err.Error()), fields...)
+	fn(ctx, err.Error(), fields...)
 }
 
 func convertErrorFieldsToLoggerFields(fields []*syserr.Field) []*logger.Field {

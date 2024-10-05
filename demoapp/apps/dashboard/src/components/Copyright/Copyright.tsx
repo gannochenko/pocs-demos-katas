@@ -19,7 +19,7 @@ export const Copyright: FC<CopyrightPropsType> = ({
             {!!source && (
                 <span>
                     {author ? ' on ' : ''}
-                    <Link href={source} target="_blank" rel="noopener noreferrer">
+                    <Link href={source} target="_blank" referrerPolicy="noopener noreferrer">
                         {sourceText || source}
                     </Link>
                 </span>

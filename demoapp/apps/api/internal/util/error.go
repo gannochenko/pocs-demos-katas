@@ -22,7 +22,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func withErrorHandler(next types.Handler) types.Handler {
+func WithErrorHandler(next types.Handler) types.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		err := next(w, r)
 		if err != nil {

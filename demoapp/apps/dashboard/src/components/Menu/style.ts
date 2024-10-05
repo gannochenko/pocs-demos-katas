@@ -1,7 +1,7 @@
 import { styled, Container } from "@mui/joy";
-import { Link } from "react-router-dom";
 
-import {breakpointDown, contentAlignment, spacing} from "../../util/mixins";
+import {breakpointDown, breakpointUp, contentAlignment, spacing, typography} from "../../util/mixins";
+import {Link} from "../Link";
 
 export const MenuRoot = styled("div")`
     position: fixed;
@@ -22,7 +22,7 @@ export const MenuInnerContainer = styled(Container)`
 export const MenuItems = styled("nav")`
     padding: ${spacing(1)};
     ${contentAlignment('right', 'center')}
-    ${breakpointDown('xs')} {
+    ${breakpointDown('md')} {
         display: none;
     }
 `;
@@ -44,7 +44,6 @@ export const MenuHome = styled(Link)`
 
 export const MenuItem = styled(Link)`
     color: var(--joy-palette-background-text-default);
-    font-weight: bold;
     text-transform: uppercase;
     text-decoration: none;
     position: relative;
@@ -81,7 +80,7 @@ export const MenuHamburger = styled("div")`
     height: ${spacing(10)};
     padding: ${spacing(2)};
     cursor: pointer;
-    ${breakpointDown('sm')} {
+    ${breakpointUp('md')} {
         display: none;
     }
 `;

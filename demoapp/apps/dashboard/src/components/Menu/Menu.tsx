@@ -18,8 +18,7 @@ import { siteMetadata } from '../../meta/site';
 
 import { MenuPropsType } from './type';
 import {Typography} from "../Typography";
-
-// import { AuthWidget } from '../../../../bullshit/AuthWidget';
+import {AuthWidget} from "../AuthWidget";
 
 export const Menu: FC<MenuPropsType> = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,7 +32,7 @@ export const Menu: FC<MenuPropsType> = () => {
     return (
         <MenuRoot>
             <MenuInnerContainer>
-                <MenuHome to="/" onClick={onMobileItemClick}>
+                <MenuHome href="/" onClick={onMobileItemClick}>
                     <Typography>
                         {siteMetadata.logoText}
                     </Typography>
@@ -41,13 +40,13 @@ export const Menu: FC<MenuPropsType> = () => {
                 <MenuRight>
                     <MenuItems>
                         {menu.map((item) => (
-                            <MenuItem to={item.link} key={item.link}>
+                            <MenuItem href={item.link} key={item.link}>
                                 {item.text}
                             </MenuItem>
                         ))}
                     </MenuItems>
 
-                    {/*<AuthWidget />*/}
+                    <AuthWidget />
 
                     {!!menu.length && (
                         <MenuHamburger onClick={onHamburgerClick}>
@@ -61,7 +60,7 @@ export const Menu: FC<MenuPropsType> = () => {
             <MenuMobileItems open={mobileMenuOpen}>
                 {menu.map((item) => (
                     <MenuMobileItem
-                        to={item.link}
+                        href={item.link}
                         key={item.link}
                         onClick={onMobileItemClick}
                     >

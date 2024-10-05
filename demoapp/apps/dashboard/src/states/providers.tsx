@@ -1,9 +1,9 @@
 import React, {PropsWithChildren} from 'react';
 
-import { AuthState } from '.';
+import { NoopState } from '.';
 
 export const StateProviders = ({ children }: PropsWithChildren) => {
     return (
-        <AuthState.Provider>{children}</AuthState.Provider>
+        <NoopState.Provider>{children}</NoopState.Provider>
     );
 };

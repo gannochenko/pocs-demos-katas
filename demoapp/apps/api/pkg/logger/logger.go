@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"os"
+
+	pkgCtx "api/pkg/ctx"
 )
 
 var (
@@ -35,8 +37,7 @@ func Info(ctx context.Context, message string, fields ...*Field) {
 }
 
 func addOperationID(ctx context.Context, fields []*Field) []*Field {
-	return fields
-	//return append(fields, F("operation_id", pkgContext.GetOperationID(ctx)))
+	return append(fields, F("operation_id", pkgCtx.GetOperationID(ctx)))
 }
 
 func convertFields(fields []*Field) []any {

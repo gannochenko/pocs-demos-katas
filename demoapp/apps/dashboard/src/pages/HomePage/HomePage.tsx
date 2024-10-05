@@ -1,7 +1,7 @@
 import React from 'react';
 import {PageLayout, SEO} from "../../components";
 import {Container} from "@mui/joy";
-import {PetList} from "../../components/PetList/PetList";
+import {PetList} from "../../components/PetList";
 
 export function HomePage() {
 	return (
