@@ -92,7 +92,7 @@ func (s *Service) GetValidator() (*validator.Validator, error) {
 
 	jwtValidator, err := validator.New(
 		provider.KeyFunc,
-		validator.PS256,
+		validator.RS256,
 		issuerURL.String(),
 		[]string{audience},
 		validator.WithCustomClaims(func() validator.CustomClaims {
