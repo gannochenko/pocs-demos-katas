@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"fmt"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,7 +17,9 @@ import (
 	"github.com/pkg/errors"
 
 	"api/interfaces"
+	"api/internal/domain"
 	"api/internal/types"
+	"api/pkg/ctx"
 	"api/pkg/syserr"
 )
 
@@ -97,7 +99,7 @@ func (s *Service) WithAuth(next types.Handler) types.Handler {
 			return syserr.Wrap(err, syserr.BadInputCode, "could not extract jwt token")
 		}
 
-		claims, err := jwtValidator.ValidateToken(r.Context(), token)
+		_, err = jwtValidator.ValidateToken(r.Context(), token)
 		if err != nil {
 			if errors.Is(err, jwtmiddleware.ErrJWTMissing) {
 				return syserr.NewUnauthorized("missing jwt token")
@@ -109,42 +111,42 @@ func (s *Service) WithAuth(next types.Handler) types.Handler {
 			return syserr.Wrap(err, syserr.InternalCode, "could not validate jwt")
 		}
 
-		fmt.Printf("%v", claims)
-
 		userInfo, err := s.getUserInfo(s.issuer+"userinfo", token)
 		if err != nil {
 			return syserr.Wrap(err, syserr.InternalCode, "could not retrieve user info")
 		}
 
-		fmt.Printf("%v", userInfo)
+		r = r.WithContext(ctx.WithUserEmail(r.Context(), userInfo.Email))
 
 		return next(w, r)
 	}
 }
 
-func (s *Service) getUserInfo(url string, accessToken string) (string, error) {
-	// Create a new HTTP request to the userinfo endpoint
+func (s *Service) getUserInfo(url string, accessToken string) (*domain.UserInfo, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", err
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not create a new request")
 	}
 
-	// Add the access token in the Authorization header
 	req.Header.Add("Authorization", "Bearer "+accessToken)
 
-	// Perform the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not execute the request")
 	}
 	defer resp.Body.Close()
 
-	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not read the response body")
 	}
 
-	return string(body), nil
+	user := domain.UserInfo{}
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not unmarshal the response body")
+	}
+
+	return &user, nil
 }
