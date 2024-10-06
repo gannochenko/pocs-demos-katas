@@ -6,6 +6,7 @@ import (
 	"api/interfaces"
 	"api/internal/factory/repository"
 	"api/internal/service/auth"
+	"api/internal/service/category"
 	"api/internal/service/pet"
 	"api/internal/service/store"
 	"api/internal/service/tag"
@@ -53,6 +54,16 @@ func (f *Factory) GetTagService() interfaces.TagService {
 	}
 
 	return f.tagService
+}
+
+func (f *Factory) GetCategoryService() interfaces.CategoryService {
+	if f.categoryService == nil {
+		f.categoryService = category.New(
+			f.repositoryFactory.GetCategoryRepository(),
+		)
+	}
+
+	return f.categoryService
 }
 
 func (f *Factory) GetStoreService() interfaces.StoreService {

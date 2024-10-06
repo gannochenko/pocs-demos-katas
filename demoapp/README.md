@@ -19,6 +19,7 @@ Under the hood:
   * ❌ CICD
   * ❌ S3 / GCS
   * ❌ O11y (metrics, Prometheus, Grafana)
+  * ❌ Loadtest
 * Frontend
   * ✅ TypeScript
   * ✅ React

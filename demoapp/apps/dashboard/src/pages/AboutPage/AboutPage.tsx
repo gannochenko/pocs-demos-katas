@@ -38,6 +38,7 @@ export const AboutPage: FC<AboutPageProps> = ({
                                 <li>❌ CICD</li>
                                 <li>❌ S3 / GCS</li>
                                 <li>❌ O11y (metrics, Prometheus, Grafana)</li>
+                                <li>❌ Loadtest</li>
                             </ul>
                         </li>
                         <li>

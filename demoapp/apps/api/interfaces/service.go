@@ -35,7 +35,7 @@ type TagService interface {
 }
 
 type CategoryService interface {
-
+	ListCategories(ctx context.Context, request *domain.ListCategoriesRequest) (*domain.ListCategoriesResponse, error)
 }
 
 // StoreService defines the api actions for the StoreAPI service

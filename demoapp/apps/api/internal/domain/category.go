@@ -10,6 +10,6 @@ type ListCategoriesRequest struct {
 }
 
 type ListCategoriesResponse struct {
-	Pets       []*Category         `json:"categories"`
+	Categories []*Category         `json:"categories"`
 	Pagination *PaginationResponse `json:"pagination"`
 }

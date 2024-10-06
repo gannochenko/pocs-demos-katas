@@ -19,18 +19,18 @@ import (
 	httpUtil "api/internal/util/http"
 )
 
-// TagAPIController binds http requests to an api tagService and writes the tagService results to the http response
-type TagAPIController struct {
-	tagService interfaces.TagService
+// CategoryAPIController binds http requests to an api categoryService and writes the categoryService results to the http response
+type CategoryAPIController struct {
+	categoryService interfaces.CategoryService
 }
 
-// TagAPIOption for how the controller is set up.
-type TagAPIOption func(*TagAPIController)
+// CategoryAPIOption for how the controller is set up.
+type CategoryAPIOption func(*CategoryAPIController)
 
-// NewTagAPIController creates a default api controller
-func NewTagAPIController(tagService interfaces.TagService, opts ...TagAPIOption) *TagAPIController {
-	controller := &TagAPIController{
-		tagService: tagService,
+// NewCategoryAPIController creates a default api controller
+func NewCategoryAPIController(categoryService interfaces.CategoryService, opts ...CategoryAPIOption) *CategoryAPIController {
+	controller := &CategoryAPIController{
+		categoryService: categoryService,
 	}
 
 	for _, opt := range opts {
@@ -40,21 +40,21 @@ func NewTagAPIController(tagService interfaces.TagService, opts ...TagAPIOption)
 	return controller
 }
 
-// GetRoutes returns all the api routes for the TagAPIController
-func (c *TagAPIController) GetRoutes() map[string]util.Route {
+// GetRoutes returns all the api routes for the CategoryAPIController
+func (c *CategoryAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"ListTags": {
 			Method:      strings.ToUpper("Post"),
-			Pattern:     "/v3/tag/list",
-			HandlerFunc: c.ListTags,
+			Pattern:     "/v3/categories/list",
+			HandlerFunc: c.ListCategories,
 			Protected:   true,
 		},
 	}
 }
 
-// ListTags - Finds Tags
-func (c *TagAPIController) ListTags(w http.ResponseWriter, r *http.Request) error {
-	result, err := c.tagService.ListTags(r.Context(), &domain.ListTagsRequest{})
+// ListCategories - Finds Categories
+func (c *CategoryAPIController) ListCategories(w http.ResponseWriter, r *http.Request) error {
+	result, err := c.categoryService.ListCategories(r.Context(), &domain.ListCategoriesRequest{})
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		return err

@@ -47,11 +47,11 @@ func (s *Service) ListTags(ctx context.Context, request *domain.ListTagsRequest)
 		}
 
 		for _, tag := range res {
-			domainPet, err := tag.ToDomain()
+			domainTag, err := tag.ToDomain()
 			if err != nil {
 				return nil, syserr.Wrap(err, syserr.InternalCode, "could not convert tag to domain")
 			}
-			result.Pets = append(result.Pets, domainPet)
+			result.Pets = append(result.Pets, domainTag)
 		}
 	}
 
