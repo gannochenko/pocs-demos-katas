@@ -37,7 +37,16 @@ func Info(ctx context.Context, message string, fields ...*Field) {
 }
 
 func addOperationID(ctx context.Context, fields []*Field) []*Field {
-	return append(fields, F("operation_id", pkgCtx.GetOperationID(ctx)))
+	if ctx == nil {
+		return fields
+	}
+
+	operationID := pkgCtx.GetOperationID(ctx)
+	if operationID != "" {
+		return append(fields, F("operation_id", pkgCtx.GetOperationID(ctx)))
+	}
+
+	return fields
 }
 
 func convertFields(fields []*Field) []any {

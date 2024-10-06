@@ -29,6 +29,7 @@ Under the hood:
   * ✅ react-hooks
   * ✅ unstated-next
   * ✅ Authentication with Auth0
+  * ❌ Notifications https://mui.com/joy-ui/react-snackbar/
   * ❌ Unit testing
 
 ## Running locally
