@@ -31,6 +31,9 @@ func TestToDomain(t *testing.T) {
 		"Should convert api to domain": {
 			setupFunc: func(t *testing.T) *setup {
 				pet := dataGenerator.CreatePet()
+				tag1 := dataGenerator.CreateTag()
+				tag2 := dataGenerator.CreateTag()
+				category := dataGenerator.CreateCategory()
 
 				return &setup{
 					item: &api.Pet{
@@ -38,11 +41,36 @@ func TestToDomain(t *testing.T) {
 						Name:      pet.Name,
 						Status:    string(pet.Status),
 						PhotoUrls: pet.PhotoUrls,
+						Category: api.PetCategory{
+							ID:   category.ID.String(),
+							Name: category.Name,
+						},
+						Tags: []api.PetTag{
+							{
+								ID:   tag1.ID.String(),
+								Name: tag1.Name,
+							},
+							{
+								ID:   tag2.ID.String(),
+								Name: tag2.Name,
+							},
+						},
 					},
 				}
 			},
 			verifyFunc: func(t *testing.T, setup *setup, verify *verify) {
 				assert.NoError(t, verify.err)
+
+				assert.Equal(t, setup.item.ID, verify.item.ID)
+				assert.Equal(t, setup.item.Name, verify.item.Name)
+				assert.Equal(t, setup.item.Status, string(verify.item.Status))
+				assert.Equal(t, setup.item.PhotoUrls, verify.item.PhotoUrls)
+				assert.Equal(t, setup.item.Category.ID, verify.item.Category.ID)
+				assert.Equal(t, setup.item.Category.Name, verify.item.Category.Name)
+				assert.Equal(t, setup.item.Tags[0].ID, verify.item.Tags[0].ID)
+				assert.Equal(t, setup.item.Tags[0].Name, verify.item.Tags[0].Name)
+				assert.Equal(t, setup.item.Tags[1].ID, verify.item.Tags[1].ID)
+				assert.Equal(t, setup.item.Tags[1].Name, verify.item.Tags[1].Name)
 			},
 		},
 	}

@@ -3,15 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.51">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <Grants>1||-9223372036854775808|c|G
-1||10|c|G
-1||10|C|G
-1||10|T|G
-4||-9223372036854775808|c|G
-4||10|c|G
-4||10|C|G
-4||10|T|G</Grants>
-      <IntrospectionStateNumber>807</IntrospectionStateNumber>
+      <IntrospectionStateNumber>817</IntrospectionStateNumber>
       <ServerVersion>17.0</ServerVersion>
       <StartupTime>1728202551</StartupTime>
       <TimeZones>true ACDT
@@ -1421,7 +1413,7 @@ true posixrules
 13219||10|C|G
 13219||-9223372036854775808|U|G
 13219||10|U|G</Grants>
-      <IntrospectionStateNumber>807</IntrospectionStateNumber>
+      <IntrospectionStateNumber>817</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>demoapp</OwnerName>
     </database>
@@ -4797,21 +4789,21 @@ true posixrules
     </extension>
     <extension id="259" parent="3" name="uuid-ossp">
       <Comment>generate universally unique identifiers (UUIDs)</Comment>
-      <ObjectId>16624</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16732</ObjectId>
+      <StateNumber>813</StateNumber>
       <Version>1.1</Version>
       <ExtSchemaId>2200</ExtSchemaId>
       <ExtSchemaName>public</ExtSchemaName>
-      <MemberIds>16625
-16626
-16627
-16628
-16629
-16630
-16631
-16632
-16633
-16634</MemberIds>
+      <MemberIds>16733
+16734
+16735
+16736
+16737
+16738
+16739
+16740
+16741
+16742</MemberIds>
     </extension>
     <language id="260" parent="3" name="c">
       <Comment>dynamically-loaded C functions</Comment>
@@ -4861,8 +4853,8 @@ true posixrules
     <schema id="266" parent="3" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>807</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2024-10-06.19:18:25</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>817</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2024-10-06.19:21:05</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>532</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -4870,9 +4862,9 @@ true posixrules
     <routine id="267" parent="266" name="uuid_generate_v1">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16630</ObjectId>
+      <ObjectId>16738</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <LanguageName>c</LanguageName>
       <OwnerName>demoapp</OwnerName>
@@ -4880,9 +4872,9 @@ true posixrules
     <routine id="268" parent="266" name="uuid_generate_v1mc">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16631</ObjectId>
+      <ObjectId>16739</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <LanguageName>c</LanguageName>
       <OwnerName>demoapp</OwnerName>
@@ -4890,9 +4882,9 @@ true posixrules
     <routine id="269" parent="266" name="uuid_generate_v3">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16632</ObjectId>
+      <ObjectId>16740</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
@@ -4901,9 +4893,9 @@ true posixrules
     <routine id="270" parent="266" name="uuid_generate_v4">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16633</ObjectId>
+      <ObjectId>16741</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <LanguageName>c</LanguageName>
       <OwnerName>demoapp</OwnerName>
@@ -4911,9 +4903,9 @@ true posixrules
     <routine id="271" parent="266" name="uuid_generate_v5">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16634</ObjectId>
+      <ObjectId>16742</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
@@ -4922,9 +4914,9 @@ true posixrules
     <routine id="272" parent="266" name="uuid_nil">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16625</ObjectId>
+      <ObjectId>16733</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
@@ -4933,9 +4925,9 @@ true posixrules
     <routine id="273" parent="266" name="uuid_ns_dns">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16626</ObjectId>
+      <ObjectId>16734</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
@@ -4944,9 +4936,9 @@ true posixrules
     <routine id="274" parent="266" name="uuid_ns_oid">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16628</ObjectId>
+      <ObjectId>16736</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
@@ -4955,9 +4947,9 @@ true posixrules
     <routine id="275" parent="266" name="uuid_ns_url">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16627</ObjectId>
+      <ObjectId>16735</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
@@ -4966,59 +4958,59 @@ true posixrules
     <routine id="276" parent="266" name="uuid_ns_x500">
       <ConcurrencyKind>safe</ConcurrencyKind>
       <Cost>1.0</Cost>
-      <ObjectId>16629</ObjectId>
+      <ObjectId>16737</ObjectId>
       <Rows>0.0</Rows>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Strict>1</Strict>
       <VolatilityKind>immutable</VolatilityKind>
       <LanguageName>c</LanguageName>
       <OwnerName>demoapp</OwnerName>
     </routine>
     <table id="277" parent="266" name="addresses">
-      <ObjectId>16712</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16820</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="278" parent="266" name="categories">
-      <ObjectId>16635</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16743</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="279" parent="266" name="customers">
-      <ObjectId>16687</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16795</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="280" parent="266" name="orders">
-      <ObjectId>16697</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16805</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="281" parent="266" name="pet_tags">
-      <ObjectId>16670</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16778</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="282" parent="266" name="pets">
-      <ObjectId>16655</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16763</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="283" parent="266" name="schema_migrations">
-      <ObjectId>16617</ObjectId>
-      <StateNumber>806</StateNumber>
+      <ObjectId>16725</ObjectId>
+      <StateNumber>814</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
     <table id="284" parent="266" name="tags">
-      <ObjectId>16645</ObjectId>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16753</ObjectId>
+      <StateNumber>813</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>demoapp</OwnerName>
     </table>
@@ -5083,7 +5075,7 @@ true posixrules
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="300" parent="277" name="created_at">
@@ -5091,7 +5083,7 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="301" parent="277" name="updated_at">
@@ -5099,65 +5091,65 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="302" parent="277" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="303" parent="277" name="street">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <column id="304" parent="277" name="city">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <column id="305" parent="277" name="state">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>7</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <column id="306" parent="277" name="zip">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>8</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <index id="307" parent="277" name="addresses_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16720</ObjectId>
+      <ObjectId>16828</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="308" parent="277" name="addresses_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16721</ObjectId>
+      <ObjectId>16829</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16720</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16828</UnderlyingIndexId>
     </key>
     <column id="309" parent="278" name="id">
       <DasType>uuid|0s</DasType>
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="310" parent="278" name="created_at">
@@ -5165,7 +5157,7 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="311" parent="278" name="updated_at">
@@ -5173,44 +5165,44 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="312" parent="278" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="313" parent="278" name="name">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <index id="314" parent="278" name="categories_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16643</ObjectId>
+      <ObjectId>16751</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="315" parent="278" name="categories_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16644</ObjectId>
+      <ObjectId>16752</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16643</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16751</UnderlyingIndexId>
     </key>
     <column id="316" parent="279" name="id">
       <DasType>uuid|0s</DasType>
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="317" parent="279" name="created_at">
@@ -5218,7 +5210,7 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="318" parent="279" name="updated_at">
@@ -5226,44 +5218,44 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="319" parent="279" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="320" parent="279" name="username">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <index id="321" parent="279" name="customers_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16695</ObjectId>
+      <ObjectId>16803</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="322" parent="279" name="customers_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16696</ObjectId>
+      <ObjectId>16804</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16695</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16803</UnderlyingIndexId>
     </key>
     <column id="323" parent="280" name="id">
       <DasType>uuid|0s</DasType>
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="324" parent="280" name="created_at">
@@ -5271,7 +5263,7 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="325" parent="280" name="updated_at">
@@ -5279,20 +5271,20 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="326" parent="280" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="327" parent="280" name="pet_id">
       <DasType>uuid|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="328" parent="280" name="quantity">
@@ -5300,20 +5292,20 @@ true posixrules
       <DefaultExpression>1</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>23</TypeId>
     </column>
     <column id="329" parent="280" name="ship_date">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>7</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="330" parent="280" name="status">
       <DasType>varchar(16)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>8</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <column id="331" parent="280" name="complete">
@@ -5321,45 +5313,45 @@ true posixrules
       <DefaultExpression>false</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>9</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>16</TypeId>
     </column>
     <foreign-key id="332" parent="280" name="fk_pet">
       <ColNames>pet_id</ColNames>
-      <ObjectId>16707</ObjectId>
+      <ObjectId>16815</ObjectId>
       <OnDelete>set-null</OnDelete>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16655</RefTableId>
+      <RefTableId>16763</RefTableId>
     </foreign-key>
     <index id="333" parent="280" name="orders_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16705</ObjectId>
+      <ObjectId>16813</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="334" parent="280" name="orders_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16706</ObjectId>
+      <ObjectId>16814</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16705</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16813</UnderlyingIndexId>
     </key>
     <column id="335" parent="281" name="pet_id">
       <DasType>uuid|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="336" parent="281" name="tag_id">
       <DasType>uuid|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="337" parent="281" name="created_at">
@@ -5367,7 +5359,7 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="338" parent="281" name="updated_at">
@@ -5375,54 +5367,54 @@ true posixrules
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="339" parent="281" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <foreign-key id="340" parent="281" name="fk_pet_tags_pet">
       <ColNames>pet_id</ColNames>
-      <ObjectId>16677</ObjectId>
-      <OnDelete>set-null</OnDelete>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16785</ObjectId>
+      <OnDelete>cascade</OnDelete>
+      <StateNumber>813</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16655</RefTableId>
+      <RefTableId>16763</RefTableId>
     </foreign-key>
     <foreign-key id="341" parent="281" name="fk_pet_tags_tag">
       <ColNames>tag_id</ColNames>
-      <ObjectId>16682</ObjectId>
-      <OnDelete>set-null</OnDelete>
-      <StateNumber>805</StateNumber>
+      <ObjectId>16790</ObjectId>
+      <OnDelete>cascade</OnDelete>
+      <StateNumber>813</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16645</RefTableId>
+      <RefTableId>16753</RefTableId>
     </foreign-key>
     <index id="342" parent="281" name="pet_tags_pkey">
       <ColNames>pet_id
 tag_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16675</ObjectId>
+      <ObjectId>16783</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="343" parent="281" name="pet_tags_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16676</ObjectId>
+      <ObjectId>16784</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16675</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16783</UnderlyingIndexId>
     </key>
     <column id="344" parent="282" name="id">
       <DasType>uuid|0s</DasType>
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="345" parent="282" name="created_at">
@@ -5430,7 +5422,7 @@ tag_id</ColNames>
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="346" parent="282" name="updated_at">
@@ -5438,101 +5430,101 @@ tag_id</ColNames>
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="347" parent="282" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="348" parent="282" name="name">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <column id="349" parent="282" name="status">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <column id="350" parent="282" name="photo_urls">
       <DasType>text[]|0s</DasType>
       <Position>7</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1009</TypeId>
     </column>
     <column id="351" parent="282" name="category_id">
       <DasType>uuid|0s</DasType>
       <Position>8</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <foreign-key id="352" parent="282" name="fk_pets_category">
       <ColNames>category_id</ColNames>
-      <ObjectId>16665</ObjectId>
+      <ObjectId>16773</ObjectId>
       <OnDelete>set-null</OnDelete>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16635</RefTableId>
+      <RefTableId>16743</RefTableId>
     </foreign-key>
     <index id="353" parent="282" name="pets_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16663</ObjectId>
+      <ObjectId>16771</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="354" parent="282" name="pets_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16664</ObjectId>
+      <ObjectId>16772</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16663</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16771</UnderlyingIndexId>
     </key>
     <column id="355" parent="283" name="version">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>803</StateNumber>
+      <StateNumber>811</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="356" parent="283" name="dirty">
       <DasType>boolean|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>803</StateNumber>
+      <StateNumber>811</StateNumber>
       <TypeId>16</TypeId>
     </column>
     <index id="357" parent="283" name="schema_migrations_pkey">
       <ColNames>version</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16620</ObjectId>
+      <ObjectId>16728</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>806</StateNumber>
+      <StateNumber>814</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="358" parent="283" name="schema_migrations_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16621</ObjectId>
+      <ObjectId>16729</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>803</StateNumber>
-      <UnderlyingIndexId>16620</UnderlyingIndexId>
+      <StateNumber>811</StateNumber>
+      <UnderlyingIndexId>16728</UnderlyingIndexId>
     </key>
     <column id="359" parent="284" name="id">
       <DasType>uuid|0s</DasType>
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>2950</TypeId>
     </column>
     <column id="360" parent="284" name="created_at">
@@ -5540,7 +5532,7 @@ tag_id</ColNames>
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="361" parent="284" name="updated_at">
@@ -5548,37 +5540,37 @@ tag_id</ColNames>
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="362" parent="284" name="deleted_at">
       <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>1184</TypeId>
     </column>
     <column id="363" parent="284" name="name">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <TypeId>25</TypeId>
     </column>
     <index id="364" parent="284" name="tags_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16653</ObjectId>
+      <ObjectId>16761</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
+      <StateNumber>813</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="365" parent="284" name="tags_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16654</ObjectId>
+      <ObjectId>16762</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>805</StateNumber>
-      <UnderlyingIndexId>16653</UnderlyingIndexId>
+      <StateNumber>813</StateNumber>
+      <UnderlyingIndexId>16761</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>

@@ -1,12 +1,12 @@
 package domain
 
 type PetCategory struct {
-	Id   int64  `json:"id,omitempty"`
+	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
 type PetTag struct {
-	ID   int64  `json:"id,omitempty"`
+	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 

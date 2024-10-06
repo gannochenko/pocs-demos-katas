@@ -9,12 +9,13 @@ import (
 type Builder struct {
 	session *gorm.DB
 
-	pets          []*dto.Pet
-	petCategories []*dto.PetCategory
-	petTags       []*dto.PetTag
-	customers     []*dto.Customer
-	addresses     []*dto.Address
-	orders        []*dto.Order
+	pets       []*dto.Pet
+	categories []*dto.Category
+	petTags    []*dto.PetTag
+	tags       []*dto.Tag
+	customers  []*dto.Customer
+	addresses  []*dto.Address
+	orders     []*dto.Order
 }
 
 func NewBuilder(session *gorm.DB) *Builder {
@@ -50,13 +51,25 @@ func (b *Builder) AddPetTags(petTags ...*dto.PetTag) *Builder {
 	return b
 }
 
-func (b *Builder) AddPetCategory(petCategory *dto.PetCategory) {
-	b.petCategories = append(b.petCategories, petCategory)
+func (b *Builder) AddCategory(category *dto.Category) {
+	b.categories = append(b.categories, category)
 }
 
-func (b *Builder) AddPetCategories(petCategories ...*dto.PetCategory) *Builder {
-	for _, petCategory := range petCategories {
-		b.AddPetCategory(petCategory)
+func (b *Builder) AddPetCategories(categories ...*dto.Category) *Builder {
+	for _, category := range categories {
+		b.AddCategory(category)
+	}
+
+	return b
+}
+
+func (b *Builder) AddTag(tag *dto.Tag) {
+	b.tags = append(b.tags, tag)
+}
+
+func (b *Builder) AddTags(tags ...*dto.Tag) *Builder {
+	for _, tag := range tags {
+		b.AddTag(tag)
 	}
 
 	return b
@@ -99,6 +112,20 @@ func (b *Builder) AddAddresses(addresses ...*dto.Address) *Builder {
 }
 
 func (b *Builder) Submit() error {
+	for _, category := range b.categories {
+		res := b.session.Create(category)
+		if res.Error != nil {
+			return res.Error
+		}
+	}
+
+	for _, tag := range b.tags {
+		res := b.session.Create(tag)
+		if res.Error != nil {
+			return res.Error
+		}
+	}
+
 	for _, pet := range b.pets {
 		res := b.session.Create(pet)
 		if res.Error != nil {
@@ -108,13 +135,6 @@ func (b *Builder) Submit() error {
 
 	for _, petTag := range b.petTags {
 		res := b.session.Create(petTag)
-		if res.Error != nil {
-			return res.Error
-		}
-	}
-
-	for _, petCategory := range b.petCategories {
-		res := b.session.Create(petCategory)
 		if res.Error != nil {
 			return res.Error
 		}
@@ -160,7 +180,7 @@ func (b *Builder) SelectPets(filter string) (result []*dto.Pet, err error) {
 
 func (b *Builder) resetArrays() {
 	b.pets = make([]*dto.Pet, 0)
-	b.petCategories = make([]*dto.PetCategory, 0)
+	b.categories = make([]*dto.Category, 0)
 	b.petTags = make([]*dto.PetTag, 0)
 	b.customers = make([]*dto.Customer, 0)
 	b.orders = make([]*dto.Order, 0)

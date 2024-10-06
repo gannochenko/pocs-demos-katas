@@ -1,7 +1,7 @@
 package api
 
 type PetTag struct {
-	ID   int64  `json:"id,omitempty"`
+	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 

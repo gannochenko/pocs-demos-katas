@@ -29,8 +29,15 @@ func (g *Generator) CreatePet() *dto.Pet {
 	}
 }
 
-func (g *Generator) CreatePetCategory() *dto.PetCategory {
-	return &dto.PetCategory{
+func (g *Generator) CreateCategory() *dto.Category {
+	return &dto.Category{
+		ID:   g.CreateUUID(),
+		Name: gofakeit.BeerName(),
+	}
+}
+
+func (g *Generator) CreateTag() *dto.Tag {
+	return &dto.Tag{
 		ID:   g.CreateUUID(),
 		Name: gofakeit.BeerName(),
 	}
@@ -38,8 +45,8 @@ func (g *Generator) CreatePetCategory() *dto.PetCategory {
 
 func (g *Generator) CreatePetTag() *dto.PetTag {
 	return &dto.PetTag{
-		ID:   g.CreateUUID(),
-		Name: gofakeit.Name(),
+		PetID: g.CreateUUID(),
+		TagID: g.CreateUUID(),
 	}
 }
 
