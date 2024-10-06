@@ -51,7 +51,7 @@ func (s *Service) DeletePet(ctx context.Context, petId string) (*domain.DeletePe
 func (s *Service) ListPets(ctx context.Context, request *domain.ListPetsRequest) (*domain.ListPetsResponse, error) {
 	request.Pagination = domain.SanitizePaginationRequest(request.Pagination)
 
-	filter := &dto.ListPetFilter{}
+	filter := &dto.ListPetsFilter{}
 	if request.Status != "" {
 		filter.Status = &request.Status
 	}
@@ -89,9 +89,4 @@ func (s *Service) ListPets(ctx context.Context, request *domain.ListPetsRequest)
 	}
 
 	return result, nil
-}
-
-// GetPetByID - Find pet by ID
-func (s *Service) GetPetByID(ctx context.Context, petId int64) (*domain.GetPetByIdResponse, error) {
-	return nil, syserr.NewNotImplemented("method not implemented")
 }

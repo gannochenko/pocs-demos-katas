@@ -55,7 +55,7 @@ func (b *Builder) AddCategory(category *dto.Category) {
 	b.categories = append(b.categories, category)
 }
 
-func (b *Builder) AddPetCategories(categories ...*dto.Category) *Builder {
+func (b *Builder) AddCategories(categories ...*dto.Category) *Builder {
 	for _, category := range categories {
 		b.AddCategory(category)
 	}

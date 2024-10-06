@@ -28,12 +28,30 @@ func (p *Pet) ToDomain() (*domain.Pet, error) {
 	return result, nil
 }
 
-type ListPetFilter struct {
+type ListPetsFilter struct {
 	ID     []string
 	Status *domain.PetStatus
 }
 
 type ListPetParameters struct {
-	Filter     *ListPetFilter
+	Filter     *ListPetsFilter
+	Pagination *db.Pagination
+}
+
+type ListTagsFilter struct {
+	PetID *string
+}
+
+type ListTagsParameters struct {
+	Filter     *ListTagsFilter
+	Pagination *db.Pagination
+}
+
+type ListCategoriesFilter struct {
+	PetID *string
+}
+
+type ListCategoriesParameters struct {
+	Filter     *ListCategoriesFilter
 	Pagination *db.Pagination
 }

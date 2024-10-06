@@ -41,11 +41,11 @@ func TestToDomain(t *testing.T) {
 						Name:      pet.Name,
 						Status:    string(pet.Status),
 						PhotoUrls: pet.PhotoUrls,
-						Category: api.PetCategory{
+						Category: api.Category{
 							ID:   category.ID.String(),
 							Name: category.Name,
 						},
-						Tags: []api.PetTag{
+						Tags: []api.Tag{
 							{
 								ID:   tag1.ID.String(),
 								Name: tag1.Name,
