@@ -8,16 +8,19 @@ import (
 	"api/internal/service/auth"
 	"api/internal/service/pet"
 	"api/internal/service/store"
+	"api/internal/service/tag"
 )
 
 type Factory struct {
 	session           *gorm.DB
 	repositoryFactory *repository.Factory
 
-	configService interfaces.ConfigService
-	petService    interfaces.PetService
-	storeService  interfaces.StoreService
-	authService   interfaces.AuthService
+	configService   interfaces.ConfigService
+	petService      interfaces.PetService
+	tagService      interfaces.TagService
+	categoryService interfaces.CategoryService
+	storeService    interfaces.StoreService
+	authService     interfaces.AuthService
 }
 
 func New(session *gorm.DB, repositoryFactory *repository.Factory, configService interfaces.ConfigService) *Factory {
@@ -34,14 +37,22 @@ func (f *Factory) GetRepositoryFactory() *repository.Factory {
 
 func (f *Factory) GetPetService() interfaces.PetService {
 	if f.petService == nil {
-		f.petService = pet.NewPetService(
+		f.petService = pet.New(
 			f.repositoryFactory.GetPetRepository(),
-			f.repositoryFactory.GetPetTagRepository(),
-			f.repositoryFactory.GetPetCategoryRepository(),
 		)
 	}
 
 	return f.petService
+}
+
+func (f *Factory) GetTagService() interfaces.TagService {
+	if f.tagService == nil {
+		f.tagService = tag.New(
+			f.repositoryFactory.GetTagRepository(),
+		)
+	}
+
+	return f.tagService
 }
 
 func (f *Factory) GetStoreService() interfaces.StoreService {

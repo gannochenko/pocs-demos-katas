@@ -28,7 +28,14 @@ type PetService interface {
 	AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetResponse, error)
 	UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error)
 	DeletePet(context.Context, string) (*domain.DeletePetResponse, error)
-	//GetPetById(context.Context, int64) (*domain.GetPetByIdResponse, error)
+}
+
+type TagService interface {
+	ListTags(ctx context.Context, request *domain.ListTagsRequest) (*domain.ListTagsResponse, error)
+}
+
+type CategoryService interface {
+
 }
 
 // StoreService defines the api actions for the StoreAPI service

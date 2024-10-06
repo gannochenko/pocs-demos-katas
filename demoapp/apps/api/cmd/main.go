@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 
 	petV3 "api/internal/controller/pet/v3"
-	storeV3 "api/internal/controller/store/v3"
+	tagV3 "api/internal/controller/tag/v3"
 	"api/internal/factory"
 	"api/internal/service/config"
 	"api/internal/util"
@@ -46,7 +46,7 @@ func main() {
 		conf,
 		serviceFactory.GetAuthService(),
 		petV3.NewPetAPIController(serviceFactory.GetPetService()),
-		storeV3.NewStoreAPIController(serviceFactory.GetStoreService()),
+		tagV3.NewTagAPIController(serviceFactory.GetTagService()),
 	)
 
 	server := &http.Server{

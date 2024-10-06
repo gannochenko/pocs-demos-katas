@@ -14,21 +14,15 @@ import (
 // This service should implement the business logic for every endpoint for the PetAPI API.
 // Include any external packages or services that will be required by this service.
 type Service struct {
-	petRepository         interfaces.PetRepository
-	petTagRepository      interfaces.PetTagRepository
-	petCategoryRepository interfaces.PetCategoryRepository
+	petRepository interfaces.PetRepository
 }
 
-// NewPetService creates a default api service
-func NewPetService(
+// New creates a default api service
+func New(
 	petRepository interfaces.PetRepository,
-	petTagRepository interfaces.PetTagRepository,
-	petCategoryRepository interfaces.PetCategoryRepository,
 ) *Service {
 	return &Service{
-		petRepository:         petRepository,
-		petTagRepository:      petTagRepository,
-		petCategoryRepository: petCategoryRepository,
+		petRepository: petRepository,
 	}
 }
 

@@ -40,7 +40,7 @@ func (g *Generator) CreateCategory() *dto.Category {
 func (g *Generator) CreateTag() *dto.Tag {
 	return &dto.Tag{
 		ID:   g.CreateUUID(),
-		Name: gofakeit.BeerName(),
+		Name: gofakeit.Dog(),
 	}
 }
 
