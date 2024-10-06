@@ -41,6 +41,7 @@ func TestListPets(t *testing.T) {
 	type setup struct {
 		parameters *dto.ListPetParameters
 		ids        []string
+		category   *dto.Category
 	}
 	type verify struct {
 		err    error
@@ -85,6 +86,39 @@ func TestListPets(t *testing.T) {
 
 				assert.NotNil(t, pet1)
 				assert.NotNil(t, pet2)
+			},
+		},
+		"Should select categories": {
+			setupFunc: func(t *testing.T) *setup {
+				pet1 := dataGenerator.CreatePet()
+				category1 := dataGenerator.CreateCategory()
+				pet1.CategoryID = &category1.ID
+
+				assert.NoError(t, dataBuilder.
+					Reset().
+					AddPets(pet1).
+					AddCategories(category1).
+					Submit(),
+				)
+
+				return &setup{
+					ids:      []string{pet1.ID.String()},
+					category: category1,
+				}
+			},
+			verifyFunc: func(t *testing.T, setup *setup, verify *verify) {
+				assert.NoError(t, verify.err)
+
+				var pet1 *dto.Pet
+				for _, pet := range verify.result {
+					if pet.ID.String() == setup.ids[0] {
+						pet1 = pet
+					}
+				}
+
+				assert.NotNil(t, pet1)
+				assert.Equal(t, setup.category.ID.String(), pet1.Category.ID)
+				assert.Equal(t, setup.category.Name, pet1.Category.Name)
 			},
 		},
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
+	"api/internal/api"
 	"api/internal/domain"
 	"api/internal/util/db"
 )
@@ -15,7 +16,9 @@ type Pet struct {
 	Name       string           `db:"name"`
 	Status     domain.PetStatus `db:"status"`
 	PhotoUrls  []string         `gorm:"type:text[]"`
-	CategoryID uuid.UUID        `gorm:"type:uuid"`
+	CategoryID *uuid.UUID       `gorm:"type:uuid"`
+
+	Category api.Category
 }
 
 func (p *Pet) ToDomain() (*domain.Pet, error) {

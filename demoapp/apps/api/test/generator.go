@@ -23,9 +23,10 @@ func (g *Generator) CreateUUID() uuid.UUID {
 
 func (g *Generator) CreatePet() *dto.Pet {
 	return &dto.Pet{
-		ID:     g.CreateUUID(),
-		Name:   gofakeit.Name(),
-		Status: domain.PetStatusAvailable,
+		ID:         g.CreateUUID(),
+		Name:       gofakeit.Name(),
+		Status:     domain.PetStatusAvailable,
+		CategoryID: nil,
 	}
 }
 
