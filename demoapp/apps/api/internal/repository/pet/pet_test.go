@@ -41,6 +41,7 @@ func TestListPets(t *testing.T) {
 	type setup struct {
 		parameters *dto.ListPetParameters
 		ids        []string
+		tagIds     []string
 		category   *dto.Category
 	}
 	type verify struct {
@@ -88,21 +89,36 @@ func TestListPets(t *testing.T) {
 				assert.NotNil(t, pet2)
 			},
 		},
-		"Should select categories": {
+		"Should select categories and tags": {
 			setupFunc: func(t *testing.T) *setup {
 				pet1 := dataGenerator.CreatePet()
 				category1 := dataGenerator.CreateCategory()
 				pet1.CategoryID = &category1.ID
 
+				tag1 := dataGenerator.CreateTag()
+				tag2 := dataGenerator.CreateTag()
+
+				petTag1 := dataGenerator.CreatePetTag()
+				petTag1.PetID = pet1.ID
+				petTag1.TagID = tag1.ID
+
+				petTag2 := dataGenerator.CreatePetTag()
+				petTag2.PetID = pet1.ID
+				petTag2.TagID = tag2.ID
+
 				assert.NoError(t, dataBuilder.
 					Reset().
+					//TruncateAll().
 					AddPets(pet1).
 					AddCategories(category1).
+					AddTags(tag1, tag2).
+					AddPetTags(petTag1, petTag2).
 					Submit(),
 				)
 
 				return &setup{
 					ids:      []string{pet1.ID.String()},
+					tagIds:   []string{tag1.ID.String(), tag2.ID.String()},
 					category: category1,
 				}
 			},
@@ -117,8 +133,22 @@ func TestListPets(t *testing.T) {
 				}
 
 				assert.NotNil(t, pet1)
-				assert.Equal(t, setup.category.ID.String(), pet1.Category.ID)
+				assert.Equal(t, setup.category.ID.String(), pet1.Category.ID.String())
 				assert.Equal(t, setup.category.Name, pet1.Category.Name)
+
+				var tag1 *dto.Tag
+				var tag2 *dto.Tag
+				for _, tag := range pet1.Tags {
+					if tag.ID.String() == setup.tagIds[0] {
+						tag1 = &tag
+					}
+					if tag.ID.String() == setup.tagIds[1] {
+						tag2 = &tag
+					}
+				}
+
+				assert.NotNil(t, tag1)
+				assert.NotNil(t, tag2)
 			},
 		},
 	}

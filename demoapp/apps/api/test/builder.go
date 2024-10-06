@@ -170,6 +170,16 @@ func (b *Builder) Reset() *Builder {
 	return b
 }
 
+func (b *Builder) TruncateAll() *Builder {
+	b.session.
+		Exec("TRUNCATE TABLE pet_tags").
+		Exec("TRUNCATE TABLE pets").
+		Exec("TRUNCATE TABLE categories").
+		Exec("TRUNCATE TABLE tags")
+
+	return b
+}
+
 func (b *Builder) SelectPets(filter string) (result []*dto.Pet, err error) {
 	queryResult := b.session.Table("pets").Where(filter).Find(&result)
 	if queryResult.Error != nil {
