@@ -1,1 +1,3 @@
-export const menu = [{ text: 'Cookie policy', link: '/cookie-policy' }];
+import {pathTemplates} from "./pathTemplates";
+
+export const menu = [{ text: 'About', link: pathTemplates.ABOUT }];

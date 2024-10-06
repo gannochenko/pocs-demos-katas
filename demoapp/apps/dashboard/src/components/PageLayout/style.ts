@@ -1,8 +1,8 @@
-import styled from '@emotion/styled';
-// import { Link } from 'gatsby';
-// import { muiTypography } from '@gannochenko/ui.emotion';
+import {styled} from "@mui/joy";
+import {typography} from "../../util/mixins";
 
-export const PageLayoutRoot = styled.div`
+export const PageLayoutRoot = styled("div")`
+	${typography('body-md')};
     flex-grow: 1;
 `;
 

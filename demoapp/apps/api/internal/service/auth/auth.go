@@ -116,7 +116,7 @@ func (s *Service) WithAuth(next types.Handler) types.Handler {
 			return syserr.Wrap(err, syserr.InternalCode, "could not retrieve user info")
 		}
 
-		r = r.WithContext(ctx.WithUserEmail(r.Context(), userInfo.Email))
+		*r = *r.WithContext(ctx.WithUserEmail(r.Context(), userInfo.Email))
 
 		return next(w, r)
 	}

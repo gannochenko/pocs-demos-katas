@@ -6,6 +6,8 @@ import reportWebVitals from './reportWebVitals';
 import {HomePage} from "./pages/HomePage";
 import {ApplicationLayout, Providers} from "./components";
 import {NotFoundPage} from "./pages/NotFoundPage";
+import {AboutPage} from "./pages/AboutPage";
+import {pathTemplates} from "./pathTemplates";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,6 +18,7 @@ root.render(
           <ApplicationLayout>
               <Routes>
                   <Route index element={<HomePage />} />
+                  <Route path={pathTemplates.ABOUT} element={<AboutPage />} />
                   <Route
                       path="*"
                       element={<NotFoundPage />}

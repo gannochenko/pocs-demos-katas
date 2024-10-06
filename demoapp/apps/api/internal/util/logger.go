@@ -18,14 +18,19 @@ func WithLogger(next types.Handler) types.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		operationID := uuid.New().String()
 		ctx := pkgCtx.WithOperationID(r.Context(), operationID)
-		r = r.WithContext(ctx)
+		*r = *r.WithContext(ctx)
 
 		w.Header().Set("X-Operation-ID", operationID)
 
 		err := next(w, r)
 
+		user := pkgCtx.GetUserEmail(r.Context())
+
 		fields := make([]*logger.Field, 1)
 		fields[0] = logger.F("query", fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+		if user != "" {
+			fields = append(fields, logger.F("user", user))
+		}
 
 		ctx = r.Context()
 		if err != nil {

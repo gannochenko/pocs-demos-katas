@@ -27,11 +27,11 @@ func PopulateRouter(router *mux.Router, config *domain.Config, authService inter
 		routes := routable.GetRoutes()
 		for _, route := range routes {
 			router.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
-				handler := route.HandlerFunc
+				handler := WithLogger(WithErrorHandler(route.HandlerFunc))
 				if route.Protected {
 					handler = authService.WithAuth(handler)
 				}
-				handler = httpUtil.WithCORS(config, WithErrorHandler(WithLogger(handler)))
+				handler = httpUtil.WithCORS(config, handler)
 				_ = handler(w, r)
 			}).Methods(route.Method, http.MethodOptions)
 		}

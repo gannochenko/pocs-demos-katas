@@ -13,7 +13,7 @@ Features:
   * ✅ Unit/integration testing (examples only)
   * ✅ Data fixture generator
   * ✅ Docker
-  * ⌛ Authentication with Auth0
+  * ✅ Authentication with Auth0
   * ❌ CICD
   * ❌ S3 / GCS
   * ❌ O11y (metrics, Prometheus, Grafana)
@@ -25,7 +25,7 @@ Features:
   * ✅ mui/joy
   * ✅ react-hooks
   * ✅ unstated-next
-  * ❌ Authentication with Auth0
+  * ✅ Authentication with Auth0
   * ❌ Unit testing
 
 ## Running locally
