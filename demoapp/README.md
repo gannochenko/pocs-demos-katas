@@ -2,6 +2,8 @@
 
 This is a Golang + React demo cloud-native app. No bullshit, only production-tested code.
 
+It is based on (but does not implement fully) [the Swagger-petstore demo API](https://github.com/swagger-api/swagger-petstore).
+
 Features:
 
 * Backend
