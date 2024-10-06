@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import Helmet from 'react-helmet';
 import { SEOPropsType } from './type';
-import { siteMetadata } from "../../meta/site";
+import {siteMeta} from "../../siteMeta";
 
 export const SEO: FC<SEOPropsType> = ({
     description = '',
@@ -14,14 +14,14 @@ export const SEO: FC<SEOPropsType> = ({
     let metaTitle = '';
     let metaTitleOG = '';
     const metaDescription =
-        description || siteMetadata.description;
+        description || siteMeta.description;
 
     if (title) {
-        metaTitle = `${title} | ${siteMetadata.title}`;
+        metaTitle = `${title} | ${siteMeta.title}`;
         metaTitleOG = title;
     } else {
-        metaTitle = siteMetadata.title;
-        metaTitleOG = siteMetadata.description;
+        metaTitle = siteMeta.title;
+        metaTitleOG = siteMeta.description;
     }
 
     let allKeywords: string[] = [];
@@ -31,7 +31,7 @@ export const SEO: FC<SEOPropsType> = ({
         );
     }
     allKeywords = allKeywords
-        .concat(siteMetadata.keywords)
+        .concat(siteMeta.keywords)
         .filter((x) => !!x);
 
     return (

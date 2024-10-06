@@ -14,7 +14,7 @@ import {
 } from './style';
 
 import { menu } from '../../menu';
-import { siteMetadata } from '../../meta/site';
+import { siteMeta } from '../../siteMeta';
 
 import { MenuPropsType } from './type';
 import {Typography} from "../Typography";
@@ -34,7 +34,7 @@ export const Menu: FC<MenuPropsType> = () => {
             <MenuInnerContainer>
                 <MenuHome href="/" onClick={onMobileItemClick}>
                     <Typography>
-                        {siteMetadata.logoText}
+                        {siteMeta.logoText}
                     </Typography>
                 </MenuHome>
                 <MenuRight>
