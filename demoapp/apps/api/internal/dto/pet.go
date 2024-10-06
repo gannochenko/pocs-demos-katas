@@ -11,10 +11,11 @@ import (
 
 type Pet struct {
 	gorm.Model
-	ID        uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Name      string           `db:"name"`
-	Status    domain.PetStatus `db:"status"`
-	PhotoUrls []string         `gorm:"type:text[]"`
+	ID         uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Name       string           `db:"name"`
+	Status     domain.PetStatus `db:"status"`
+	PhotoUrls  []string         `gorm:"type:text[]"`
+	CategoryID uuid.UUID        `gorm:"type:uuid"`
 }
 
 func (p *Pet) ToDomain() (*domain.Pet, error) {

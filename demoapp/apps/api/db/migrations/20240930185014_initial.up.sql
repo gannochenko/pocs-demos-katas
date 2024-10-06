@@ -1,6 +1,16 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS "pet_categories"
+CREATE TABLE IF NOT EXISTS "categories"
+(
+    "id"         uuid DEFAULT uuid_generate_v4(),
+    "created_at" timestamptz NOT NULL DEFAULT now(),
+    "updated_at" timestamptz NOT NULL DEFAULT now(),
+    "deleted_at" timestamptz,
+    "name"       text NOT NULL,
+    PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "tags"
 (
     "id"         uuid DEFAULT uuid_generate_v4(),
     "created_at" timestamptz NOT NULL DEFAULT now(),
@@ -12,24 +22,28 @@ CREATE TABLE IF NOT EXISTS "pet_categories"
 
 CREATE TABLE IF NOT EXISTS "pets"
 (
-    "id"         uuid DEFAULT uuid_generate_v4(),
-    "created_at" timestamptz NOT NULL DEFAULT now(),
-    "updated_at" timestamptz NOT NULL DEFAULT now(),
-    "deleted_at" timestamptz,
-    "name"       text NOT NULL,
-    "status"     text NOT NULL,
-    "photo_urls" TEXT[],
-    PRIMARY KEY ("id")
+    "id"          uuid DEFAULT uuid_generate_v4(),
+    "created_at"  timestamptz NOT NULL DEFAULT now(),
+    "updated_at"  timestamptz NOT NULL DEFAULT now(),
+    "deleted_at"  timestamptz,
+    "name"        text NOT NULL,
+    "status"      text NOT NULL,
+    "photo_urls"  TEXT[],
+    "category_id" uuid,
+    PRIMARY KEY ("id"),
+    CONSTRAINT fk_pets_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS "pet_tags"
 (
-    "id"         uuid DEFAULT uuid_generate_v4(),
+    "pet_id"         uuid,
+    "tag_id"         uuid,
     "created_at" timestamptz NOT NULL DEFAULT now(),
     "updated_at" timestamptz NOT NULL DEFAULT now(),
     "deleted_at" timestamptz,
-    "name"       text NOT NULL,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("pet_id", "tag_id"),
+    CONSTRAINT fk_pet_tags_pet FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE,
+    CONSTRAINT fk_pet_tags_tag FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "customers"

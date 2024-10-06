@@ -7,6 +7,6 @@ import (
 
 type PetTag struct {
 	gorm.Model
-	ID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Name string    `json:"name,omitempty"`
+	PetID uuid.UUID `gorm:"type:uuid"`
+	TagID uuid.UUID `gorm:"type:uuid"`
 }

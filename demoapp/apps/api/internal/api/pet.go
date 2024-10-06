@@ -9,7 +9,7 @@ import (
 )
 
 type Pet struct {
-	Id        int64       `json:"id,omitempty"`
+	ID        string      `json:"id,omitempty"`
 	Name      string      `json:"name"`
 	Category  PetCategory `json:"category,omitempty"`
 	PhotoUrls []string    `json:"photoUrls"`

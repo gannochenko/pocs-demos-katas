@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import {AboutPageRoot} from './style';
 import { AboutPageProps } from './type';
-import {PageLayout} from "../../components";
+import {Link, PageLayout} from "../../components";
 import {Container} from "@mui/joy";
 
 export const AboutPage: FC<AboutPageProps> = ({
@@ -15,6 +15,12 @@ export const AboutPage: FC<AboutPageProps> = ({
                 <AboutPageRoot {...restProps}>
                     <p>
                         This is a Golang + React demo cloud-native app. No bullshit, only production-tested code.
+                    </p>
+                    <p>
+                        It's based on (but does not strictly follow) <Link href="https://github.com/swagger-api/swagger-petstore">the Swagger-petstore demo API</Link>.
+                    </p>
+                    <p>
+                        Under the hood:
                     </p>
                     <ul>
                         <li>
