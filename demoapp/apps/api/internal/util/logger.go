@@ -18,7 +18,7 @@ func WithLogger(next types.Handler) types.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		operationID := uuid.New().String()
 		ctx := pkgCtx.WithOperationID(r.Context(), operationID)
-		*r = *r.WithContext(ctx)
+		r = r.WithContext(ctx)
 
 		w.Header().Set("X-Operation-ID", operationID)
 
