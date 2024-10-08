@@ -6,8 +6,6 @@ import {Pet} from "../../models/pet";
 export function PetList() {
 	const petsResult = useListPets({});
 	const pets: Pet[] = petsResult.data?.pets ?? [];
-
-	console.log(pets);
 	
 	return (
 		<PetListRoot>
