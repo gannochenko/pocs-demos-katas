@@ -1,15 +1,11 @@
 import ModalClose from '@mui/joy/ModalClose';
 import { Box, Button, FormControl, FormLabel, Input } from '@mui/joy';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-import Chip from '@mui/joy/Chip';
-import ChipDelete from '@mui/joy/ChipDelete';
 import {useEditPetDialog} from "./hooks/useEditPetDialog";
 import {Typography} from "../Typography";
 import {PetDialogModal, PetDialogSheet} from "./style";
 import {TagSelector} from "../TagSelector";
-import {Status, StatusSelector} from "../StatusSelector";
 import {CategorySelector} from "../CategorySelector";
+import {StatusSelector} from "../StatusSelector";
 
 export type EditPetDialogProps = Partial<{
 	open: boolean;
@@ -18,7 +14,14 @@ export type EditPetDialogProps = Partial<{
 }>;
 
 export function EditPetDialog(props: EditPetDialogProps) {
-	const { title, modalProps, formProps, nameInputProps, statusSelectorProps } = useEditPetDialog(props);
+	const {
+		title,
+		modalProps,
+		formProps,
+		nameInputProps,
+		statusSelectorProps,
+		categorySelectorProps,
+	} = useEditPetDialog(props);
 
 	return (
 		<PetDialogModal
@@ -59,11 +62,11 @@ export function EditPetDialog(props: EditPetDialogProps) {
 					</FormControl>
 					<FormControl>
 						<FormLabel>Status</FormLabel>
-						{/*<StatusSelector {...statusSelectorProps} />*/}
+						<StatusSelector {...statusSelectorProps} />
 					</FormControl>
 					<FormControl>
 						<FormLabel>Category</FormLabel>
-						<CategorySelector />
+						<CategorySelector {...categorySelectorProps} />
 					</FormControl>
 					<FormControl>
 						<FormLabel>Tags</FormLabel>
@@ -74,7 +77,7 @@ export function EditPetDialog(props: EditPetDialogProps) {
 						/>
 					</FormControl>
 					<Button type="submit" variant="solid" color="primary">
-						Submit
+						Save
 					</Button>
 				</Box>
 			</PetDialogSheet>

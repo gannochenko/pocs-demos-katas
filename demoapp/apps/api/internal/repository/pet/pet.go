@@ -42,6 +42,8 @@ func (r *Repository) ListPets(ctx context.Context, tx *gorm.DB, parameters *dto.
 		runner = db.ApplyPagination(runner, parameters.Pagination)
 	}
 
+	runner = runner.Order("name ASC")
+
 	queryResult := runner.Preload("Category").Preload("Tags").Find(&result)
 	if queryResult.Error != nil {
 		return nil, queryResult.Error

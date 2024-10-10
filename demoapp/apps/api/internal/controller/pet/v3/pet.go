@@ -113,21 +113,21 @@ func (c *PetAPIController) DeletePet(w http.ResponseWriter, r *http.Request) err
 
 // ListPets - Finds Pets by status
 func (c *PetAPIController) ListPets(w http.ResponseWriter, r *http.Request) error {
-	query, err := httpUtil.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		return syserr.Wrap(err, syserr.BadInputCode, "could not find pets")
-	}
-	var statusParam string
-	if query.Has("status") {
-		param := query.Get("status")
-
-		statusParam = param
-	} else {
-		param := "available"
-		statusParam = param
-	}
+	//query, err := httpUtil.ParseQuery(r.URL.RawQuery)
+	//if err != nil {
+	//	return syserr.Wrap(err, syserr.BadInputCode, "could not find pets")
+	//}
+	//var statusParam string
+	//if query.Has("status") {
+	//	param := query.Get("status")
+	//
+	//	statusParam = param
+	//} else {
+	//	param := "available"
+	//	statusParam = param
+	//}
 	result, err := c.petService.ListPets(r.Context(), &domain.ListPetsRequest{
-		Status: domain.PetStatus(statusParam),
+		//Status: domain.PetStatus(statusParam),
 	})
 	// If an error occurred, encode the error with the status code
 	if err != nil {

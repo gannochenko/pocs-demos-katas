@@ -33,7 +33,7 @@ func (s *Service) AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetRe
 
 // UpdatePet - Update an existing pet
 func (s *Service) UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error) {
-	err := s.validatePetUpdate(pet)
+	err := pet.IsValid()
 	if err != nil {
 		return nil, err
 	}
@@ -48,27 +48,6 @@ func (s *Service) UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.Updat
 	}
 
 	return &domain.UpdatePetResponse{}, nil
-}
-
-func (s *Service) validatePetUpdate(pet *domain.Pet) error {
-	var errors []string
-
-	// todo: support i18n here
-	if pet.ID == "" {
-		errors = append(errors, "id not set")
-	}
-	if pet.Name == "" {
-		errors = append(errors, "name not set")
-	}
-	if pet.Category.ID == "" {
-		errors = append(errors, "category not set")
-	}
-
-	if len(errors) > 0 {
-		return syserr.NewBadInput("validation failed", syserr.F("reasons", errors))
-	}
-
-	return nil
 }
 
 // DeletePet - Deletes a pet

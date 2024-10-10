@@ -1,5 +1,11 @@
 package domain
 
+import (
+	"fmt"
+
+	"api/pkg/syserr"
+)
+
 type PetStatus string
 
 const (
@@ -9,12 +15,40 @@ const (
 )
 
 type Pet struct {
-	ID        string    `json:"id,omitempty"`
+	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	Category  Category  `json:"category,omitempty"`
+	Category  *Category `json:"category,omitempty"`
 	PhotoUrls []string  `json:"photoUrls"`
-	Tags      []Tag     `json:"tags,omitempty"`
-	Status    PetStatus `json:"status,omitempty"`
+	Tags      []Tag     `json:"tags"`
+	Status    PetStatus `json:"status"`
+}
+
+func (p *Pet) IsValid() error {
+	var errors []string
+
+	// todo: support i18n here
+	if p.ID == "" {
+		errors = append(errors, "id not set")
+	}
+	if p.Name == "" {
+		errors = append(errors, "name not set")
+	}
+	if p.Category.ID == "" {
+		errors = append(errors, "category not set")
+	}
+	if p.Status == "" {
+		errors = append(errors, "status not set")
+	} else {
+		if p.Status != PetStatusSold && p.Status != PetStatusAvailable && p.Status != PetStatusPending {
+			errors = append(errors, fmt.Sprintf("unknown status: %s", p.Status))
+		}
+	}
+
+	if len(errors) > 0 {
+		return syserr.NewBadInput("validation failed", syserr.F("reasons", errors))
+	}
+
+	return nil
 }
 
 type ListPetsRequest struct {

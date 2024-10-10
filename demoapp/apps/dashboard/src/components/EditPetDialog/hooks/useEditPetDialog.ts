@@ -2,20 +2,21 @@ import {FieldValues, useForm} from 'react-hook-form';
 import {EditPetDialogProps} from "../EditPetDialog";
 import {Pet} from "../../../models/pet";
 import {useGetPet} from "../../../hooks/pets/useGetPet";
-import {useState, useEffect, ChangeEvent, useMemo, useCallback} from "react";
+import {ChangeEvent, useCallback, useEffect, useState} from "react";
 import {useUpdatePet} from "../../../hooks/pets/useUpdatePet";
+import {Status} from "../../StatusSelector";
 
 type FormState = {
 	name: string;
-	status: string;
-	categoryID: string;
+	status: Status;
+	category: string;
 	tagIDs: string[];
 };
 
 const emptyValue: FormState = {
 	name: "",
-	status: "",
-	categoryID: "",
+	status: Status.Pending,
+	category: "",
 	tagIDs: [],
 };
 
@@ -30,23 +31,28 @@ export const useEditPetDialog = ({open, onClose, petID}: EditPetDialogProps) => 
 	const [formState, setFormState] = useState<FormState>(emptyValue);
 	useEffect(() => {
 		if (pet) {
-			setFormState({
+			const newValue = {
 				name: pet.name,
-				status: pet.status,
-				categoryID: "",
+				status: pet.status as Status,
+				category: pet.category?.id ?? "",
 				tagIDs: [],
-			});
-			setValue("name", pet.name);
+			}
+
+			setFormState(newValue);
+			setValue("name", newValue.name);
+			setValue("status", newValue.status);
+			setValue("category", newValue.category);
 		} else {
 			resetForm();
 		}
 	}, [pet]);
 
-	const { register, setValue, handleSubmit, formState: { errors } } = useForm();
+	const { register, setValue, handleSubmit, control, formState: { errors } } = useForm();
 	const resetForm = useCallback(() => {
 		setFormState(emptyValue);
 		setValue("name", "");
 		setValue("status", "");
+		setValue("category", "");
 	}, [setValue, setFormState]);
 
 	const onSubmit = (data: FieldValues) => {
@@ -56,6 +62,11 @@ export const useEditPetDialog = ({open, onClose, petID}: EditPetDialogProps) => 
 				id: petID ?? "",
 				name: data.name,
 				status: data.status,
+				category: {
+					id: data.category as string,
+					name: "",
+				},
+				tags: [],
 			},
 		}, {
 			onSuccess: () => {
@@ -94,15 +105,27 @@ export const useEditPetDialog = ({open, onClose, petID}: EditPetDialogProps) => 
 		statusSelectorProps: {
 			value: formState.status,
 			...register("status"),
-			onChange: (e: ChangeEvent<HTMLInputElement>) => {
-				const newName = e.target.value;
+			onChange: (newValue: Status) => {
 				setFormState((prevState) => {
 					return {
 						...prevState,
-						name: newName,
+						status: newValue,
 					};
 				});
-				setValue("name", newName);
+				setValue("status", newValue);
+			},
+		},
+		categorySelectorProps: {
+			value: formState.category,
+			...register("category"),
+			onChange: (newValue: string) => {
+				setFormState((prevState) => {
+					return {
+						...prevState,
+						category: newValue,
+					};
+				});
+				setValue("category", newValue);
 			},
 		},
 	};
