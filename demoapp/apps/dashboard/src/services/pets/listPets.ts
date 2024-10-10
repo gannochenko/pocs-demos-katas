@@ -1,6 +1,6 @@
 import { JsonDecoder } from "ts.data.json";
-import {fetchJSON} from "../util/fetch";
-import {petDecoder, Pet} from "../models/pet";
+import {fetchJSON} from "../../util/fetch";
+import {petDecoder, Pet} from "../../models/pet";
 
 export type ListPetsRequest = {};
 

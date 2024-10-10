@@ -17,10 +17,6 @@ type Pet struct {
 	Status    PetStatus `json:"status,omitempty"`
 }
 
-type AddPetResponse struct{}
-
-type DeletePetResponse struct{}
-
 type ListPetsRequest struct {
 	Status     PetStatus
 	IDs        []string
@@ -32,12 +28,30 @@ type ListPetsResponse struct {
 	Pagination *PaginationResponse `json:"pagination"`
 }
 
-type FindPetsByTagsResponse struct{}
+type GetPetRequest struct {
+	ID string `json:"id"`
+}
 
-type GetPetByIdResponse struct{}
+type GetPetResponse struct {
+	Pet *Pet `json:"pet"`
+}
 
-type UpdatePetResponse struct{}
+type UpdatePetRequest struct {
+	Pet *Pet `json:"pet"`
+}
 
-type UpdatePetWithFormResponse struct{}
+type UpdatePetResponse struct {
+}
 
-type UploadFileResponse struct{}
+type AddPetRequest struct {
+	Pet *Pet `json:"pet"`
+}
+
+type AddPetResponse struct {
+}
+
+type DeletePetRequest struct {
+	ID string `json:"id"`
+}
+
+type DeletePetResponse struct{}

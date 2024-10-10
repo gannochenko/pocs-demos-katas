@@ -8,6 +8,7 @@ import (
 
 	"api/internal/dto"
 	"api/internal/util/db"
+	"api/pkg/syserr"
 )
 
 const (
@@ -22,6 +23,15 @@ func New(session *gorm.DB) *Repository {
 	return &Repository{
 		session: session,
 	}
+}
+
+func (r *Repository) UpdatePet(ctx context.Context, tx *gorm.DB, pet *dto.Pet) error {
+	err := db.GetRunner(r.session, tx).WithContext(ctx).Model(pet).Updates(pet).Error
+	if err != nil {
+		return syserr.Wrap(err, syserr.InternalCode, "could not update a pet")
+	}
+
+	return nil
 }
 
 func (r *Repository) ListPets(ctx context.Context, tx *gorm.DB, parameters *dto.ListPetParameters) (result []*dto.Pet, err error) {

@@ -12,7 +12,6 @@ package v3
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"api/interfaces"
 	"api/internal/api"
@@ -47,25 +46,31 @@ func NewPetAPIController(petService interfaces.PetService, opts ...PetAPIOption)
 func (c *PetAPIController) GetRoutes() map[string]util.Route {
 	return map[string]util.Route{
 		"AddPet": {
-			Method:      strings.ToUpper("Post"),
+			Method:      "POST",
 			Pattern:     "/v3/pet/create",
 			HandlerFunc: c.AddPet,
 			Protected:   true,
 		},
 		"DeletePet": {
-			Method:      strings.ToUpper("Post"),
-			Pattern:     "/v3/pet/get",
+			Method:      "POST",
+			Pattern:     "/v3/pet/delete",
 			HandlerFunc: c.DeletePet,
 			Protected:   true,
 		},
 		"UpdatePet": {
-			Method:      strings.ToUpper("Post"),
+			Method:      "POST",
 			Pattern:     "/v3/pet/update",
 			HandlerFunc: c.UpdatePet,
 			Protected:   true,
 		},
+		"GetPet": {
+			Method:      "POST",
+			Pattern:     "/v3/pet/get",
+			HandlerFunc: c.GetPet,
+			Protected:   true,
+		},
 		"ListPets": {
-			Method:      strings.ToUpper("Post"),
+			Method:      "POST",
 			Pattern:     "/v3/pet/list",
 			HandlerFunc: c.ListPets,
 			Protected:   true,
@@ -81,12 +86,7 @@ func (c *PetAPIController) AddPet(w http.ResponseWriter, r *http.Request) error 
 	if err := d.Decode(&petParam); err != nil {
 		return syserr.Wrap(err, syserr.BadInputCode, "could not add a pet")
 	}
-	if err := api.AssertPetRequired(petParam); err != nil {
-		return err
-	}
-	if err := api.AssertPetConstraints(petParam); err != nil {
-		return err
-	}
+
 	domainPet, err := petParam.ToDomain()
 	if err != nil {
 		return err
@@ -137,21 +137,35 @@ func (c *PetAPIController) ListPets(w http.ResponseWriter, r *http.Request) erro
 	return httpUtil.EncodeJSONResponse(result, nil, w)
 }
 
-// UpdatePet - Update an existing pet
-func (c *PetAPIController) UpdatePet(w http.ResponseWriter, r *http.Request) error {
-	petParam := api.Pet{}
+func (c *PetAPIController) GetPet(w http.ResponseWriter, r *http.Request) error {
+	body := domain.GetPetRequest{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&petParam); err != nil {
+	if err := d.Decode(&body); err != nil {
 		return syserr.Wrap(err, syserr.BadInputCode, "could not update a pet")
 	}
-	if err := api.AssertPetRequired(petParam); err != nil {
+
+	result, err := c.petService.GetPet(r.Context(), &body)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
 		return err
 	}
-	if err := api.AssertPetConstraints(petParam); err != nil {
-		return err
+	// If no error, encode the body and the result code
+	return httpUtil.EncodeJSONResponse(result, nil, w)
+}
+
+// UpdatePet - Update an existing pet
+func (c *PetAPIController) UpdatePet(w http.ResponseWriter, r *http.Request) error {
+	body := struct {
+		Pet api.Pet `json:"pet"`
+	}{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&body); err != nil {
+		return syserr.Wrap(err, syserr.BadInputCode, "could not update a pet")
 	}
-	domainPet, err := petParam.ToDomain()
+
+	domainPet, err := body.Pet.ToDomain()
 	if err != nil {
 		return err
 	}

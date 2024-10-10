@@ -16,9 +16,11 @@ Under the hood:
   * ✅ Data fixture generator
   * ✅ Docker
   * ✅ Authentication with Auth0
+  * ❌ RBAC
+  * ❌ Metrics instrumentation
   * ❌ CICD
   * ❌ S3 / GCS
-  * ❌ O11y (metrics, Prometheus, Grafana)
+  * ❌ O11y (Prometheus, Grafana)
   * ❌ Loadtest
 * Frontend
   * ✅ TypeScript
@@ -29,8 +31,12 @@ Under the hood:
   * ✅ react-hooks
   * ✅ unstated-next
   * ✅ Authentication with Auth0
+  * ❌ RBAC
   * ❌ Notifications https://mui.com/joy-ui/react-snackbar/
   * ❌ Unit testing
+  * ❌ Accessibility (aria-*)
+  * ❌ E2E testing (Cypress or Playwright)
+  * ❌ I18n
 
 ## Running locally
 

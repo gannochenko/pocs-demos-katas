@@ -9,6 +9,16 @@ import (
 	"api/internal/util/db"
 )
 
+func NewPetFromDomain(p *domain.Pet) (*Pet, error) {
+	result := &Pet{}
+	err := copier.Copy(result, p)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type Pet struct {
 	gorm.Model
 	ID         uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4()"`

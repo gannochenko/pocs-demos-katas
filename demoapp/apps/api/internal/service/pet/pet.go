@@ -33,7 +33,42 @@ func (s *Service) AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetRe
 
 // UpdatePet - Update an existing pet
 func (s *Service) UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error) {
-	return nil, syserr.NewNotImplemented("method not implemented")
+	err := s.validatePetUpdate(pet)
+	if err != nil {
+		return nil, err
+	}
+
+	dbPet, err := dto.NewPetFromDomain(pet)
+	if err != nil {
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not convert the pet to database")
+	}
+	err = s.petRepository.UpdatePet(ctx, nil, dbPet)
+	if err != nil {
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not save the pet")
+	}
+
+	return &domain.UpdatePetResponse{}, nil
+}
+
+func (s *Service) validatePetUpdate(pet *domain.Pet) error {
+	var errors []string
+
+	// todo: support i18n here
+	if pet.ID == "" {
+		errors = append(errors, "id not set")
+	}
+	if pet.Name == "" {
+		errors = append(errors, "name not set")
+	}
+	if pet.Category.ID == "" {
+		errors = append(errors, "category not set")
+	}
+
+	if len(errors) > 0 {
+		return syserr.NewBadInput("validation failed", syserr.F("reasons", errors))
+	}
+
+	return nil
 }
 
 // DeletePet - Deletes a pet
@@ -83,4 +118,28 @@ func (s *Service) ListPets(ctx context.Context, request *domain.ListPetsRequest)
 	}
 
 	return result, nil
+}
+
+func (s *Service) GetPet(ctx context.Context, request *domain.GetPetRequest) (*domain.GetPetResponse, error) {
+	res, err := s.petRepository.ListPets(ctx, nil, &dto.ListPetParameters{
+		Filter: &dto.ListPetsFilter{
+			ID: []string{request.ID},
+		},
+	})
+	if err != nil {
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not get a pet")
+	}
+
+	if len(res) == 0 {
+		return nil, syserr.NewNotFound("pet was not found", syserr.F("pet_id", request.ID))
+	}
+
+	domainPet, err := res[0].ToDomain()
+	if err != nil {
+		return nil, syserr.Wrap(err, syserr.InternalCode, "could not convert pet to domain")
+	}
+
+	return &domain.GetPetResponse{
+		Pet: domainPet,
+	}, nil
 }

@@ -25,6 +25,7 @@ import (
 // and updated with the logic required for the API.
 type PetService interface {
 	ListPets(ctx context.Context, request *domain.ListPetsRequest) (*domain.ListPetsResponse, error)
+	GetPet(ctx context.Context, request *domain.GetPetRequest) (*domain.GetPetResponse, error)
 	AddPet(ctx context.Context, pet *domain.Pet) (*domain.AddPetResponse, error)
 	UpdatePet(ctx context.Context, pet *domain.Pet) (*domain.UpdatePetResponse, error)
 	DeletePet(context.Context, string) (*domain.DeletePetResponse, error)

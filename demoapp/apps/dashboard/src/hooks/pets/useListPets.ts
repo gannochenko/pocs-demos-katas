@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import {listPets, ListPetsRequest} from "../services/listPets";
+import {listPets, ListPetsRequest} from "../../services/pets/listPets";
 import {useAuth0} from "@auth0/auth0-react";
 export const LIST_PETS_KEY = "list_pets";
 

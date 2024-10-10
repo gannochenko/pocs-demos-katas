@@ -11,6 +11,7 @@ import (
 type PetRepository interface {
 	ListPets(ctx context.Context, tx *gorm.DB, parameters *dto.ListPetParameters) (result []*dto.Pet, err error)
 	CountPets(ctx context.Context, tx *gorm.DB, parameters *dto.ListPetParameters) (count int64, err error)
+	UpdatePet(ctx context.Context, tx *gorm.DB, pet *dto.Pet) error
 }
 
 type TagRepository interface {
