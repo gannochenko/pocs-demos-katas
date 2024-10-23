@@ -36,6 +36,10 @@ func (f *Factory) GetRepositoryFactory() *repository.Factory {
 	return f.repositoryFactory
 }
 
+func (f *Factory) SetPetService(foo interfaces.PetService) {
+	f.petService = foo
+}
+
 func (f *Factory) GetPetService() interfaces.PetService {
 	if f.petService == nil {
 		f.petService = pet.New(

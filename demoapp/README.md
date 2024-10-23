@@ -31,6 +31,7 @@ Under the hood:
   * ✅ react-hooks
   * ✅ unstated-next
   * ✅ Authentication with Auth0
+  * ❌ CICD
   * ❌ RBAC
   * ❌ Notifications https://mui.com/joy-ui/react-snackbar/
   * ❌ Unit testing
@@ -42,7 +43,12 @@ Under the hood:
 
 ### Pre-requisites
 
-Install [Golang](https://github.com/moovweb/gvm) and [Node](https://github.com/nvm-sh/nvm).
+* [Docker](https://www.docker.com/products/docker-desktop/)
+* [Golang](https://github.com/go-nv/goenv)
+  * [godotenv](https://github.com/joho/godotenv)
+  * golang migrate: `brew install golang-migrate`
+* [Node + Yarn](https://github.com/nvm-sh/nvm)
+* psql: `brew install postgresql`
 
 ### Install packages
 

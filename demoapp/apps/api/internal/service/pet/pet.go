@@ -84,7 +84,7 @@ func (s *Service) ListPets(ctx context.Context, request *domain.ListPetsRequest)
 			Pagination: db.NewPaginationFromDomainRequest(request.Pagination),
 		})
 		if err != nil {
-			return nil, syserr.Wrap(err, syserr.InternalCode, "could not list pets")
+			return nil, syserr.Wrap(err, syserr.InternalCode, "could not list pets", syserr.F("foo", "bar"))
 		}
 
 		for _, pet := range res {

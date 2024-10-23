@@ -56,6 +56,8 @@ func TestListPets(t *testing.T) {
 	}{
 		"Should return list of pets filtered by ID": {
 			setupFunc: func(t *testing.T) *setup {
+				dataBuilder.Truncate()
+
 				pet1 := dataGenerator.CreatePet()
 				pet2 := dataGenerator.CreatePet()
 

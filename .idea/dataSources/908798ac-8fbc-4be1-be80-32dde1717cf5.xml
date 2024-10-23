@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="postgres@localhost">
-  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.51">
+  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
       <IntrospectionStateNumber>761</IntrospectionStateNumber>
@@ -8847,102 +8847,102 @@ false posixrules
     </table>
     <argument id="521" parent="510">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="522" parent="511">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="523" parent="512">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="524" parent="512" name="namespace">
-      <DasType>uuid|0s</DasType>
       <Position>1</Position>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="525" parent="512" name="name">
-      <DasType>text|0s</DasType>
       <Position>2</Position>
+      <StoredType>text|0s</StoredType>
     </argument>
     <argument id="526" parent="513">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="527" parent="514">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="528" parent="514" name="namespace">
-      <DasType>uuid|0s</DasType>
       <Position>1</Position>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="529" parent="514" name="name">
-      <DasType>text|0s</DasType>
       <Position>2</Position>
+      <StoredType>text|0s</StoredType>
     </argument>
     <argument id="530" parent="515">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="531" parent="516">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="532" parent="517">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="533" parent="518">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <argument id="534" parent="519">
       <ArgumentDirection>R</ArgumentDirection>
-      <DasType>uuid|0s</DasType>
+      <StoredType>uuid|0s</StoredType>
     </argument>
     <column id="535" parent="520" name="id">
-      <DasType>uuid|0s</DasType>
       <DefaultExpression>uuid_generate_v4()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>uuid|0s</StoredType>
       <TypeId>2950</TypeId>
     </column>
     <column id="536" parent="520" name="created_at">
-      <DasType>timestamp with time zone|0s</DasType>
       <Position>2</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
     <column id="537" parent="520" name="updated_at">
-      <DasType>timestamp with time zone|0s</DasType>
       <Position>3</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
     <column id="538" parent="520" name="deleted_at">
-      <DasType>timestamp with time zone|0s</DasType>
       <Position>4</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
     <column id="539" parent="520" name="title">
-      <DasType>text|0s</DasType>
       <Position>5</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
     <column id="540" parent="520" name="author">
-      <DasType>text|0s</DasType>
       <Position>6</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
     <column id="541" parent="520" name="issue_year">
-      <DasType>integer|0s</DasType>
       <Position>7</Position>
       <StateNumber>753</StateNumber>
+      <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
     <index id="542" parent="520" name="books_pkey">

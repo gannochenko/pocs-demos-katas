@@ -19,17 +19,17 @@ list_resources: ## List all local resources
 remove_resources: ## Remove all local resources
 
 run_local_infra: ## Run the infrastructure locally
-	@docker-compose up
+	@docker compose up
 
 run_test_infra: ## Run the infrastructure for testing
-	docker-compose -f ./docker-compose-test.yml down
-	docker-compose -f ./docker-compose-test.yml up
+	docker compose -f ./docker compose-test.yml down
+	docker compose -f ./docker compose-test.yml up
 
 run_test_infra_migration:
 	@$(MAKE) -C ./apps/api/ run_test_infra_migration
 
 #stop_infra: ## Run the infrastructure locally
-#	@docker-compose stop
+#	@docker compose stop
 
 run: ## Run an application
 ifeq ($(app),)
