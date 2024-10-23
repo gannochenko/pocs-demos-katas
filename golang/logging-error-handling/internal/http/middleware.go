@@ -26,7 +26,7 @@ func ResponseWriter(controllerFn func(w http.ResponseWriter, r *http.Request) ([
 		defer func() {
 			if rec := recover(); rec != nil {
 				httpStatus := http.StatusInternalServerError
-				err := syserr.Internal(fmt.Sprintf("PANIC: %v", rec))
+				err := syserr.NewInternal(fmt.Sprintf("PANIC: %v", rec))
 
 				writeError(httpStatus, extractPublicMessage(syserr.InternalCode, err), w)
 				logRequest(r, err, httpStatus)
@@ -90,7 +90,7 @@ func logRequest(r *http.Request, err error, httpStatus int) {
 
 			stack = formatErrorStack(systemError.GetStack())
 		} else {
-			stack = getErrorStackFormatted(err)
+			stack = syserr.GetStackFormatted(err)
 		}
 
 		fields = append(fields, logger.NewFiled("stack", stack))
@@ -140,10 +140,6 @@ func extractErrorCode(err error) syserr.Code {
 	}
 
 	return syserr.InternalCode
-}
-
-func getErrorStackFormatted(e error) []string {
-	return formatErrorStack(syserr.GetStack(e))
 }
 
 func formatErrorStack(stack []*syserr.ErrorStackItem) []string {

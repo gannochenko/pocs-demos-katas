@@ -9,6 +9,7 @@ node_modules
 !.env.local.example
 .localstack
 .mongo
+**/.env
 
 # terraform
 **/.terraform/*

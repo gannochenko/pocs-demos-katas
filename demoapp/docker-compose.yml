@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+
+    postgres:
+        image: postgres
+        restart: always
+        env_file:
+            - '.env.local'
+        ports:
+            - "5432:5432"
+        command: "-c log_statement=all"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        networks:
+            - demoapp-net
+
+volumes:
+    postgres-data:
+
+networks:
+    demoapp-net:

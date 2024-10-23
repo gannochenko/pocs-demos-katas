@@ -28,10 +28,10 @@ func (r *Repository) GetBooks(ctx context.Context, filter string, page int32) (b
 }
 
 func (r *Repository) GetBookCount(ctx context.Context, filter string) (count int64, err error) {
-	return 0, syserr.BadInput(
+	return 0, syserr.NewBadInput(
 		"could not retrieve book count",
-		syserr.NewFiled("term", filter),
-		syserr.NewFiled("foo", "bar"),
+		syserr.F("term", filter),
+		syserr.F("foo", "bar"),
 	)
 
 	runner := r.Session.Table(TableName)
