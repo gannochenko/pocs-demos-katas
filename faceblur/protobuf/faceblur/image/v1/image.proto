@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package faceblur.image.v1;
+
+option go_package = "github.com/gannochenko/faceblur/packages/faceblur/v1/imagepb";
+
+import "google/api/annotations/annotations.proto";
+
+message SubmitRequest {}
+
+message SubmitResponse {}
+
+service ImageService {
+  rpc Submit(SubmitRequest) returns (SubmitResponse) {
+    option (google.api.http) = {
+      post : "/v1/image/submit"
+      body : "*"
+    };
+  }
+}
