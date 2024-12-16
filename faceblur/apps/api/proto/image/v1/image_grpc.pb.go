@@ -19,14 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ImageService_Submit_FullMethodName = "/faceblur.image.v1.ImageService/Submit"
+	ImageService_GetUploadURL_FullMethodName = "/faceblur.image.v1.ImageService/GetUploadURL"
+	ImageService_SubmitImage_FullMethodName  = "/faceblur.image.v1.ImageService/SubmitImage"
+	ImageService_ListImages_FullMethodName   = "/faceblur.image.v1.ImageService/ListImages"
 )
 
 // ImageServiceClient is the client API for ImageService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ImageServiceClient interface {
-	Submit(ctx context.Context, in *SubmitRequest, opts ...grpc.CallOption) (*SubmitResponse, error)
+	GetUploadURL(ctx context.Context, in *GetUploadURLRequest, opts ...grpc.CallOption) (*GetUploadURLResponse, error)
+	SubmitImage(ctx context.Context, in *SubmitImageRequest, opts ...grpc.CallOption) (*SubmitImageResponse, error)
+	ListImages(ctx context.Context, in *ListImagesRequest, opts ...grpc.CallOption) (*ListImagesResponse, error)
 }
 
 type imageServiceClient struct {
@@ -37,10 +41,30 @@ func NewImageServiceClient(cc grpc.ClientConnInterface) ImageServiceClient {
 	return &imageServiceClient{cc}
 }
 
-func (c *imageServiceClient) Submit(ctx context.Context, in *SubmitRequest, opts ...grpc.CallOption) (*SubmitResponse, error) {
+func (c *imageServiceClient) GetUploadURL(ctx context.Context, in *GetUploadURLRequest, opts ...grpc.CallOption) (*GetUploadURLResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SubmitResponse)
-	err := c.cc.Invoke(ctx, ImageService_Submit_FullMethodName, in, out, cOpts...)
+	out := new(GetUploadURLResponse)
+	err := c.cc.Invoke(ctx, ImageService_GetUploadURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imageServiceClient) SubmitImage(ctx context.Context, in *SubmitImageRequest, opts ...grpc.CallOption) (*SubmitImageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SubmitImageResponse)
+	err := c.cc.Invoke(ctx, ImageService_SubmitImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imageServiceClient) ListImages(ctx context.Context, in *ListImagesRequest, opts ...grpc.CallOption) (*ListImagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListImagesResponse)
+	err := c.cc.Invoke(ctx, ImageService_ListImages_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +75,9 @@ func (c *imageServiceClient) Submit(ctx context.Context, in *SubmitRequest, opts
 // All implementations must embed UnimplementedImageServiceServer
 // for forward compatibility.
 type ImageServiceServer interface {
-	Submit(context.Context, *SubmitRequest) (*SubmitResponse, error)
+	GetUploadURL(context.Context, *GetUploadURLRequest) (*GetUploadURLResponse, error)
+	SubmitImage(context.Context, *SubmitImageRequest) (*SubmitImageResponse, error)
+	ListImages(context.Context, *ListImagesRequest) (*ListImagesResponse, error)
 	mustEmbedUnimplementedImageServiceServer()
 }
 
@@ -62,8 +88,14 @@ type ImageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedImageServiceServer struct{}
 
-func (UnimplementedImageServiceServer) Submit(context.Context, *SubmitRequest) (*SubmitResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Submit not implemented")
+func (UnimplementedImageServiceServer) GetUploadURL(context.Context, *GetUploadURLRequest) (*GetUploadURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUploadURL not implemented")
+}
+func (UnimplementedImageServiceServer) SubmitImage(context.Context, *SubmitImageRequest) (*SubmitImageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitImage not implemented")
+}
+func (UnimplementedImageServiceServer) ListImages(context.Context, *ListImagesRequest) (*ListImagesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListImages not implemented")
 }
 func (UnimplementedImageServiceServer) mustEmbedUnimplementedImageServiceServer() {}
 func (UnimplementedImageServiceServer) testEmbeddedByValue()                      {}
@@ -86,20 +118,56 @@ func RegisterImageServiceServer(s grpc.ServiceRegistrar, srv ImageServiceServer)
 	s.RegisterService(&ImageService_ServiceDesc, srv)
 }
 
-func _ImageService_Submit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubmitRequest)
+func _ImageService_GetUploadURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUploadURLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ImageServiceServer).Submit(ctx, in)
+		return srv.(ImageServiceServer).GetUploadURL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ImageService_Submit_FullMethodName,
+		FullMethod: ImageService_GetUploadURL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImageServiceServer).Submit(ctx, req.(*SubmitRequest))
+		return srv.(ImageServiceServer).GetUploadURL(ctx, req.(*GetUploadURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ImageService_SubmitImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImageServiceServer).SubmitImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ImageService_SubmitImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImageServiceServer).SubmitImage(ctx, req.(*SubmitImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ImageService_ListImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListImagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImageServiceServer).ListImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ImageService_ListImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImageServiceServer).ListImages(ctx, req.(*ListImagesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +180,16 @@ var ImageService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ImageServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Submit",
-			Handler:    _ImageService_Submit_Handler,
+			MethodName: "GetUploadURL",
+			Handler:    _ImageService_GetUploadURL_Handler,
+		},
+		{
+			MethodName: "SubmitImage",
+			Handler:    _ImageService_SubmitImage_Handler,
+		},
+		{
+			MethodName: "ListImages",
+			Handler:    _ImageService_ListImages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

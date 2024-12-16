@@ -2,18 +2,57 @@ syntax = "proto3";
 
 package faceblur.image.v1;
 
-option go_package = "github.com/gannochenko/api/proto/v1/imagepb";
+option go_package = "api/proto/v1/imagepb";
 
 import "google/api/annotations/annotations.proto";
+import "common/image/v1/image.proto";
+import "common/page_navigation/v1/page_navigation.proto";
 
-message SubmitRequest {}
+message GetUploadURLRequest {}
 
-message SubmitResponse {}
+message GetUploadURLResponse {
+  string version = 1;
+  string url = 2;
+}
+
+message SubmitImageRequest {
+  common.image.v1.CreateImage image = 1;
+}
+
+message SubmitImageResponse {
+  string version = 1;
+  common.image.v1.Image image = 2;
+}
+
+message ListImagesRequest {
+  common.image.v1.CreateImage image = 1;
+  common.page_navigation.v1.PageNavigationRequest page_navigation = 2;
+}
+
+message ListImagesResponse {
+  string version = 1;
+  repeated common.image.v1.Image images = 2;
+  common.page_navigation.v1.PageNavigationResponse page_navigation = 3;
+}
 
 service ImageService {
-  rpc Submit(SubmitRequest) returns (SubmitResponse) {
+  rpc GetUploadURL(GetUploadURLRequest) returns (GetUploadURLResponse) {
+    option (google.api.http) = {
+      post : "/v1/image/upload-url/get"
+      body : "*"
+    };
+  }
+
+  rpc SubmitImage(SubmitImageRequest) returns (SubmitImageResponse) {
     option (google.api.http) = {
       post : "/v1/image/submit"
+      body : "*"
+    };
+  }
+
+  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {
+    option (google.api.http) = {
+      post : "/v1/image/list"
       body : "*"
     };
   }

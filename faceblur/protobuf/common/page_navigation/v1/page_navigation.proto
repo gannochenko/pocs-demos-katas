@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package faceblur.common.page_navigation.v1;
+
+option go_package = "api/proto/common/page_navigation/v1";
+
+message PageNavigationRequest {
+  int32 page_size = 1;
+  int32 page_number = 2;
+}
+
+message PageNavigationResponse {
+  int32 page_size = 1;
+  int32 page_number = 2;
+  int32 page_count = 3;
+  int32 total = 4;
+}
