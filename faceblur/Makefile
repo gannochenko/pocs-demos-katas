@@ -7,10 +7,10 @@ help:
 # ---------------------------------
 
 PROTO_DIR := ./protobuf
-PROTO_OUT_DIR := .
+PROTO_OUT_DIR := ./apps/api/proto
 
 # Find all .proto files recursively
-PROTO_FILES := $(shell find $(PROTO_DIR) -name "*.proto")
+PROTO_FILES := $(shell find $(PROTO_DIR) -name "*.proto" ! -path "$(PROTO_DIR)/google/*")
 
 # ---------------------------------
 # Common project related commands.
@@ -44,9 +44,11 @@ run_test_infra_migration:
 #	@docker compose stop
 
 build_proto:
+	@rm -rf ./apps/api/proto/
+	@mkdir -p ./apps/api/proto/
 	@protoc \
-      --go_out=$(OUT_DIR) \
-	  --go-grpc_out=$(OUT_DIR) \
+      --go_out=$(PROTO_OUT_DIR) \
+	  --go-grpc_out=$(PROTO_OUT_DIR) \
 	  --go_opt=paths=source_relative \
 	  --go-grpc_opt=paths=source_relative \
 	  -I $(PROTO_DIR) \
