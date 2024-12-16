@@ -3,36 +3,41 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc"
+	httpUtil "api/internal/http"
 )
 
-func main() {
+const (
+	keyServerAddress = "serverAddress"
+)
+
+func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mux := runtime.NewServeMux()
-	var opts []grpc.DialOption
-	err := pb.RegisterYourServiceHandlerFromEndpoint(ctx, mux, grpcAddress, opts)
+	mux, err := httpUtil.GetMux(ctx)
 	if err != nil {
-		log.Fatalf("Failed to register gRPC Gateway: %v", err)
+		return err
 	}
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", conf.HTTPPort),
+		Addr:    fmt.Sprintf(":%d", 8000),
 		Handler: mux,
 		BaseContext: func(l net.Listener) context.Context {
 			address := l.Addr().String()
 			fmt.Println("Listening at " + address)
-			return ctx
+			return context.WithValue(ctx, keyServerAddress, address)
 		},
+	}
+
+	err = server.ListenAndServe()
+	if err != nil {
+		return err
 	}
 
 	sig := make(chan os.Signal, 1)
@@ -41,5 +46,14 @@ func main() {
 	<-sig
 
 	cancel()
-	_ = server.Shutdown(ctx)
+	return server.Shutdown(ctx)
+}
+
+func main() {
+	err := run()
+	if err != nil {
+		// log here!
+
+		os.Exit(1)
+	}
 }
