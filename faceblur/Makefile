@@ -58,7 +58,7 @@ build_proto:
 
 run: ## Run an application
 ifeq ($(app),)
-	$(error Please specify the "app" parameter. Example: "make run app=service")
+	$(error Please specify the "app" parameter. Example: "make run app=service svc=api")
 else
-	@$(MAKE) -C ./apps/$(app)/ run
+	@$(MAKE) -C ./apps/$(app)/ run svc=$(svc)
 endif

@@ -2,7 +2,7 @@ install:
 	go mod download
 
 run:
-	@godotenv -f ./.env.local go run ./cmd/main.go
+	@godotenv -f ./.env.local go run ./cmd/$(svc)/main.go
 
 copy_local_env:
 	@tr '\n' ';' < ./.env.local | pbcopy

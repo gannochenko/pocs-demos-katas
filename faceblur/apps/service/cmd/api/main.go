@@ -9,21 +9,29 @@ import (
 	"os/signal"
 	"syscall"
 
-	httpUtil "api/internal/http"
+	httpUtil "service/internal/http"
+	"service/internal/util"
+	"service/internal/util/syserr"
 )
 
-const (
-	keyServerAddress = "serverAddress"
-)
+//const (
+//	keyServerAddress = "serverAddress"
+//)
 
 func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mux, err := httpUtil.GetMux(ctx)
+	mux, shutdownGrpcClient, err := httpUtil.GetMux(ctx)
 	if err != nil {
 		return err
 	}
+	defer func() {
+		err = shutdownGrpcClient()
+		if err != nil {
+			util.LogError(ctx, syserr.Wrap(err, "could not shutdown gRPC client"))
+		}
+	}()
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", 8000),
@@ -31,7 +39,8 @@ func run() error {
 		BaseContext: func(l net.Listener) context.Context {
 			address := l.Addr().String()
 			fmt.Println("Listening at " + address)
-			return context.WithValue(ctx, keyServerAddress, address)
+			//return context.WithValue(ctx, keyServerAddress, address)
+			return ctx
 		},
 	}
 
@@ -39,6 +48,12 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		err = server.Shutdown(ctx)
+		if err != nil {
+			util.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
+		}
+	}()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
@@ -46,7 +61,8 @@ func run() error {
 	<-sig
 
 	cancel()
-	return server.Shutdown(ctx)
+
+	return nil
 }
 
 func main() {

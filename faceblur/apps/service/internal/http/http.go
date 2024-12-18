@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	imagepb "api/proto/image/v1"
+	imagepb "service/proto/image/v1"
 )
 
 // https://github.com/grpc-ecosystem/grpc-gateway/
@@ -35,7 +35,7 @@ func connectGrpcServer() *grpc.ClientConn {
 	return conn
 }
 
-func GetMux(ctx context.Context) (http.Handler, error) {
+func GetMux(ctx context.Context) (http.Handler, func() error, error) {
 	conn := connectGrpcServer()
 
 	mux := runtime.NewServeMux(
@@ -58,7 +58,7 @@ func GetMux(ctx context.Context) (http.Handler, error) {
 
 	err := imagepb.RegisterImageServiceHandlerClient(ctx, mux, imagepb.NewImageServiceClient(conn))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	//err := RegisterImag(ctx, mux, imageV1Client)
@@ -73,5 +73,9 @@ func GetMux(ctx context.Context) (http.Handler, error) {
 	//	log.Fatalf("Failed to register gRPC Gateway: %v", err)
 	//}
 
-	return mux, nil
+	shutdown := func() error {
+		return conn.Close()
+	}
+
+	return mux, shutdown, nil
 }
