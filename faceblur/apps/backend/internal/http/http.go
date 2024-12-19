@@ -4,39 +4,24 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	imagepb "service/proto/image/v1"
+	imagepb "backend/proto/image/v1"
+
+	"backend/internal/domain"
 )
 
 // https://github.com/grpc-ecosystem/grpc-gateway/
 
-func connectGrpcServer() *grpc.ClientConn {
-	conn, err := grpc.Dial(
-		fmt.Sprintf("0.0.0.0:%s", "8080"),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		//grpc.WithStreamInterceptor(grpcMiddleware.ChainStreamClient(
-		//	grpcOpentracing.StreamClientInterceptor(grpcOpentracing.WithTracer(*s.tracer)),
-		//)),
-		//grpc.WithUnaryInterceptor(grpcMiddleware.ChainUnaryClient(
-		//	grpcOpentracing.UnaryClientInterceptor(grpcOpentracing.WithTracer(*s.tracer)),
-		//)),
-	)
-
+func GetMux(ctx context.Context, config *domain.Config) (http.Handler, func() error, error) {
+	connectionToGRPC, err := connectToGrpcServer(config)
 	if err != nil {
-		os.Exit(1)
+		return nil, nil, err
 	}
-
-	return conn
-}
-
-func GetMux(ctx context.Context) (http.Handler, func() error, error) {
-	conn := connectGrpcServer()
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption("*", &runtime.JSONPb{
@@ -50,13 +35,7 @@ func GetMux(ctx context.Context) (http.Handler, func() error, error) {
 		//runtime.WithIncomingHeaderMatcher(middleware.HeaderMatcher),
 	)
 
-	//opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	//err := gw.RegisterImageServiceServer(ctx, mux, *grpcServerEndpoint, opts)
-	//if err != nil {
-	//	return err
-	//}
-
-	err := imagepb.RegisterImageServiceHandlerClient(ctx, mux, imagepb.NewImageServiceClient(conn))
+	err = imagepb.RegisterImageServiceHandlerClient(ctx, mux, imagepb.NewImageServiceClient(connectionToGRPC))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -74,8 +53,22 @@ func GetMux(ctx context.Context) (http.Handler, func() error, error) {
 	//}
 
 	shutdown := func() error {
-		return conn.Close()
+		return connectionToGRPC.Close()
 	}
 
 	return mux, shutdown, nil
+}
+
+func connectToGrpcServer(config *domain.Config) (*grpc.ClientConn, error) {
+	return grpc.Dial(
+		fmt.Sprintf("0.0.0.0:%s", config.GRPCPort),
+		// the connection takes place in the VPC tier, no security is needed
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		//grpc.WithStreamInterceptor(grpcMiddleware.ChainStreamClient(
+		//	grpcOpentracing.StreamClientInterceptor(grpcOpentracing.WithTracer(*s.tracer)),
+		//)),
+		//grpc.WithUnaryInterceptor(grpcMiddleware.ChainUnaryClient(
+		//	grpcOpentracing.UnaryClientInterceptor(grpcOpentracing.WithTracer(*s.tracer)),
+		//)),
+	)
 }

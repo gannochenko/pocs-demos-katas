@@ -3,8 +3,8 @@ package util
 import (
 	"context"
 
-	"service/internal/util/logger"
-	"service/internal/util/syserr"
+	"backend/internal/util/logger"
+	"backend/internal/util/syserr"
 )
 
 var (

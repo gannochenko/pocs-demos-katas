@@ -9,20 +9,23 @@ import (
 	"os/signal"
 	"syscall"
 
-	httpUtil "service/internal/http"
-	"service/internal/util"
-	"service/internal/util/syserr"
+	httpUtil "backend/internal/http"
+	"backend/internal/service/config"
+	"backend/internal/util"
+	"backend/internal/util/syserr"
 )
-
-//const (
-//	keyServerAddress = "serverAddress"
-//)
 
 func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mux, shutdownGrpcClient, err := httpUtil.GetMux(ctx)
+	configService := config.NewConfigService()
+	configuration, err := configService.GetConfig()
+	if err != nil {
+		return err
+	}
+
+	mux, shutdownGrpcClient, err := httpUtil.GetMux(ctx, configuration)
 	if err != nil {
 		return err
 	}
@@ -34,12 +37,11 @@ func run() error {
 	}()
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", 8000),
+		Addr:    fmt.Sprintf(":%d", configuration.HTTPPort),
 		Handler: mux,
 		BaseContext: func(l net.Listener) context.Context {
 			address := l.Addr().String()
 			fmt.Println("Listening at " + address)
-			//return context.WithValue(ctx, keyServerAddress, address)
 			return ctx
 		},
 	}
@@ -68,7 +70,7 @@ func run() error {
 func main() {
 	err := run()
 	if err != nil {
-		// log here!
+		util.LogError(nil, syserr.Wrap(err, "could not start the application"))
 
 		os.Exit(1)
 	}

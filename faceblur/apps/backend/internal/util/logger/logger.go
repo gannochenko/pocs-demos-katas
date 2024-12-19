@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	pkgCtx "service/internal/util/ctx"
+	pkgCtx "backend/internal/util/ctx"
 )
 
 var (

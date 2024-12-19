@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
-	"service/internal/util/syserr"
+	"backend/internal/util/syserr"
 )
 
 var (
