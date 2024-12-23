@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -11,11 +13,12 @@ import (
 
 	httpUtil "backend/internal/http"
 	"backend/internal/service/config"
-	"backend/internal/util"
+	"backend/internal/service/logger"
+	loggerUtil "backend/internal/util/logger"
 	"backend/internal/util/syserr"
 )
 
-func run() error {
+func run(w io.Writer) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -25,6 +28,8 @@ func run() error {
 		return err
 	}
 
+	loggerService := logger.NewService(w)
+
 	mux, shutdownGrpcClient, err := httpUtil.GetMux(ctx, configuration)
 	if err != nil {
 		return err
@@ -32,7 +37,7 @@ func run() error {
 	defer func() {
 		err = shutdownGrpcClient()
 		if err != nil {
-			util.LogError(ctx, syserr.Wrap(err, "could not shutdown gRPC client"))
+			loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown gRPC client"))
 		}
 	}()
 
@@ -53,7 +58,7 @@ func run() error {
 	defer func() {
 		err = server.Shutdown(ctx)
 		if err != nil {
-			util.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
+			loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
 		}
 	}()
 
@@ -68,9 +73,9 @@ func run() error {
 }
 
 func main() {
-	err := run()
+	err := run(os.Stdout)
 	if err != nil {
-		util.LogError(nil, syserr.Wrap(err, "could not start the application"))
+		loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), "could not start the application")
 
 		os.Exit(1)
 	}

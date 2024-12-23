@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
 	"backend/internal/util/syserr"
@@ -11,7 +12,7 @@ import (
 
 var (
 	ErrNotFound = errors.New("resource not found")
-	SysInternal = syserr.New(syserr.InternalCode, "foo")
+	SysInternal = syserr.New(lo.ToPtr(syserr.InternalCode), "foo")
 )
 
 func TestGetStackFormatted(t *testing.T) {
@@ -100,7 +101,7 @@ func TestAs(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
+							syserr.WrapAs(
 								ErrNotFound,
 								syserr.InternalCode,
 								"bar",
@@ -153,7 +154,7 @@ func TestIs(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
+							syserr.WrapAs(
 								ErrNotFound,
 								syserr.InternalCode,
 								"bar",
@@ -173,7 +174,7 @@ func TestIs(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
+							syserr.WrapAs(
 								SysInternal,
 								syserr.BadInputCode,
 								"bar",
@@ -222,7 +223,7 @@ func TestError(t *testing.T) {
 			setupFunc: func(t *testing.T) *setup {
 				return &setup{
 					makeError: func() error {
-						return syserr.Wrap(errors.New("bar"), syserr.InternalCode, "foo")
+						return syserr.WrapAs(errors.New("bar"), syserr.InternalCode, "foo")
 					},
 				}
 			},
@@ -235,7 +236,7 @@ func TestError(t *testing.T) {
 			setupFunc: func(t *testing.T) *setup {
 				return &setup{
 					makeError: func() error {
-						return errors.Wrap(syserr.New(syserr.InternalCode, "bar"), "foo")
+						return errors.Wrap(syserr.NewInternal("bar"), "foo")
 					},
 				}
 			},
@@ -249,7 +250,7 @@ func TestError(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
+							syserr.WrapAs(
 								errors.Wrap(
 									syserr.NewInternal("wheel"),
 									"baz",
@@ -302,7 +303,7 @@ func TestGetCode(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
+							syserr.WrapAs(
 								ErrNotFound,
 								syserr.BadInputCode,
 								"bar",
@@ -334,8 +335,8 @@ func TestGetCode(t *testing.T) {
 			setupFunc: func(t *testing.T) *setup {
 				return &setup{
 					makeError: func() error {
-						return syserr.Wrap(
-							syserr.Wrap(
+						return syserr.WrapAs(
+							syserr.WrapAs(
 								ErrNotFound,
 								syserr.BadInputCode,
 								"bar",
@@ -405,7 +406,7 @@ func TestGetFields(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
+							syserr.WrapAs(
 								ErrNotFound,
 								syserr.BadInputCode,
 								"bar",
@@ -428,8 +429,8 @@ func TestGetFields(t *testing.T) {
 				return &setup{
 					makeError: func() error {
 						return errors.Wrap(
-							syserr.Wrap(
-								syserr.Wrap(
+							syserr.WrapAs(
+								syserr.WrapAs(
 									errors.Wrap(
 										syserr.NewInternal("internal", syserr.F("five", "six")),
 										"baz",

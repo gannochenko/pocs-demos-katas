@@ -3,13 +3,8 @@ package logger
 import (
 	"context"
 	"log/slog"
-	"os"
 
 	pkgCtx "backend/internal/util/ctx"
-)
-
-var (
-	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 )
 
 type Field struct {
@@ -24,15 +19,15 @@ func F(key string, value any) *Field {
 	}
 }
 
-func Warning(ctx context.Context, message string, fields ...*Field) {
+func Warning(ctx context.Context, logger *slog.Logger, message string, fields ...*Field) {
 	logger.Warn(message, convertFields(addOperationID(ctx, fields))...)
 }
 
-func Error(ctx context.Context, message string, fields ...*Field) {
+func Error(ctx context.Context, logger *slog.Logger, message string, fields ...*Field) {
 	logger.Error(message, convertFields(addOperationID(ctx, fields))...)
 }
 
-func Info(ctx context.Context, message string, fields ...*Field) {
+func Info(ctx context.Context, logger *slog.Logger, message string, fields ...*Field) {
 	logger.Info(message, convertFields(addOperationID(ctx, fields))...)
 }
 

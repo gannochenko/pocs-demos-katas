@@ -6,6 +6,7 @@ toolchain go1.22.10
 
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/samber/lo v1.47.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
