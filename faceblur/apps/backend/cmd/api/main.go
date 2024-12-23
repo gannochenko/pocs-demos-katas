@@ -11,6 +11,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"google.golang.org/grpc"
+
 	httpUtil "backend/internal/http"
 	"backend/internal/service/config"
 	"backend/internal/service/logger"
@@ -22,6 +24,8 @@ func run(w io.Writer) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// -----
+
 	configService := config.NewConfigService()
 	configuration, err := configService.GetConfig()
 	if err != nil {
@@ -29,6 +33,24 @@ func run(w io.Writer) error {
 	}
 
 	loggerService := logger.NewService(w)
+
+	// ---
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", configuration.GRPCPort))
+	if err != nil {
+		return err
+	}
+
+	opts := grpc.ChainUnaryInterceptor(
+		//s.auth.PopulateUser,
+		//request.PopulateContext(),
+	)
+	grpcServer := grpc.NewServer(opts)
+
+	err = grpcServer.Serve(lis)
+	if err != nil {
+		return err
+	}
 
 	mux, shutdownGrpcClient, err := httpUtil.GetMux(ctx, configuration)
 	if err != nil {
