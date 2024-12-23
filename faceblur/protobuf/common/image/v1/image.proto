@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package faceblur.common.image.v1;
 
-option go_package = "api/proto/common/image/v1";
+option go_package = "backend/proto/common/image/v1";
 
 import "google/protobuf/timestamp.proto";
 

@@ -11,9 +11,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"google.golang.org/grpc"
-
-	httpUtil "backend/internal/http"
+	"backend/internal/network"
 	"backend/internal/service/config"
 	"backend/internal/service/logger"
 	loggerUtil "backend/internal/util/logger"
@@ -24,8 +22,6 @@ func run(w io.Writer) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// -----
-
 	configService := config.NewConfigService()
 	configuration, err := configService.GetConfig()
 	if err != nil {
@@ -34,34 +30,31 @@ func run(w io.Writer) error {
 
 	loggerService := logger.NewService(w)
 
-	// ---
-
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", configuration.GRPCPort))
+	shutdownGRPCServer, err := network.StartGRPCServer(configuration)
 	if err != nil {
 		return err
 	}
+	defer shutdownGRPCServer()
 
-	opts := grpc.ChainUnaryInterceptor(
-		//s.auth.PopulateUser,
-		//request.PopulateContext(),
-	)
-	grpcServer := grpc.NewServer(opts)
+	fmt.Printf("1")
 
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		return err
-	}
-
-	mux, shutdownGrpcClient, err := httpUtil.GetMux(ctx, configuration)
+	grpcConnection, closeGPRCConnection, err := network.ConnectToGRPCServer(configuration)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		err = shutdownGrpcClient()
+		err = closeGPRCConnection()
 		if err != nil {
-			loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown gRPC client"))
+			loggerService.LogError(ctx, syserr.Wrap(err, "could not close gRPC connection"))
 		}
 	}()
+
+	fmt.Printf("2")
+
+	mux, err := network.GetMux(ctx, grpcConnection)
+	if err != nil {
+		return err
+	}
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", configuration.HTTPPort),
@@ -83,6 +76,8 @@ func run(w io.Writer) error {
 			loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
 		}
 	}()
+
+	fmt.Printf("3")
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)

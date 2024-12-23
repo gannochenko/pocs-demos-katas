@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package faceblur.websocket.v1;
 
-option go_package = "api/proto/websocket/v1";
+option go_package = "backend/proto/websocket/v1";
 
 import "google/protobuf/timestamp.proto";
 import "websocket/payload/client/v1/client.proto";

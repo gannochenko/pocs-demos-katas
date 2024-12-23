@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package faceblur.common.page_navigation.v1;
 
-option go_package = "api/proto/common/page_navigation/v1";
+option go_package = "backend/proto/common/page_navigation/v1";
 
 message PageNavigationRequest {
   int32 page_size = 1;

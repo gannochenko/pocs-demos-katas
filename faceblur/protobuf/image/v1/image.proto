@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package faceblur.image.v1;
 
-option go_package = "api/proto/v1/imagepb";
+option go_package = "backend/proto/v1/imagepb";
 
 import "google/api/annotations/annotations.proto";
 import "common/image/v1/image.proto";
