@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	v1 "backend/internal/controller/image/v1"
 	"backend/internal/network"
 	"backend/internal/service/config"
 	"backend/internal/service/logger"
@@ -30,13 +29,15 @@ func run(w io.Writer) error {
 
 	loggerService := logger.NewService(w)
 
-	shutdownGRPCServer, err := network.StartGRPCServer(configuration)
-	if err != nil {
-		return err
-	}
-	defer shutdownGRPCServer()
-
-	fmt.Printf("1")
+	go func() {
+		shutdownGRPCServer, err := network.StartGRPCServer(configuration, &network.Controllers{
+			ImageServiceV1: &v1.ImageController{},
+		})
+		if err != nil {
+			loggerService.LogError(ctx, syserr.Wrap(err, "could not start gRPC server"))
+		}
+		shutdownGRPCServer()
+	}()
 
 	grpcConnection, closeGPRCConnection, err := network.ConnectToGRPCServer(configuration)
 	if err != nil {
@@ -49,40 +50,30 @@ func run(w io.Writer) error {
 		}
 	}()
 
-	fmt.Printf("2")
-
 	mux, err := network.GetMux(ctx, grpcConnection)
 	if err != nil {
 		return err
 	}
 
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", configuration.HTTPPort),
-		Handler: mux,
-		BaseContext: func(l net.Listener) context.Context {
-			address := l.Addr().String()
-			fmt.Println("Listening at " + address)
-			return ctx
-		},
-	}
-
-	err = server.ListenAndServe()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		err = server.Shutdown(ctx)
+	go func() {
+		shutdownHTTPServer, err := network.StartHTTPServer(ctx, configuration, mux)
+		if err != nil {
+			loggerService.LogError(ctx, syserr.Wrap(err, "could not start HTTP server"))
+		}
+		err = shutdownHTTPServer()
 		if err != nil {
 			loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
 		}
 	}()
 
-	fmt.Printf("3")
+	loggerService.Info(ctx, fmt.Sprintf("service started, http port %d", configuration.HTTPPort))
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	<-sig
+
+	loggerService.Info(ctx, "service shutting down")
 
 	cancel()
 
@@ -92,7 +83,7 @@ func run(w io.Writer) error {
 func main() {
 	err := run(os.Stdout)
 	if err != nil {
-		loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), "could not start the application")
+		loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), fmt.Sprintf("could not start the application: %s", err.Error()))
 
 		os.Exit(1)
 	}
