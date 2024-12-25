@@ -57,7 +57,7 @@ func (s *Service) convertErrorFieldsToLoggerFields(fields []*syserr.Field) []*lo
 	return result
 }
 
-func NewService(logWriter io.Writer) *Service {
+func NewLoggerService(logWriter io.Writer) *Service {
 	return &Service{
 		logger: slog.New(slog.NewJSONHandler(logWriter, nil)),
 	}

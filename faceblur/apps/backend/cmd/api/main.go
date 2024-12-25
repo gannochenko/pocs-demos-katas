@@ -9,10 +9,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"backend/factory/repository"
+	"backend/factory/service"
 	v1 "backend/internal/controller/image/v1"
 	"backend/internal/network"
-	"backend/internal/service/config"
-	"backend/internal/service/logger"
 	loggerUtil "backend/internal/util/logger"
 	"backend/internal/util/syserr"
 )
@@ -21,17 +21,19 @@ func run(w io.Writer) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	configService := config.NewConfigService()
-	configuration, err := configService.GetConfig()
+	repositoryFactory := repository.NewRepositoryFactory(nil)
+	serviceFactory := service.NewServiceFactory(nil, w, repositoryFactory)
+
+	configuration, err := serviceFactory.GetConfigService().GetConfig()
 	if err != nil {
 		return err
 	}
 
-	loggerService := logger.NewService(w)
+	loggerService := serviceFactory.GetLoggerService()
 
 	go func() {
 		shutdownGRPCServer, err := network.StartGRPCServer(configuration, &network.Controllers{
-			ImageServiceV1: &v1.ImageController{},
+			ImageServiceV1: v1.NewImageController(loggerService),
 		})
 		if err != nil {
 			loggerService.LogError(ctx, syserr.Wrap(err, "could not start gRPC server"))
