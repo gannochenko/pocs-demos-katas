@@ -9,3 +9,9 @@ copy_local_env:
 
 copy_test_env:
 	@tr '\n' ';' < ./.env.test | pbcopy
+
+new_migration:
+	migrate create -ext sql -dir db/migrations $(name)
+
+migrate_db:
+	migrate -path db/migrations -database postgres://faceblur:faceblur@localhost:5432/faceblur?sslmode=disable up

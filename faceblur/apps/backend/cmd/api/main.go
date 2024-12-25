@@ -7,12 +7,14 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"backend/factory/repository"
 	"backend/factory/service"
 	v1 "backend/internal/controller/image/v1"
 	"backend/internal/network"
+	"backend/internal/util/db"
 	loggerUtil "backend/internal/util/logger"
 	"backend/internal/util/syserr"
 )
@@ -21,24 +23,37 @@ func run(w io.Writer) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	repositoryFactory := repository.NewRepositoryFactory(nil)
-	serviceFactory := service.NewServiceFactory(nil, w, repositoryFactory)
+	session, err := db.Connect(os.Getenv("POSTGRES_DB_DSN"))
+	if err != nil {
+		return syserr.Wrap(err, "could not connect to the database")
+	}
+
+	repositoryFactory := repository.NewRepositoryFactory(session)
+	serviceFactory := service.NewServiceFactory(session, w, repositoryFactory)
 
 	configuration, err := serviceFactory.GetConfigService().GetConfig()
 	if err != nil {
-		return err
+		return syserr.Wrap(err, "could not get config")
 	}
 
 	loggerService := serviceFactory.GetLoggerService()
 
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
 	go func() {
+		loggerService.Info(ctx, "gRPC server starting")
 		shutdownGRPCServer, err := network.StartGRPCServer(configuration, &network.Controllers{
 			ImageServiceV1: v1.NewImageController(loggerService),
 		})
 		if err != nil {
 			loggerService.LogError(ctx, syserr.Wrap(err, "could not start gRPC server"))
+		} else {
+			shutdownGRPCServer()
 		}
-		shutdownGRPCServer()
+
+		loggerService.Info(ctx, "gRPC server stopped")
+		wg.Done()
 	}()
 
 	grpcConnection, closeGPRCConnection, err := network.ConnectToGRPCServer(configuration)
@@ -54,18 +69,23 @@ func run(w io.Writer) error {
 
 	mux, err := network.GetMux(ctx, grpcConnection)
 	if err != nil {
-		return err
+		return syserr.Wrap(err, "could not create mux")
 	}
 
 	go func() {
+		loggerService.Info(ctx, "HTTP server starting")
 		shutdownHTTPServer, err := network.StartHTTPServer(ctx, configuration, mux)
 		if err != nil {
 			loggerService.LogError(ctx, syserr.Wrap(err, "could not start HTTP server"))
+		} else {
+			err = shutdownHTTPServer()
+			if err != nil {
+				loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
+			}
 		}
-		err = shutdownHTTPServer()
-		if err != nil {
-			loggerService.LogError(ctx, syserr.Wrap(err, "could not shutdown HTTP server"))
-		}
+
+		loggerService.Info(ctx, "HTTP server stopped")
+		wg.Done()
 	}()
 
 	loggerService.Info(ctx, fmt.Sprintf("service started, http port %d", configuration.HTTPPort))
@@ -78,6 +98,7 @@ func run(w io.Writer) error {
 	loggerService.Info(ctx, "service shutting down")
 
 	cancel()
+	wg.Wait()
 
 	return nil
 }
