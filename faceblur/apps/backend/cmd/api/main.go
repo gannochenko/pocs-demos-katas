@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"backend/factory/repository"
 	"backend/factory/service"
@@ -127,34 +128,63 @@ func run(w io.Writer) error {
 	return nil
 }
 
-//err := run(os.Stdout)
-//if err != nil {
-//	loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), fmt.Sprintf("could not start the application: %s", err.Error()))
-//
-//	os.Exit(1)
-//}
+func run1(w io.Writer) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-func main() {
-	err := run1()
+	session, err := db.Connect(os.Getenv("POSTGRES_DB_DSN"))
 	if err != nil {
-		loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), fmt.Sprintf("could not start the application: %s", err.Error()))
-
-		os.Exit(1)
+		return syserr.Wrap(err, "could not connect to the database")
 	}
-}
 
-func run1() error {
+	repositoryFactory := repository.NewRepositoryFactory(session)
+	serviceFactory := service.NewServiceFactory(session, w, repositoryFactory)
+
+	configuration, err := serviceFactory.GetConfigService().GetConfig()
+	if err != nil {
+		return syserr.Wrap(err, "could not get config")
+	}
+
+	loggerService := serviceFactory.GetLoggerService()
+
+	fmt.Printf("%v", ctx)
+	fmt.Printf("%v", configuration)
+	fmt.Printf("%v", loggerService)
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
+	// ----
+
+	//go func() {
+	//	defer wg.Done()
+	//	loggerService.Info(ctx, "gRPC server starting")
+	//	shutdownGRPCServer, shutdownError := network.StartGRPCServer(ctx, configuration, &network.Controllers{
+	//		ImageServiceV1: v1.NewImageController(loggerService),
+	//	})
+	//	loggerService.Info(ctx, "gRPC server started")
+	//	if shutdownError != nil {
+	//		loggerService.LogError(ctx, syserr.Wrap(shutdownError, "could not start gRPC server"))
+	//	}
+	//	if shutdownGRPCServer != nil {
+	//		shutdownGRPCServer()
+	//	}
+	//
+	//	loggerService.Info(ctx, "gRPC server stopped")
+	//}()
+
+	// ----
+
 	go func() {
 		defer wg.Done() // Mark WaitGroup as done when signal is received
 		fmt.Println("WAITING")
 		s := <-sig
 		fmt.Printf("Signal received: %s\n", s.String())
+		cancel()
+		time.Sleep(3 * time.Second)
 	}()
 
 	wg.Wait()
@@ -162,4 +192,53 @@ func run1() error {
 	fmt.Printf("DONE\n")
 
 	return nil
+}
+
+func run2(w io.Writer) error {
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
+	//shutdownOnce := &sync.Once{}
+
+	// Run signal handling in a separate goroutine
+	go func() {
+		defer wg.Done()
+
+		s := <-sig
+		fmt.Printf("Signal received: %s\n", s.String())
+
+		fmt.Println("Starting shutdown sequence...")
+		time.Sleep(5 * time.Second) // Simulate a long shutdown process
+		fmt.Println("Shutdown complete.")
+
+		//for {
+		//	s := <-sig
+		//	fmt.Printf("Signal received: %s\n", s.String())
+		//
+		//	// Run shutdown sequence only once
+		//	shutdownOnce.Do(func() {
+		//		fmt.Println("Starting shutdown sequence...")
+		//		time.Sleep(5 * time.Second) // Simulate a long shutdown process
+		//		fmt.Println("Shutdown complete.")
+		//	})
+		//}
+	}()
+
+	// Wait for the shutdown to complete
+	wg.Wait()
+	fmt.Println("DONE")
+
+	return nil
+}
+
+func main() {
+	err := run2(os.Stdout)
+	if err != nil {
+		loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), fmt.Sprintf("could not start the application: %s", err.Error()))
+
+		os.Exit(1)
+	}
 }
