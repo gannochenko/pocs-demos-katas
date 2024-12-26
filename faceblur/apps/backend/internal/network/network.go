@@ -101,8 +101,10 @@ func ConnectToGRPCServer(config *domain.Config) (*grpc.ClientConn, func() error,
 	return connection, connection.Close, nil
 }
 
-func StartGRPCServer(configuration *domain.Config, controllers *Controllers) (func(), error) {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", configuration.GRPCPort))
+func StartGRPCServer(ctx context.Context, configuration *domain.Config, controllers *Controllers) (func(), error) {
+	lc := net.ListenConfig{}
+	listener, err := lc.Listen(ctx, "tcp", fmt.Sprintf(":%d", configuration.GRPCPort))
+	//listener, err := net.Listen("tcp", fmt.Sprintf(":%d", configuration.GRPCPort))
 	if err != nil {
 		return nil, err
 	}
