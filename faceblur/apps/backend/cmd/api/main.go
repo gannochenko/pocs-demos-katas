@@ -195,41 +195,47 @@ func run1(w io.Writer) error {
 }
 
 func run2(w io.Writer) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := db.Connect(os.Getenv("POSTGRES_DB_DSN"))
+	if err != nil {
+		return syserr.Wrap(err, "could not connect to the database")
+	}
+
+	repositoryFactory := repository.NewRepositoryFactory(session)
+	serviceFactory := service.NewServiceFactory(session, w, repositoryFactory)
+
+	configuration, err := serviceFactory.GetConfigService().GetConfig()
+	if err != nil {
+		return syserr.Wrap(err, "could not get config")
+	}
+
+	loggerService := serviceFactory.GetLoggerService()
+
+	fmt.Printf("%v", ctx)
+	fmt.Printf("%v", configuration)
+	fmt.Printf("%v", loggerService)
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	//shutdownOnce := &sync.Once{}
-
-	// Run signal handling in a separate goroutine
 	go func() {
 		defer wg.Done()
 
 		s := <-sig
-		fmt.Printf("Signal received: %s\n", s.String())
+		loggerService.Info(ctx, fmt.Sprintf("signal received: %s, starting shutdown sequence", s.String()))
 
-		fmt.Println("Starting shutdown sequence...")
 		time.Sleep(5 * time.Second) // Simulate a long shutdown process
 		fmt.Println("Shutdown complete.")
-
-		//for {
-		//	s := <-sig
-		//	fmt.Printf("Signal received: %s\n", s.String())
-		//
-		//	// Run shutdown sequence only once
-		//	shutdownOnce.Do(func() {
-		//		fmt.Println("Starting shutdown sequence...")
-		//		time.Sleep(5 * time.Second) // Simulate a long shutdown process
-		//		fmt.Println("Shutdown complete.")
-		//	})
-		//}
 	}()
 
 	// Wait for the shutdown to complete
 	wg.Wait()
-	fmt.Println("DONE")
+	loggerService.Info(ctx, "shutdown complete")
 
 	return nil
 }
