@@ -13,9 +13,12 @@ import (
 
 	"backend/factory/repository"
 	"backend/factory/service"
+	v1 "backend/internal/controller/image/v1"
+	"backend/internal/network"
 	"backend/internal/util/db"
 	loggerUtil "backend/internal/util/logger"
 	"backend/internal/util/syserr"
+	"backend/internal/util/types"
 )
 
 func run(w io.Writer) error {
@@ -213,28 +216,75 @@ func run2(w io.Writer) error {
 
 	loggerService := serviceFactory.GetLoggerService()
 
-	fmt.Printf("%v", ctx)
-	fmt.Printf("%v", configuration)
-	fmt.Printf("%v", loggerService)
-
-	var wg sync.WaitGroup
-	wg.Add(1)
+	var shutdownSequenceWg sync.WaitGroup
+	//shutdownSequenceWg.Add(1)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
+	var shutdownGRPCServer types.Cb = nil
 	go func() {
-		defer wg.Done()
+		loggerService.Info(ctx, "gRPC server starting")
 
-		s := <-sig
-		loggerService.Info(ctx, fmt.Sprintf("signal received: %s, starting shutdown sequence", s.String()))
-
-		time.Sleep(5 * time.Second) // Simulate a long shutdown process
-		fmt.Println("Shutdown complete.")
+		var localError error
+		shutdownGRPCServer, localError = network.StartGRPCServer(ctx, configuration, &network.Controllers{
+			ImageServiceV1: v1.NewImageController(loggerService),
+		})
+		if localError != nil {
+			loggerService.LogError(ctx, syserr.Wrap(localError, "could not start gRPC server"))
+		}
 	}()
 
-	// Wait for the shutdown to complete
-	wg.Wait()
+	grpcConnection, closeGPRCConnection, err := network.ConnectToGRPCServer(configuration)
+	defer func() {
+		if closeGPRCConnection != nil {
+			localErr := closeGPRCConnection()
+			if localErr != nil {
+				loggerService.LogError(ctx, syserr.Wrap(localErr, "could not close gRPC connection"))
+			}
+		}
+	}()
+	if err != nil {
+		return err
+	}
+
+	mux, err := network.GetMux(ctx, grpcConnection)
+	if err != nil {
+		return syserr.Wrap(err, "could not create mux")
+	}
+
+	var shutdownHTTPServer types.CbWithError = nil
+	go func() {
+		loggerService.Info(ctx, "HTTP server starting")
+
+		var localErr error
+		shutdownHTTPServer, localErr = network.StartHTTPServer(ctx, configuration, mux)
+		loggerService.Info(ctx, "HTTP server started")
+		if localErr != nil {
+			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start HTTP server"))
+		}
+	}()
+
+	loggerService.Info(ctx, fmt.Sprintf("service started, HTTP port %d, gRPC port %d", configuration.HTTPPort, configuration.GRPCPort))
+
+	s := <-sig
+	loggerService.Info(ctx, fmt.Sprintf("signal received: %s, starting shutdown sequence", s.String()))
+
+	cancel()
+	if shutdownGRPCServer != nil {
+		shutdownGRPCServer() // apparently gRPC server doesn't monitor context cancellation
+		loggerService.Info(ctx, "gRPC server stopped")
+	}
+	if shutdownHTTPServer != nil {
+		shutdownErr := shutdownHTTPServer() // apparently HTTP server doesn't monitor context cancellation
+		if shutdownErr != nil {
+			loggerService.LogError(ctx, syserr.Wrap(shutdownErr, "could not shutdown HTTP server"))
+		} else {
+			loggerService.Info(ctx, "HTTP server stopped")
+		}
+	}
+
+	shutdownSequenceWg.Wait()
 	loggerService.Info(ctx, "shutdown complete")
 
 	return nil
