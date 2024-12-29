@@ -33,7 +33,7 @@ func GetOperationID(ctx context.Context) string {
 	return ""
 }
 
-func WithUser(ctx context.Context, user domain.Userr) context.Context {
+func WithUser(ctx context.Context, user domain.User) context.Context {
 	return context.WithValue(ctx, UserKey, user)
 }
 

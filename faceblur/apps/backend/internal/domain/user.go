@@ -1,5 +1,5 @@
 package domain
 
-type Userr struct {
+type User struct {
 	Email string
 }

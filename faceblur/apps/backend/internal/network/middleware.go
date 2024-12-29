@@ -28,7 +28,7 @@ func PopulateUser(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo,
 	if len(tokens) > 0 {
 		// todo: parse and verify token here
 
-		ctx = ctxUtil.WithUser(ctx, domain.Userr{
+		ctx = ctxUtil.WithUser(ctx, domain.User{
 			Email: "foo@bar.baz",
 		})
 	}
