@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"backend/internal/util/syserr"
+	errorpb "backend/proto/common/error/v1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -148,8 +150,9 @@ func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Ma
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpStatus)
 
-	// todo: use protobuf message here
-	json.NewEncoder(w).Encode(map[string]string{
-		"error": grpcStatus.Message(),
-	})
+	responseError := &errorpb.Error{
+		Error: lo.Ternary(grpcStatus.Code() == codes.Internal, "internal error occurred, contact support", grpcStatus.Message()),
+	}
+
+	json.NewEncoder(w).Encode(responseError)
 }
