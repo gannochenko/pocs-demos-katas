@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"google.golang.org/grpc/metadata"
+
 	"backend/internal/util/syserr"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -36,7 +38,22 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 				DiscardUnknown: true,
 			},
 		}),
-		//runtime.WithIncomingHeaderMatcher(middleware.HeaderMatcher),
+		runtime.WithIncomingHeaderMatcher(func(s string) (string, bool) {
+			return runtime.DefaultHeaderMatcher(s)
+		}),
+		runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
+			return metadata.Pairs(
+				"http-request-path", req.URL.Path,
+				"http-method", req.Method,
+				"http-query-params", req.URL.RawQuery,
+			)
+		}),
+		runtime.WithOutgoingHeaderMatcher(func(s string) (string, bool) {
+			if s == "x-operation-id" {
+				return "X-Operation-Id", true
+			}
+			return runtime.DefaultHeaderMatcher(s)
+		}),
 	)
 
 	for _, schemaItem := range APISchema {

@@ -140,11 +140,9 @@ func GetCode(err error) Code {
 	for {
 		if sErr, ok := err.(*Error); ok {
 			code := sErr.GetCode()
-			if code == nil {
-				return InternalCode
+			if code != nil {
+				return *code
 			}
-
-			return *code
 		}
 
 		switch x := err.(type) {

@@ -38,13 +38,13 @@ func run(w io.Writer) error {
 
 	loggerService := serviceFactory.GetLoggerService()
 
-	var shutdownSequenceWg sync.WaitGroup
-	shutdownSequenceWg.Add(2)
-
 	gRPCSever := network.NewGRPCServer(&network.Controllers{
 		ImageServiceV1: v1.NewImageController(loggerService),
-	})
+	}, loggerService)
 	HTTPServer := network.NewHTTPServer()
+
+	var shutdownSequenceWg sync.WaitGroup
+	shutdownSequenceWg.Add(2)
 
 	go func() {
 		shutdownSequenceWg.Done()

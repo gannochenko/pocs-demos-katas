@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	"backend/interfaces"
 	"backend/internal/domain"
 )
 
@@ -14,10 +15,11 @@ type GRPCServer struct {
 	server *grpc.Server
 }
 
-func NewGRPCServer(controllers *Controllers) *GRPCServer {
+func NewGRPCServer(controllers *Controllers, loggerService interfaces.LoggerService) *GRPCServer {
 	opts := grpc.ChainUnaryInterceptor(
-	//s.auth.PopulateUser,
-	//request.PopulateContext(),
+		PopulateUser,
+		PopulateOperationID,
+		GetLogRequest(loggerService),
 	)
 	grpcServer := grpc.NewServer(opts)
 

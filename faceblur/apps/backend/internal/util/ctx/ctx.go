@@ -1,16 +1,20 @@
 package ctx
 
-import "context"
+import (
+	"context"
+
+	"backend/internal/domain"
+)
 
 type (
 	timestampIDKey string
 	operationIDKey string
-	userEmailKey   string
+	userKey        string
 )
 
 const TimestampIDKey timestampIDKey = "Timestamp"
 const OperationIDKey operationIDKey = "OperationID"
-const UserEmailKey userEmailKey = "UserEmail"
+const UserKey userKey = "User"
 
 func WithOperationID(ctx context.Context, operationID string) context.Context {
 	if operationID == "" {
@@ -29,16 +33,16 @@ func GetOperationID(ctx context.Context) string {
 	return ""
 }
 
-func WithUserEmail(ctx context.Context, userEmail string) context.Context {
-	return context.WithValue(ctx, UserEmailKey, userEmail)
+func WithUser(ctx context.Context, user domain.Userr) context.Context {
+	return context.WithValue(ctx, UserKey, user)
 }
 
-func GetUserEmail(ctx context.Context) string {
+func GetUser(ctx context.Context) string {
 	if ctx == nil {
 		return ""
 	}
 
-	value := ctx.Value(UserEmailKey)
+	value := ctx.Value(UserKey)
 	if value == nil {
 		return ""
 	}
