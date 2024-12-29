@@ -2,12 +2,15 @@ package network
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"strings"
 
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	"backend/internal/util/syserr"
 
@@ -54,6 +57,7 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 			}
 			return runtime.DefaultHeaderMatcher(s)
 		}),
+		runtime.WithErrorHandler(customErrorHandler),
 	)
 
 	for _, schemaItem := range APISchema {
@@ -114,11 +118,38 @@ func (s *HTTPServer) connectToGRPCServer(config *domain.Config) (*grpc.ClientCon
 		fmt.Sprintf("0.0.0.0:%d", config.GRPCPort),
 		// the connection takes place in the VPC tier, no security is needed
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		//grpc.WithStreamInterceptor(grpcMiddleware.ChainStreamClient(
-		//	grpcOpentracing.StreamClientInterceptor(grpcOpentracing.WithTracer(*s.tracer)),
-		//)),
-		//grpc.WithUnaryInterceptor(grpcMiddleware.ChainUnaryClient(
-		//	grpcOpentracing.UnaryClientInterceptor(grpcOpentracing.WithTracer(*s.tracer)),
-		//)),
 	)
+}
+
+func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Marshaler, w http.ResponseWriter, _ *http.Request, err error) {
+	grpcStatus, _ := status.FromError(err)
+
+	httpStatus := http.StatusInternalServerError
+
+	switch grpcStatus.Code() {
+	case codes.InvalidArgument:
+		httpStatus = http.StatusBadRequest
+	case codes.NotFound:
+		httpStatus = http.StatusNotFound
+	case codes.PermissionDenied:
+		httpStatus = http.StatusForbidden
+	case codes.Unauthenticated:
+		httpStatus = http.StatusUnauthorized
+	case codes.AlreadyExists:
+		httpStatus = http.StatusConflict
+	case codes.FailedPrecondition:
+		httpStatus = http.StatusPreconditionFailed
+	case codes.Unavailable:
+		httpStatus = http.StatusServiceUnavailable
+	case codes.DeadlineExceeded:
+		httpStatus = http.StatusGatewayTimeout
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpStatus)
+
+	// todo: use protobuf message here
+	json.NewEncoder(w).Encode(map[string]string{
+		"error": grpcStatus.Message(),
+	})
 }

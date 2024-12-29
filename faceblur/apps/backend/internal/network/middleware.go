@@ -9,7 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	"backend/interfaces"
 	"backend/internal/domain"
@@ -74,4 +76,38 @@ func GetLogRequest(loggerService interfaces.LoggerService) grpc.UnaryServerInter
 
 		return resp, err
 	}
+}
+
+var (
+	syserrCodeToGrpc = map[syserr.Code]codes.Code{
+		syserr.BadInputCode:       codes.InvalidArgument,
+		syserr.UnauthorisedCode:   codes.PermissionDenied,
+		syserr.NotFoundCode:       codes.NotFound,
+		syserr.NotImplementedCode: codes.Unimplemented,
+		syserr.InternalCode:       codes.Internal,
+	}
+)
+
+func MapError(
+	ctx context.Context,
+	req interface{},
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
+	resp, err := handler(ctx, req)
+
+	if err != nil {
+		switch e := err.(type) {
+		case *syserr.Error:
+			code := syserr.GetCode(e)
+			grpcCode, ok := syserrCodeToGrpc[code]
+			if ok {
+				return nil, status.Error(grpcCode, err.Error())
+			}
+		}
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return resp, nil
 }
