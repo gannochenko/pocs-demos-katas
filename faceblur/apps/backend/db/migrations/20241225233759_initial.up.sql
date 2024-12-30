@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS "users"
     "email"         varchar(255) NOT NULL,
     "created_at"    timestamptz NOT NULL DEFAULT now(),
     "updated_at"    timestamptz NOT NULL DEFAULT now(),
+    "deleted_at"    timestamptz,
     PRIMARY KEY ("id")
 );
 
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS "images"
     "created_by"    uuid NOT NULL,
     "created_at"    timestamptz NOT NULL DEFAULT now(),
     "updated_at"    timestamptz NOT NULL DEFAULT now(),
+    "deleted_at"    timestamptz,
     "is_processed"  bool NOT NULL DEFAULT FALSE,
     PRIMARY KEY ("id"),
     FOREIGN KEY ("created_by") REFERENCES users("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -31,6 +33,7 @@ CREATE TABLE IF NOT EXISTS "image_processing_queue"
     "created_by"        uuid NOT NULL,
     "created_at"        timestamptz NOT NULL DEFAULT now(),
     "updated_at"        timestamptz NOT NULL DEFAULT now(),
+    "deleted_at"        timestamptz,
     "operation_id"      uuid NOT NULL,
     "is_failed"         bool NOT NULL DEFAULT FALSE,
     "failure_reason"    text,

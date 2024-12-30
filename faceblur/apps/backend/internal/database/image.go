@@ -25,7 +25,7 @@ type Image struct {
 	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
 	URL         *string   `gorm:"type:varchar(255)"`
 	OriginalURL string    `gorm:"type:varchar(255)"`
-	CreatedBy   string    `gorm:"type:uuid"`
+	CreatedBy   uuid.UUID `gorm:"type:uuid"`
 	CreatedAt   time.Time `gorm:"type:timestamptz"`
 	UpdatedAt   time.Time `gorm:"type:timestamptz"`
 	IsProcessed bool      `gorm:"type:bool"`
