@@ -2,12 +2,15 @@ package repository
 
 import (
 	"gorm.io/gorm"
+
+	"backend/interfaces"
+	"backend/internal/repository/image"
 )
 
 type Factory struct {
 	session *gorm.DB
 
-	//bookRepository *book.Repository
+	imageRepository interfaces.ImageRepository
 }
 
 func NewRepositoryFactory(session *gorm.DB) *Factory {
@@ -16,11 +19,10 @@ func NewRepositoryFactory(session *gorm.DB) *Factory {
 	}
 }
 
-//
-//func (m *Manager) GetBookRepository() interfaces.BookRepository {
-//	if m.bookRepository == nil {
-//		m.bookRepository = book.New(m.session)
-//	}
-//
-//	return m.bookRepository
-//}
+func (f *Factory) GetImageRepository() interfaces.ImageRepository {
+	if f.imageRepository == nil {
+		f.imageRepository = image.NewImageRepository(f.session)
+	}
+
+	return f.imageRepository
+}

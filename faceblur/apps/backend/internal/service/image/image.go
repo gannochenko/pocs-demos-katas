@@ -1,6 +1,9 @@
 package image
 
-import "backend/interfaces"
+import (
+	"backend/interfaces"
+	"backend/internal/util/syserr"
+)
 
 type Service struct {
 	sessionManager  interfaces.SessionManager
@@ -12,4 +15,18 @@ func NewImageService(sessionManager interfaces.SessionManager, imageRepository i
 		sessionManager:  sessionManager,
 		imageRepository: imageRepository,
 	}
+}
+
+func (s *Service) SubmitImage() error {
+	handle, err := s.sessionManager.Begin()
+	if err != nil {
+		return syserr.Wrap(err, "could not start transaction")
+	}
+	defer handle.RollbackUnlessCommitted()
+
+	// start transaction
+	// create image
+	// create queue
+	// commit transaction
+	// create message queue event
 }

@@ -10,6 +10,7 @@ import (
 	"backend/internal/service/config"
 	"backend/internal/service/image"
 	"backend/internal/service/logger"
+	"backend/internal/util/db"
 )
 
 type Factory struct {
@@ -17,9 +18,10 @@ type Factory struct {
 	outputWriter      io.Writer
 	repositoryFactory *repository.Factory
 
-	configService interfaces.ConfigService
-	loggerService interfaces.LoggerService
-	imageService  interfaces.ImageService
+	sessionManager interfaces.SessionManager
+	configService  interfaces.ConfigService
+	loggerService  interfaces.LoggerService
+	imageService   interfaces.ImageService
 }
 
 func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFactory *repository.Factory) *Factory {
@@ -28,6 +30,14 @@ func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFacto
 		repositoryFactory: repositoryFactory,
 		outputWriter:      outputWriter,
 	}
+}
+
+func (f *Factory) GetSessionManager() interfaces.SessionManager {
+	if f.sessionManager == nil {
+		f.sessionManager = db.NewSessionManager(f.session)
+	}
+
+	return f.sessionManager
 }
 
 func (f *Factory) GetConfigService() interfaces.ConfigService {
@@ -48,7 +58,7 @@ func (f *Factory) GetLoggerService() interfaces.LoggerService {
 
 func (f *Factory) GetImageService() interfaces.ImageService {
 	if f.imageService == nil {
-		f.imageService = image.NewImageService(nil, f.repositoryFactory.GetImageRepository())
+		f.imageService = image.NewImageService(f.GetSessionManager(), f.repositoryFactory.GetImageRepository())
 	}
 
 	return f.imageService

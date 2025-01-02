@@ -14,7 +14,7 @@ type Repository struct {
 	session *gorm.DB
 }
 
-func New(session *gorm.DB) *Repository {
+func NewImageRepository(session *gorm.DB) *Repository {
 	return &Repository{
 		session: session,
 	}
