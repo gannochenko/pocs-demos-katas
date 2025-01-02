@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"backend/interfaces"
+	v1 "backend/internal/proto/image/v1"
 	"backend/internal/util/syserr"
 	imagepb "backend/proto/image/v1"
 )
@@ -23,7 +24,12 @@ func NewImageController(loggerService interfaces.LoggerService, imageService int
 }
 
 func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.SubmitImageRequest) (*imagepb.SubmitImageResponse, error) {
-	err := c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.Url)
+	err := v1.ValidateSubmitImageRequest(request)
+	if err != nil {
+		return nil, syserr.WrapAs(err, syserr.BadInputCode, "incorrect input")
+	}
+
+	err = c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.Url)
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not submit image")
 	}

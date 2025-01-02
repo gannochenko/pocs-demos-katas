@@ -9,6 +9,7 @@ import (
 )
 
 type UserRepository interface {
+	List(ctx context.Context, tx *gorm.DB, parameters database.UserListParameters) ([]database.User, error)
 }
 
 type ImageRepository interface {

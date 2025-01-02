@@ -38,9 +38,13 @@ func run(w io.Writer) error {
 
 	loggerService := serviceFactory.GetLoggerService()
 
-	gRPCSever := network.NewGRPCServer(&network.Controllers{
-		ImageServiceV1: v1.NewImageController(loggerService, serviceFactory.GetImageService()),
-	}, loggerService)
+	gRPCSever := network.NewGRPCServer(
+		&network.Controllers{
+			ImageServiceV1: v1.NewImageController(loggerService, serviceFactory.GetImageService()),
+		},
+		loggerService,
+		serviceFactory.GetRepositoryFactory().GetUserRepository(),
+	)
 	HTTPServer := network.NewHTTPServer()
 
 	var shutdownSequenceWg sync.WaitGroup

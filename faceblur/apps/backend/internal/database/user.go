@@ -38,3 +38,12 @@ func (p *User) ToDomain() (*domain.User, error) {
 
 	return result, nil
 }
+
+type UserFilter struct {
+	Sup *string
+}
+
+type UserListParameters struct {
+	Filter     *UserFilter
+	Pagination *Pagination
+}

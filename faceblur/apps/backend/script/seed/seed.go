@@ -17,6 +17,7 @@ func main() {
 	dataBuilder := test.NewBuilder(session)
 
 	user1 := dataGenerator.CreateUser()
+	user1.Sup = "auth0:19482"
 
 	image1 := dataGenerator.CreateImage()
 	image1.CreatedBy = user1.ID

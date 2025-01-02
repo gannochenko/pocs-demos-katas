@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"backend/interfaces"
+	"backend/internal/database"
 	"backend/internal/domain"
 	ctxUtil "backend/internal/util/ctx"
 	"backend/internal/util/logger"
@@ -21,7 +22,39 @@ import (
 	"backend/internal/util/types"
 )
 
-//func GetPopulateUser(userRepository interfaces.)
+func GetPopulateUser(loggerService interfaces.LoggerService, userRepository interfaces.UserRepository) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		md, _ := metadata.FromIncomingContext(ctx)
+		tokens := md["authorization"]
+
+		if true || len(tokens) > 0 { // todo: change this
+			// todo: parse and verify token here
+
+			sup := "auth0:19482" // todo: take this from the token
+
+			// todo: cache this till token expiration time
+			users, err := userRepository.List(ctx, nil, database.UserListParameters{
+				Filter: &database.UserFilter{
+					Sup: &sup,
+				},
+			})
+			if err != nil {
+				loggerService.LogError(ctx, syserr.Wrap(err, "could not find user by token"), logger.F("sup", sup))
+			} else if len(users) == 0 {
+				loggerService.Error(ctx, "no user found by token", logger.F("sup", sup))
+			} else {
+				domainUser, err := users[0].ToDomain()
+				if err != nil {
+					loggerService.LogError(ctx, syserr.Wrap(err, "could not convert to domain"), logger.F("sup", sup))
+				} else {
+					ctx = ctxUtil.WithUser(ctx, *domainUser)
+				}
+			}
+		}
+
+		return handler(ctx, req)
+	}
+}
 
 func PopulateUser(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	md, _ := metadata.FromIncomingContext(ctx)

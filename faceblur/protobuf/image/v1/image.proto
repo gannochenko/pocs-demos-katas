@@ -21,7 +21,6 @@ message SubmitImageRequest {
 
 message SubmitImageResponse {
   string version = 1;
-  common.image.v1.Image image = 2;
 }
 
 message ListImagesRequest {

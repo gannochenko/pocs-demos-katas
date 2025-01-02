@@ -32,6 +32,10 @@ func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFacto
 	}
 }
 
+func (f *Factory) GetRepositoryFactory() *repository.Factory {
+	return f.repositoryFactory
+}
+
 func (f *Factory) GetSessionManager() interfaces.SessionManager {
 	if f.sessionManager == nil {
 		f.sessionManager = db.NewSessionManager(f.session)
