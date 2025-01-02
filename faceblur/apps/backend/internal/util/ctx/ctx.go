@@ -47,5 +47,7 @@ func GetUser(ctx context.Context) *domain.User {
 		return nil
 	}
 
-	return value.(*domain.User)
+	user := value.(domain.User)
+
+	return &user
 }

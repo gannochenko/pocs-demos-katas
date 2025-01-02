@@ -39,7 +39,7 @@ func run(w io.Writer) error {
 	loggerService := serviceFactory.GetLoggerService()
 
 	gRPCSever := network.NewGRPCServer(&network.Controllers{
-		ImageServiceV1: v1.NewImageController(loggerService),
+		ImageServiceV1: v1.NewImageController(loggerService, serviceFactory.GetImageService()),
 	}, loggerService)
 	HTTPServer := network.NewHTTPServer()
 
