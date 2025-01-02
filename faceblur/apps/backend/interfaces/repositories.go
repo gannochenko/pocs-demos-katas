@@ -18,5 +18,8 @@ type ImageRepository interface {
 	Count(ctx context.Context, tx *gorm.DB, parameters database.ImageCountParameters) (int64, error)
 }
 
-type ImageQueueRepository interface {
+type ImageProcessingQueueRepository interface {
+	Create(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueue) error
+	Update(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueue) error
+	List(ctx context.Context, tx *gorm.DB, parameters database.ImageProcessingQueueListParameters) ([]database.ImageProcessingQueue, error)
 }

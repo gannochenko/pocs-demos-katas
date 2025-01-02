@@ -37,15 +37,15 @@ func WithUser(ctx context.Context, user domain.User) context.Context {
 	return context.WithValue(ctx, UserKey, user)
 }
 
-func GetUser(ctx context.Context) string {
+func GetUser(ctx context.Context) *domain.User {
 	if ctx == nil {
-		return ""
+		return nil
 	}
 
 	value := ctx.Value(UserKey)
 	if value == nil {
-		return ""
+		return nil
 	}
 
-	return value.(string)
+	return value.(*domain.User)
 }

@@ -5,12 +5,14 @@ import (
 
 	"backend/interfaces"
 	"backend/internal/repository/image"
+	"backend/internal/repository/imageProcessingQueue"
 )
 
 type Factory struct {
 	session *gorm.DB
 
-	imageRepository interfaces.ImageRepository
+	imageRepository                interfaces.ImageRepository
+	imageProcessingQueueRepository interfaces.ImageProcessingQueueRepository
 }
 
 func NewRepositoryFactory(session *gorm.DB) *Factory {
@@ -25,4 +27,12 @@ func (f *Factory) GetImageRepository() interfaces.ImageRepository {
 	}
 
 	return f.imageRepository
+}
+
+func (f *Factory) GetImageProcessingQueueRepository() interfaces.ImageProcessingQueueRepository {
+	if f.imageProcessingQueueRepository == nil {
+		f.imageProcessingQueueRepository = imageProcessingQueue.NewImageProcessingQueueRepository(f.session)
+	}
+
+	return f.imageProcessingQueueRepository
 }

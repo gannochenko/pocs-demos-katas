@@ -8,6 +8,7 @@ import (
 )
 
 type ImageService interface {
+	SubmitImageForProcessing(ctx context.Context, handle SessionHandle, url string) error
 }
 
 type LoggerService interface {

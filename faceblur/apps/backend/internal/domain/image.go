@@ -15,3 +15,15 @@ type Image struct {
 	UpdatedAt   time.Time
 	IsProcessed bool
 }
+
+type ImageProcessingQueue struct {
+	ID            uuid.UUID
+	ImageID       uuid.UUID
+	CreatedBy     string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	CompletedAt   *time.Time
+	IsFailed      bool
+	FailureReason *string
+	OperationID   *string
+}

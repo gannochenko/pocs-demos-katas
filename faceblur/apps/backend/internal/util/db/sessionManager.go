@@ -16,20 +16,47 @@ func NewSessionManager(session *gorm.DB) *SessionManager {
 	}
 }
 
-func (m *SessionManager) Begin() (interfaces.SessionHandle, error) {
+func (m *SessionManager) Begin(handle interfaces.SessionHandle) (interfaces.SessionHandle, error) {
+	if handle != nil {
+		return handle, nil
+	}
+
+	tx := m.session.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
 	return &SessionHandle{
-		tx: nil,
+		tx: tx,
 	}, nil
+}
+
+func (m *SessionManager) Commit(handle interfaces.SessionHandle) error {
+	if handle != nil {
+		tx := handle.GetTx()
+		tx.Commit()
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (m *SessionManager) RollbackUnlessCommitted(handle interfaces.SessionHandle) error {
+	if r := recover(); r != nil { // ?? will this even work?
+		if handle != nil {
+			tx := handle.GetTx()
+			tx.Rollback()
+			return tx.Error
+		}
+	}
+
+	return nil
 }
 
 type SessionHandle struct {
 	tx *gorm.DB
 }
 
-func (h *SessionHandle) Commit() {
-
-}
-
-func (h *SessionHandle) Rollback() {
-
+func (h *SessionHandle) GetTx() *gorm.DB {
+	return h.tx
 }

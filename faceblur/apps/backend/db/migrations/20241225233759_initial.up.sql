@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS "image_processing_queue"
     "created_at"        timestamptz NOT NULL DEFAULT now(),
     "updated_at"        timestamptz NOT NULL DEFAULT now(),
     "deleted_at"        timestamptz,
-    "operation_id"      uuid NOT NULL,
+    "operation_id"      uuid,
     "is_failed"         bool NOT NULL DEFAULT FALSE,
     "failure_reason"    text,
     PRIMARY KEY ("id"),
