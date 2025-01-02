@@ -1,7 +1,15 @@
 package image
 
-type Service struct{}
+import "backend/interfaces"
 
-func NewImageService() *Service {
-	return &Service{}
+type Service struct {
+	sessionManager  interfaces.SessionManager
+	imageRepository interfaces.ImageRepository
+}
+
+func NewImageService(sessionManager interfaces.SessionManager, imageRepository interfaces.ImageRepository) *Service {
+	return &Service{
+		sessionManager:  sessionManager,
+		imageRepository: imageRepository,
+	}
 }

@@ -48,7 +48,7 @@ func (f *Factory) GetLoggerService() interfaces.LoggerService {
 
 func (f *Factory) GetImageService() interfaces.ImageService {
 	if f.imageService == nil {
-		f.imageService = image.NewImageService()
+		f.imageService = image.NewImageService(nil, f.repositoryFactory.GetImageRepository())
 	}
 
 	return f.imageService

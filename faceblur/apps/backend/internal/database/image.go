@@ -41,8 +41,15 @@ func (p *Image) ToDomain() (*domain.Image, error) {
 	return result, nil
 }
 
-type ListParameters struct {
+type ImageFilter struct {
+	CreatedBy *uuid.UUID
 }
 
-type CountParameters struct {
+type ImageListParameters struct {
+	Filter     *ImageFilter
+	Pagination *Pagination
+}
+
+type ImageCountParameters struct {
+	Filter *ImageFilter
 }
