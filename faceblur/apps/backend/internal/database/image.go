@@ -40,3 +40,9 @@ func (p *Image) ToDomain() (*domain.Image, error) {
 
 	return result, nil
 }
+
+type ListParameters struct {
+}
+
+type CountParameters struct {
+}

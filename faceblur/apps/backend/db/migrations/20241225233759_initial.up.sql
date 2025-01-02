@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS "images"
     FOREIGN KEY ("created_by") REFERENCES users("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS ix_images_created_by on images (created_by);
+
 CREATE TABLE IF NOT EXISTS "image_processing_queue"
 (
     "id"                uuid DEFAULT uuid_generate_v4(),

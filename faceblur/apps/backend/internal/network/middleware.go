@@ -21,6 +21,8 @@ import (
 	"backend/internal/util/types"
 )
 
+func GetPopulateUser(userRepository interfaces.)
+
 func PopulateUser(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	tokens := md["authorization"]
