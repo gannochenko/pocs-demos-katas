@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS "users"
     PRIMARY KEY ("id")
 );
 
+CREATE UNIQUE INDEX ix_users_sup ON "users" ("sup");
+
 CREATE TABLE IF NOT EXISTS "images"
 (
     "id"            uuid DEFAULT uuid_generate_v4(),
