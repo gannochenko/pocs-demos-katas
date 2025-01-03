@@ -7,6 +7,7 @@ import (
 
 	"backend/interfaces"
 	"backend/internal/database"
+	"backend/internal/domain"
 	ctxUtil "backend/internal/util/ctx"
 	"backend/internal/util/syserr"
 )
@@ -68,7 +69,49 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		return syserr.Wrap(err, "could not commit transaction")
 	}
 
-	// create message queue event
+	// todo: create message queue event
 
 	return nil
+}
+
+func (s *Service) ListImages(ctx context.Context, _ interfaces.SessionHandle, request *domain.ListImagesRequest) (*domain.ListImagesResponse, error) {
+	user := ctxUtil.GetUser(ctx)
+	if user == nil {
+		return nil, syserr.NewInternal("user is missing in the context")
+	}
+
+	filter := &database.ImageFilter{
+		CreatedBy: &user.ID,
+	}
+
+	response := &domain.ListImagesResponse{}
+
+	count, err := s.imageRepository.Count(ctx, nil, database.ImageCountParameters{
+		Filter: filter,
+	})
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not get image count")
+	}
+
+	response.PageNavigation = *domain.NewPageNavigationResponseFromRequest(&request.PageNavigation, count)
+
+	if count > 0 {
+		images, err := s.imageRepository.List(ctx, nil, database.ImageListParameters{
+			Filter: filter,
+		})
+		if err != nil {
+			return nil, syserr.Wrap(err, "could not get image list")
+		}
+
+		for _, image := range images {
+			domainImage, err := image.ToDomain()
+			if err != nil {
+				return nil, syserr.Wrap(err, "could not convert image to domain", syserr.F("image_id", image.ID))
+			}
+
+			response.Images = append(response.Images, *domainImage)
+		}
+	}
+
+	return response, nil
 }

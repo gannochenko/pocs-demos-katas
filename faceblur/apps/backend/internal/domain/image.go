@@ -27,3 +27,12 @@ type ImageProcessingQueue struct {
 	FailureReason *string
 	OperationID   *string
 }
+
+type ListImagesRequest struct {
+	PageNavigation PageNavigationRequest
+}
+
+type ListImagesResponse struct {
+	Images         []Image
+	PageNavigation PageNavigationResponse
+}

@@ -9,6 +9,7 @@ import (
 
 type ImageService interface {
 	SubmitImageForProcessing(ctx context.Context, handle SessionHandle, url string) error
+	ListImages(ctx context.Context, handle SessionHandle, request *domain.ListImagesRequest) (*domain.ListImagesResponse, error)
 }
 
 type LoggerService interface {

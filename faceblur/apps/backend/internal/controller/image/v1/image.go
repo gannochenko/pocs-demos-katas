@@ -9,6 +9,10 @@ import (
 	imagepb "backend/proto/image/v1"
 )
 
+const (
+	Version = "v1"
+)
+
 type ImageController struct {
 	imagepb.UnimplementedImageServiceServer
 
@@ -25,7 +29,7 @@ func NewImageController(loggerService interfaces.LoggerService, imageService int
 
 func (c *ImageController) GetUploadURL(ctx context.Context, _ *imagepb.GetUploadURLRequest) (*imagepb.GetUploadURLResponse, error) {
 	return &imagepb.GetUploadURLResponse{
-		Version: "v1",
+		Version: Version,
 	}, nil
 }
 
@@ -41,7 +45,7 @@ func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.Subm
 	}
 
 	return &imagepb.SubmitImageResponse{
-		Version: "v1",
+		Version: Version,
 	}, nil
 }
 
@@ -51,5 +55,10 @@ func (c *ImageController) ListImages(ctx context.Context, request *imagepb.ListI
 		return nil, syserr.WrapAs(err, syserr.BadInputCode, "incorrect input")
 	}
 
-	return &imagepb.ListImagesResponse{}, nil
+	response, err := c.imageService.ListImages(ctx, nil, v1.ConvertListImagesRequestToDomain(request))
+	if err != nil {
+		return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not get list if images")
+	}
+
+	return v1.ConvertListImagesResponseToProto(response), nil
 }
