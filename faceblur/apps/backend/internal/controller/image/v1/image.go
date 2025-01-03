@@ -23,6 +23,12 @@ func NewImageController(loggerService interfaces.LoggerService, imageService int
 	}
 }
 
+func (c *ImageController) GetUploadURL(ctx context.Context, _ *imagepb.GetUploadURLRequest) (*imagepb.GetUploadURLResponse, error) {
+	return &imagepb.GetUploadURLResponse{
+		Version: "v1",
+	}, nil
+}
+
 func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.SubmitImageRequest) (*imagepb.SubmitImageResponse, error) {
 	err := v1.ValidateSubmitImageRequest(request)
 	if err != nil {
@@ -40,9 +46,10 @@ func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.Subm
 }
 
 func (c *ImageController) ListImages(ctx context.Context, request *imagepb.ListImagesRequest) (*imagepb.ListImagesResponse, error) {
-	// c.loggerService.Info(ctx, "i am here")
-
-	return nil, syserr.NewBadInput("very bad input", syserr.F("------foo------", "bar"))
+	err := v1.ValidateListImagesRequest(request)
+	if err != nil {
+		return nil, syserr.WrapAs(err, syserr.BadInputCode, "incorrect input")
+	}
 
 	return &imagepb.ListImagesResponse{}, nil
 }

@@ -19,9 +19,10 @@ type Factory struct {
 	repositoryFactory *repository.Factory
 
 	sessionManager interfaces.SessionManager
-	configService  interfaces.ConfigService
-	loggerService  interfaces.LoggerService
-	imageService   interfaces.ImageService
+
+	configService interfaces.ConfigService
+	loggerService interfaces.LoggerService
+	imageService  interfaces.ImageService
 }
 
 func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFactory *repository.Factory) *Factory {

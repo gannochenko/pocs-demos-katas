@@ -24,8 +24,7 @@ message SubmitImageResponse {
 }
 
 message ListImagesRequest {
-  common.image.v1.CreateImage image = 1;
-  common.page_navigation.v1.PageNavigationRequest page_navigation = 2;
+  common.page_navigation.v1.PageNavigationRequest page_navigation = 1;
 }
 
 message ListImagesResponse {

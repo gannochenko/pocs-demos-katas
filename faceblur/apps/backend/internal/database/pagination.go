@@ -7,7 +7,7 @@ type Pagination struct {
 	PageSize   int32
 }
 
-func NewPaginationFromDomainRequest(pagination *domain.PaginationRequest) *Pagination {
+func NewPaginationFromDomainRequest(pagination *domain.PageNavigationRequest) *Pagination {
 	return &Pagination{
 		PageSize:   pagination.PageSize,
 		PageNumber: pagination.PageNumber,
