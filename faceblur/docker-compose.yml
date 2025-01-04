@@ -15,6 +15,16 @@ services:
         networks:
             - faceblur-net
 
+    storage:
+        image: fsouza/fake-gcs-server
+        ports:
+            - "9023:8000"
+        command: ["-scheme", "both", "-public-host", "localhost"]
+        volumes:
+            - ./.data/storage/:/storage
+        networks:
+            - faceblur-net
+
 volumes:
     postgres-data:
 

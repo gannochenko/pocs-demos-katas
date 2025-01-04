@@ -56,6 +56,9 @@ build_proto:
 	  -I $(PROTO_DIR) \
       $(PROTO_FILES)
 
+bootstrap_storage:
+	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
+
 run: ## Run an application
 ifeq ($(app),)
 	$(error Please specify the "app" parameter. Example: "make run app=service svc=api")
