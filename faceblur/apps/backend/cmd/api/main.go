@@ -40,7 +40,12 @@ func run(w io.Writer) error {
 
 	gRPCSever := network.NewGRPCServer(
 		&network.Controllers{
-			ImageServiceV1: v1.NewImageController(loggerService, serviceFactory.GetImageService()),
+			ImageServiceV1: v1.NewImageController(
+				loggerService,
+				serviceFactory.GetImageService(),
+				serviceFactory.GetStorageService(),
+				serviceFactory.GetConfigService(),
+			),
 		},
 		loggerService,
 		serviceFactory.GetRepositoryFactory().GetUserRepository(),

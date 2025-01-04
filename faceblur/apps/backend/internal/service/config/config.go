@@ -8,22 +8,22 @@ import (
 	"backend/internal/domain"
 )
 
-type Config struct {
+type Service struct {
 	initMu sync.Mutex
 	config *domain.Config
 }
 
-func NewConfigService() *Config {
-	return &Config{}
+func NewConfigService() *Service {
+	return &Service{}
 }
 
-func (c *Config) GetConfig() (*domain.Config, error) {
-	if c.config != nil {
-		return c.config, nil
+func (s *Service) GetConfig() (*domain.Config, error) {
+	if s.config != nil {
+		return s.config, nil
 	}
 
-	c.initMu.Lock()
-	defer c.initMu.Unlock()
+	s.initMu.Lock()
+	defer s.initMu.Unlock()
 
 	var config domain.Config
 	err := envconfig.Process("", &config)
@@ -31,7 +31,7 @@ func (c *Config) GetConfig() (*domain.Config, error) {
 		return nil, err
 	}
 
-	c.config = &config
+	s.config = &config
 
-	return c.config, nil
+	return s.config, nil
 }

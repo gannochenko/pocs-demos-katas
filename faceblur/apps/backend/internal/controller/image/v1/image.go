@@ -2,6 +2,10 @@ package v1
 
 import (
 	"context"
+	"net/http"
+	"time"
+
+	"github.com/google/uuid"
 
 	"backend/interfaces"
 	v1 "backend/internal/proto/image/v1"
@@ -10,26 +14,47 @@ import (
 )
 
 const (
-	Version = "v1"
+	Version      = "v1"
+	SignedURLTTL = time.Hour
 )
 
 type ImageController struct {
 	imagepb.UnimplementedImageServiceServer
 
-	loggerService interfaces.LoggerService
-	imageService  interfaces.ImageService
+	loggerService  interfaces.LoggerService
+	imageService   interfaces.ImageService
+	storageService interfaces.StorageService
+	configService  interfaces.ConfigService
 }
 
-func NewImageController(loggerService interfaces.LoggerService, imageService interfaces.ImageService) *ImageController {
+func NewImageController(
+	loggerService interfaces.LoggerService,
+	imageService interfaces.ImageService,
+	storageService interfaces.StorageService,
+	configService interfaces.ConfigService,
+) *ImageController {
 	return &ImageController{
-		loggerService: loggerService,
-		imageService:  imageService,
+		loggerService:  loggerService,
+		imageService:   imageService,
+		storageService: storageService,
+		configService:  configService,
 	}
 }
 
 func (c *ImageController) GetUploadURL(ctx context.Context, _ *imagepb.GetUploadURLRequest) (*imagepb.GetUploadURLResponse, error) {
+	config, err := c.configService.GetConfig()
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not load config")
+	}
+
+	fileURL, err := c.storageService.PrepareSignedURL(ctx, config.Storage.ImageBucketName, uuid.New().String(), SignedURLTTL, http.MethodPut, "application/octet-stream")
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not create signed url")
+	}
+
 	return &imagepb.GetUploadURLResponse{
 		Version: Version,
+		Url:     fileURL,
 	}, nil
 }
 
