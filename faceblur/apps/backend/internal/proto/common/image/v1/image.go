@@ -3,7 +3,6 @@ package v1
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"backend/internal/domain"
@@ -24,11 +23,16 @@ func ValidateCreateImage(value interface{}) error {
 }
 
 func ConvertImageToProto(image *domain.Image) *imagebp.Image {
+	url := image.OriginalURL
+	if image.URL != nil {
+		url = *image.URL
+	}
+
 	return &imagebp.Image{
 		Id:          image.ID.String(),
-		Url:         lo.Ternary(image.URL == nil, image.OriginalURL, *image.URL),
+		Url:         url,
 		IsProcessed: image.IsProcessed,
-		IsFailed:    false, // todo: ??
+		IsFailed:    image.IsFailed,
 		CreatedAt:   timestamppb.New(image.CreatedAt),
 		UpdatedAt:   timestamppb.New(image.UpdatedAt),
 	}

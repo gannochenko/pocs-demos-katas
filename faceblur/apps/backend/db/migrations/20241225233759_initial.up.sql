@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS "images"
     "updated_at"    timestamptz NOT NULL DEFAULT now(),
     "deleted_at"    timestamptz,
     "is_processed"  bool NOT NULL DEFAULT FALSE,
+    "is_failed"     bool NOT NULL DEFAULT FALSE,
     PRIMARY KEY ("id"),
     FOREIGN KEY ("created_by") REFERENCES users("id") ON DELETE CASCADE ON UPDATE CASCADE
 );

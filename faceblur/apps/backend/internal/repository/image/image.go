@@ -46,7 +46,7 @@ func (r *Repository) List(ctx context.Context, tx *gorm.DB, parameters database.
 	return result, nil
 }
 
-func (r *Repository) Count(ctx context.Context, tx *gorm.DB, parameters database.ImageCountParameters) (int64, error) {
+func (r *Repository) Count(ctx context.Context, tx *gorm.DB, parameters database.ImageCountParameters) (int32, error) {
 	var result int64
 
 	session := db.GetRunner(r.session, tx).WithContext(ctx).Model(&database.Image{})
@@ -60,7 +60,7 @@ func (r *Repository) Count(ctx context.Context, tx *gorm.DB, parameters database
 		return 0, err
 	}
 
-	return result, nil
+	return int32(result), nil
 }
 
 func (r *Repository) applyFilter(session *gorm.DB, filter *database.ImageFilter) (*gorm.DB, error) {

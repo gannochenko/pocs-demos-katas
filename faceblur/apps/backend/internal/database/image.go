@@ -29,6 +29,7 @@ type Image struct {
 	CreatedAt   time.Time `gorm:"type:timestamptz"`
 	UpdatedAt   time.Time `gorm:"type:timestamptz"`
 	IsProcessed bool      `gorm:"type:bool"`
+	IsFailed    bool      `gorm:"type:bool"`
 }
 
 func (p *Image) ToDomain() (*domain.Image, error) {

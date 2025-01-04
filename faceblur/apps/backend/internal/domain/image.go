@@ -14,6 +14,7 @@ type Image struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	IsProcessed bool
+	IsFailed    bool
 }
 
 type ImageProcessingQueue struct {
