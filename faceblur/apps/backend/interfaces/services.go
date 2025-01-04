@@ -2,6 +2,8 @@ package interfaces
 
 import (
 	"context"
+	"io"
+	"time"
 
 	"backend/internal/domain"
 	"backend/internal/util/logger"
@@ -21,4 +23,9 @@ type LoggerService interface {
 
 type ConfigService interface {
 	GetConfig() (*domain.Config, error)
+}
+
+type StorageService interface {
+	GetWriter(ctx context.Context, bucketName string, objectPath string) (io.WriteCloser, error)
+	PrepareSignedURL(ctx context.Context, bucketName string, objectPath string, ttl time.Duration) (url string, err error)
 }
