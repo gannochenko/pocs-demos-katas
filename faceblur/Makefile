@@ -24,7 +24,7 @@ install: ## Install external dependencies and resources.
 	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
-	#@$(MAKE) -C ./apps/service_name/ create_resources
+	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
 
 list_resources: ## List all local resources
 	#@$(MAKE) -C ./apps/service_name/ list_resources
@@ -55,9 +55,6 @@ build_proto:
 	  --grpc-gateway_out=paths=source_relative:$(PROTO_OUT_DIR) \
 	  -I $(PROTO_DIR) \
       $(PROTO_FILES)
-
-bootstrap_storage:
-	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
 
 run: ## Run an application
 ifeq ($(app),)

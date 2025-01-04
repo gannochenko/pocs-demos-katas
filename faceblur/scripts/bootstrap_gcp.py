@@ -10,4 +10,4 @@ def create_bucket(bucket_name: str) -> None:
     print(f"Bucket created: {bucket.name}")
 
 
-create_bucket(os.getenv('DATA_EXPORT_BUCKET'))
+create_bucket(os.getenv('STORAGE_IMAGE_BUCKET_NAME'))
