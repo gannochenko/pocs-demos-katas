@@ -41,6 +41,7 @@ func NewImageController(
 	}
 }
 
+// GetUploadURL implements POST /v1/image/upload-url/get
 func (c *ImageController) GetUploadURL(ctx context.Context, _ *imagepb.GetUploadURLRequest) (*imagepb.GetUploadURLResponse, error) {
 	config, err := c.configService.GetConfig()
 	if err != nil {
@@ -58,6 +59,7 @@ func (c *ImageController) GetUploadURL(ctx context.Context, _ *imagepb.GetUpload
 	}, nil
 }
 
+// SubmitImage implements POST /v1/image/submit
 func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.SubmitImageRequest) (*imagepb.SubmitImageResponse, error) {
 	err := v1.ValidateSubmitImageRequest(request)
 	if err != nil {
@@ -74,6 +76,7 @@ func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.Subm
 	}, nil
 }
 
+// ListImages implements POST /v1/image/list
 func (c *ImageController) ListImages(ctx context.Context, request *imagepb.ListImagesRequest) (*imagepb.ListImagesResponse, error) {
 	err := v1.ValidateListImagesRequest(request)
 	if err != nil {

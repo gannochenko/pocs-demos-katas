@@ -53,9 +53,21 @@ func (s *Service) PrepareSignedURL(ctx context.Context, bucketName string, objec
 		return "", syserr.Wrap(err, "could not load config")
 	}
 
-	clientEmail, privateKey, err := s.extractCredentials(config.GCP.ServiceAccount)
-	if err != nil {
-		return "", err
+	clientEmail := ""
+	var privateKey []byte
+	var signBytes func(bytes []byte) ([]byte, error)
+	insecure := os.Getenv("STORAGE_EMULATOR_HOST") != ""
+	if insecure {
+		clientEmail = "foo@bar.baz"
+		signBytes = func(bytes []byte) ([]byte, error) {
+			return bytes, nil
+		}
+	} else {
+		clientEmail, privateKey, err = s.extractCredentials(config.GCP.ServiceAccount)
+		if err != nil {
+			return "", syserr.Wrap(err, "could not extract credentials")
+		}
+		signBytes = nil
 	}
 
 	if method == "" {
@@ -68,8 +80,9 @@ func (s *Service) PrepareSignedURL(ctx context.Context, bucketName string, objec
 		Expires:        time.Now().Add(ttl),
 		GoogleAccessID: clientEmail,
 		PrivateKey:     privateKey,
-		Insecure:       os.Getenv("STORAGE_EMULATOR_HOST") != "",
+		Insecure:       insecure,
 		ContentType:    contentType,
+		SignBytes:      signBytes,
 	})
 }
 
