@@ -34,6 +34,7 @@ message ListImagesResponse {
 }
 
 service ImageService {
+  // GetUploadURL returns a new signed URL for image upload
   rpc GetUploadURL(GetUploadURLRequest) returns (GetUploadURLResponse) {
     option (google.api.http) = {
       post : "/v1/image/upload-url/get"
@@ -41,6 +42,7 @@ service ImageService {
     };
   }
 
+  // SubmitImage creates a new image and puts it to the processing queue
   rpc SubmitImage(SubmitImageRequest) returns (SubmitImageResponse) {
     option (google.api.http) = {
       post : "/v1/image/submit"
@@ -48,6 +50,7 @@ service ImageService {
     };
   }
 
+  // ListImages returns a list of user images, paginated and sorted by creation date
   rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {
     option (google.api.http) = {
       post : "/v1/image/list"

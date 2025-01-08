@@ -1,4 +1,6 @@
-const apiUrl = process.env.REACT_APP_API_URL;
+import fetchRetry from 'fetch-retry';
+
+export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const fetchJSON = async (uri: string, body: Record<string, unknown> | null, token: string) => {
 	const headers: Record<string, string> = {
@@ -15,3 +17,14 @@ export const fetchJSON = async (uri: string, body: Record<string, unknown> | nul
 	});
 	return await result.json();
 };
+
+export type ErrorResponse = {
+	error: string;
+};
+
+export const fetchWithRetry = fetchRetry(fetch, {
+	retries: 5,
+	retryDelay: function(attempt, error, response) {
+		return Math.pow(2, attempt) * 1000;
+	}
+});
