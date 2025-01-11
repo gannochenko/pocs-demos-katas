@@ -18,6 +18,7 @@ export const PageLayout: FC<PageLayoutPropsType> = (props) => {
                     <Container>{title}</Container>
                 </Typography>
             )}
+            <br/>
             {children}
         </PageLayoutRoot>
     );

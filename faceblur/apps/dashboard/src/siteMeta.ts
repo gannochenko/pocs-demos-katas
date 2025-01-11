@@ -1,8 +1,8 @@
 export const siteMeta = {
-	title: 'Demo Pet Catalog',
-	logoText: 'Demo Pet Catalog',
-	description: '',
-	keywords: ['one', 'two', 'three'],
+	title: 'Faceblur',
+	logoText: 'Faceblur',
+	description: 'Demo App that blurs human faces on images',
+	keywords: [],
 	author: '@gannochenko',
-	baseURL: 'https://demo-pet-catalog.com',
+	baseURL: 'https://faceblur.com',
 };

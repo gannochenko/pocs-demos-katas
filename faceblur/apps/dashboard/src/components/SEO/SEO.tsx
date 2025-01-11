@@ -14,7 +14,7 @@ export const SEO: FC<SEOPropsType> = ({
     let metaTitle = '';
     let metaTitleOG = '';
     const metaDescription =
-        description || siteMeta.description;
+        description ?? siteMeta.description;
 
     if (title) {
         metaTitle = `${title} | ${siteMeta.title}`;

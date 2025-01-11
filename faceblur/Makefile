@@ -7,7 +7,8 @@ help:
 # ---------------------------------
 
 PROTO_DIR := ./protobuf
-PROTO_OUT_DIR := ./apps/backend/proto
+PROTO_OUT_BACKEND_DIR := ./apps/backend/proto
+PROTO_OUT_DASHBOARD_DIR := ./apps/dashboard/src/proto
 
 # Find all .proto files recursively
 PROTO_FILES := $(shell find $(PROTO_DIR) -name "*.proto" ! -path "$(PROTO_DIR)/google/*")
@@ -22,6 +23,7 @@ install: ## Install external dependencies and resources.
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+	@npm install @gannochenko/protoweb -g
 
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
 	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
@@ -44,17 +46,22 @@ run_test_infra_migration:
 #stop_infra: ## Run the infrastructure locally
 #	@docker compose stop
 
-build_proto:
-	@rm -rf ./apps/backend/proto/
-	@mkdir -p ./apps/backend/proto/
+build_backend_proto:
+	@rm -rf $(PROTO_OUT_BACKEND_DIR)
+	@mkdir -p $(PROTO_OUT_BACKEND_DIR)
 	@protoc \
-      --go_out=$(PROTO_OUT_DIR) \
-	  --go-grpc_out=$(PROTO_OUT_DIR) \
+      --go_out=$(PROTO_OUT_BACKEND_DIR) \
+	  --go-grpc_out=$(PROTO_OUT_BACKEND_DIR) \
 	  --go_opt=paths=source_relative \
 	  --go-grpc_opt=paths=source_relative \
-	  --grpc-gateway_out=paths=source_relative:$(PROTO_OUT_DIR) \
+	  --grpc-gateway_out=paths=source_relative:$(PROTO_OUT_BACKEND_DIR) \
 	  -I $(PROTO_DIR) \
       $(PROTO_FILES)
+
+build_dashboard_proto:
+	@rm -rf $(PROTO_OUT_DASHBOARD_DIR)
+	@mkdir -p $(PROTO_OUT_DASHBOARD_DIR)
+	@protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs
 
 run: ## Run an application
 ifeq ($(app),)

@@ -1,23 +1,13 @@
-import React, {useState} from 'react';
-import {PageLayout, SEO} from "../../components";
+import React from 'react';
+import {PageLayout} from "../../components";
 import {Container} from "@mui/joy";
-import {PetList} from "../../components/PetList";
-import {EditPetDialog} from "../../components/EditPetDialog/EditPetDialog";
+import {ImageList} from "../../components/ImageList";
 
 export function HomePage() {
-	const [dialogOpen, setDialogOpen] = useState(false);
-	const [petID, setPetID] = useState("");
-
 	return (
-		<PageLayout title="Pets" displayPageTitle>
+		<PageLayout title="Images" displayPageTitle>
 			<Container>
-				<PetList onRowClick={(petID) => {
-					setPetID(petID);
-					setDialogOpen(true);
-				}} />
-				<EditPetDialog open={dialogOpen} petID={petID} onClose={() => {
-					setDialogOpen(false)
-				}} />
+				<ImageList />
 			</Container>
 		</PageLayout>
 	);

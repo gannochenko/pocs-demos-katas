@@ -1,1 +1,1 @@
-export * from './useRootRef';
+export * from './images';
