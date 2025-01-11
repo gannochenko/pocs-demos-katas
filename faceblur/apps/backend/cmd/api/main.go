@@ -51,7 +51,7 @@ func run(w io.Writer) error {
 		serviceFactory.GetConfigService(),
 		serviceFactory.GetRepositoryFactory().GetUserRepository(),
 	)
-	HTTPServer := network.NewHTTPServer()
+	HTTPServer := network.NewHTTPServer(serviceFactory.GetConfigService())
 
 	var shutdownSequenceWg sync.WaitGroup
 	shutdownSequenceWg.Add(2)

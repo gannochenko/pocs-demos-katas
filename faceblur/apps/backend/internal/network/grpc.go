@@ -18,7 +18,6 @@ type GRPCServer struct {
 func NewGRPCServer(controllers *Controllers, loggerService interfaces.LoggerService, configService interfaces.ConfigService, userRepository interfaces.UserRepository) *GRPCServer {
 	opts := grpc.ChainUnaryInterceptor(
 		MapError,
-		GetCORS(configService),
 		GetPopulateUser(loggerService, userRepository),
 		PopulateOperationID,
 		GetLogRequest(loggerService),

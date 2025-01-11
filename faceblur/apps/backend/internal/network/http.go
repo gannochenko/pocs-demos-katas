@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"backend/interfaces"
 	"backend/internal/util/syserr"
 	errorpb "backend/proto/common/error/v1"
 
@@ -27,10 +28,12 @@ import (
 type HTTPServer struct {
 	server         *http.Server
 	gRPCConnection *grpc.ClientConn
+
+	configService interfaces.ConfigService
 }
 
-func NewHTTPServer() *HTTPServer {
-	return &HTTPServer{}
+func NewHTTPServer(configService interfaces.ConfigService) *HTTPServer {
+	return &HTTPServer{configService: configService}
 }
 
 func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
@@ -57,10 +60,6 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 			if s == "x-operation-id" {
 				return "X-Operation-Id", true
 			}
-			// allow outgoing CORS headers
-			if strings.HasPrefix(s, "access-control-allow-") {
-				return s, true
-			}
 			return runtime.DefaultHeaderMatcher(s)
 		}),
 		runtime.WithErrorHandler(customErrorHandler),
@@ -73,8 +72,13 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 		}
 	}
 
+	config, err := s.configService.GetConfig()
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not get config")
+	}
+
 	httpMux := http.NewServeMux()
-	httpMux.Handle("/", corsMiddleware(mux))
+	httpMux.Handle("/", corsMiddleware(mux, config))
 
 	// todo: add healthcheck and liveness here
 
@@ -166,10 +170,13 @@ func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Ma
 	json.NewEncoder(w).Encode(responseError)
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
+// corsMiddleware adds CORS headers. Normally Kubernetes ingress or CDN takes care of that, but for the dev purposes we add it here as well.
+func corsMiddleware(next http.Handler, config *domain.Config) http.Handler {
 	return http.StripPrefix("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		allowedOrigin := config.HTTP.Cors.Origin
+
 		// Handle CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == http.MethodOptions {
