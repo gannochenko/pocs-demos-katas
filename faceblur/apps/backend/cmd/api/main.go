@@ -48,6 +48,7 @@ func run(w io.Writer) error {
 			),
 		},
 		loggerService,
+		serviceFactory.GetConfigService(),
 		serviceFactory.GetRepositoryFactory().GetUserRepository(),
 	)
 	HTTPServer := network.NewHTTPServer()
@@ -73,7 +74,7 @@ func run(w io.Writer) error {
 
 	// add more background tasks here if needed
 
-	loggerService.Info(ctx, fmt.Sprintf("service started, HTTP port %d, gRPC port %d", configuration.HTTPPort, configuration.GRPCPort))
+	loggerService.Info(ctx, fmt.Sprintf("service started, HTTP port %d, gRPC port %d", configuration.HTTP.Port, configuration.GRPCPort))
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)

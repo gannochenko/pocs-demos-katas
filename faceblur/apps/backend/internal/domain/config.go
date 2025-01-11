@@ -17,10 +17,19 @@ type StorageConfig struct {
 	ImageBucketName string `envconfig:"IMAGE_BUCKET_NAME"`
 }
 
+type CorsConfig struct {
+	Origin string `envconfig:"ORIGIN" default:"" desc:"http cors origin"`
+}
+
+type HTTPConfig struct {
+	Port int        `envconfig:"PORT" default:"4545" desc:"http port"`
+	Cors CorsConfig `envconfig:"CORS"`
+}
+
 type Config struct {
 	Postgres PostgresConfig `envconfig:"POSTGRES"`
 	LogLevel string         `envconfig:"LOG_LEVEL" default:"info" desc:"logging level"`
-	HTTPPort int            `envconfig:"HTTP_PORT" default:"4545" desc:"http port"`
+	HTTP     HTTPConfig     `envconfig:"HTTP"`
 	GRPCPort int            `envconfig:"GRPC_PORT" default:"4646" desc:"grpc port"`
 	Auth0    Auth0Config    `envconfig:"AUTH0"`
 	Env      string         `envconfig:"ENV"`

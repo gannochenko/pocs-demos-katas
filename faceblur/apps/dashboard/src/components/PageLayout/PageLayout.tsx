@@ -1,5 +1,6 @@
 import React from 'react';
 import Container from "@mui/joy/Container";
+import Box from "@mui/joy/Box";
 import { PageLayoutRoot } from './style';
 import { PageLayoutPropsType } from './type';
 import { SEO } from '../SEO';
@@ -15,7 +16,12 @@ export function PageLayout(props: PageLayoutPropsType) {
             {showTitle && (
                 <Typography level="h1">
                     <br/>
-                    <Container>{title}</Container>
+                    <Container>
+                        <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                            {title}
+                            <div id="page-header-portal" />
+                        </Box>
+                    </Container>
                 </Typography>
             )}
             <br/>

@@ -146,3 +146,43 @@ func MapError(
 
 	return resp, nil
 }
+
+// GetCORS adds CORS headers. Normally Kubernetes ingress or CDN takes care of that, but for the dev purposes we add it here as well.
+func GetCORS(configService interfaces.ConfigService) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		config, err := configService.GetConfig()
+		if err != nil {
+			return nil, syserr.Wrap(err, "could not get config")
+		}
+
+		if md, ok := metadata.FromIncomingContext(ctx); ok && md["access-control-request-method"] != nil {
+			// Return early for OPTIONS requests
+			header := metadata.Pairs(
+				"Access-Control-Allow-Origin", "*",
+				"Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS",
+				"Access-Control-Allow-Headers", "Content-Type, Authorization",
+			)
+			err := grpc.SendHeader(ctx, header)
+			if err != nil {
+				return nil, syserr.Wrap(err, "could not set headers")
+			}
+
+			return nil, nil
+		} else {
+			allowedOrigin := config.HTTP.Cors.Origin
+
+			header := metadata.Pairs(
+				"Access-Control-Allow-Origin", allowedOrigin,
+				"Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS",
+				"Access-Control-Allow-Headers", "Content-Type, Authorization",
+			)
+
+			err := grpc.SetHeader(ctx, header)
+			if err != nil {
+				return nil, syserr.Wrap(err, "could not set headers")
+			}
+		}
+
+		return handler(ctx, req)
+	}
+}

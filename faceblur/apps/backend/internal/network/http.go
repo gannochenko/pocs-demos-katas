@@ -57,6 +57,10 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 			if s == "x-operation-id" {
 				return "X-Operation-Id", true
 			}
+			// allow outgoing CORS headers
+			if strings.HasPrefix(s, "access-control-allow-") {
+				return s, true
+			}
 			return runtime.DefaultHeaderMatcher(s)
 		}),
 		runtime.WithErrorHandler(customErrorHandler),
@@ -69,7 +73,12 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 		}
 	}
 
-	return mux, nil
+	httpMux := http.NewServeMux()
+	httpMux.Handle("/", corsMiddleware(mux))
+
+	// todo: add healthcheck and liveness here
+
+	return httpMux, nil
 }
 
 func (s *HTTPServer) Start(ctx context.Context, config *domain.Config) error {
@@ -85,7 +94,7 @@ func (s *HTTPServer) Start(ctx context.Context, config *domain.Config) error {
 	}
 
 	s.server = &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.HTTPPort),
+		Addr:    fmt.Sprintf(":%d", config.HTTP.Port),
 		Handler: mux,
 		BaseContext: func(l net.Listener) context.Context {
 			return ctx
@@ -155,4 +164,19 @@ func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Ma
 	}
 
 	json.NewEncoder(w).Encode(responseError)
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.StripPrefix("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Handle CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			// Handle preflight OPTIONS request
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}))
 }
