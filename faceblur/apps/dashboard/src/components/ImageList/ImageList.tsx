@@ -1,6 +1,6 @@
 import Table from '@mui/joy/Table';
 import Grid from '@mui/joy/Grid';
-import {PetListRoot} from "./style";
+import {Root, ImageItem} from "./style";
 import {Image} from "../../models/image";
 import {Link} from "../Link";
 import {useListImages} from "../../hooks";
@@ -14,27 +14,27 @@ export function ImageList({onRowClick}: PetListProps) {
 	const images: Image[] = imagesResult.data?.images ?? [];
 
 	return (
-		<div>
+		<Root>
 			<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 				<Grid xs={4}>
-					1
+					<ImageItem image="/assets/img2.jpg"/>
 				</Grid>
 				<Grid xs={4}>
-					2
+					<ImageItem image="/assets/img2.jpg"/>
 				</Grid>
 				<Grid xs={4}>
-					3
+					<ImageItem image="/assets/img1.webp"/>
 				</Grid>
 				<Grid xs={4}>
-					1
+					<ImageItem image="/assets/img2.jpg"/>
 				</Grid>
 				<Grid xs={4}>
-					2
+					<ImageItem image="/assets/img1.webp"/>
 				</Grid>
 				<Grid xs={4}>
-					3
+					<ImageItem image="/assets/img2.jpg"/>
 				</Grid>
 			</Grid>
-		</div>
+		</Root>
 	);
 }

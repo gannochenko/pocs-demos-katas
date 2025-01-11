@@ -37,14 +37,14 @@ export const theme = extendTheme({
     light: {
       palette: {
         background: {
-          // body: "#fefefe",
+          body: "#fefefe",
     //       contrast: "#efeeee",
     //       active: "#dedede",
     //       pronounced: "#707070",
     //
-    //       header: "#efeeee",
+          header: "#efeeee",
     //       subHeader: "#f8f8f8",
-    //       footer: "#252525",
+           footer: "#252525",
     //       subtle: "#f8f8f8",
         },
         text: {

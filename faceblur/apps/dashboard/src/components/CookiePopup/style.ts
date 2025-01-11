@@ -2,7 +2,7 @@ import { ZINDEX_HIGHER } from "../../util/constants";
 import { breakpointDown } from "../../util/mixins";
 import { spacing } from "../../util/props";
 import { ThemedProps } from "../../util/type";
-import { Button, styled } from "@mui/joy";
+import {Button, styled, Typography} from "@mui/joy";
 
 import image from "./assets/cookies.jpg";
 
@@ -16,7 +16,7 @@ export const CookiePopupRoot = styled("div")<
   align-items: stretch;
   position: fixed;
   bottom: ${spacing(2)};
-  background-color: var(--joy-palette-background-header);
+  background-color: var(--joy-palette-background-body);
   border-bottom-left-radius: 2px;
   border-top-left-radius: 2px;
   overflow: hidden;
@@ -42,7 +42,7 @@ export const CookiePopupPicture = styled("div")`
   }
 `;
 
-export const CookiePopupText = styled("div")`
+export const CookiePopupText = styled(Typography)`
   padding: ${spacing(2)} ${spacing(4)};
   position: relative;
 `;
@@ -57,9 +57,9 @@ export const CookiePopupAgreeButton = styled(Button)`
 `;
 
 export const CookiePopupAgreeButtonXS = styled(Button)`
-  display: none;
+  display: block;
   margin-top: ${spacing(2)};
-  ${breakpointDown("md")} {
-    display: block;
-  }
+  // ${breakpointDown("md")} {
+  //   display: block;
+  // }
 `;

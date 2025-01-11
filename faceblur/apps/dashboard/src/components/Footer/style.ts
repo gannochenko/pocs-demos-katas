@@ -4,7 +4,7 @@ import { styled } from "@mui/joy";
 export const FooterRoot = styled("div")``;
 
 export const Wrapper = styled("div")`
-  padding: ${spacing(2)};
+  padding: ${spacing(5)} ${spacing(2)};
   flex-direction: column;
   text-align: center;
 `;

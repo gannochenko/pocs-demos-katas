@@ -2,15 +2,16 @@ import { styled, Container } from "@mui/joy";
 
 import {breakpointDown, breakpointUp, contentAlignment, spacing, typography} from "../../util/mixins";
 import {Link} from "../Link";
+import logoImage from './assets/logo.png';
 
 export const MenuRoot = styled("div")`
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background-color: var(--joy-palette-background-header);
+    background-color: var(--joy-palette-background-body);
     z-index: 1000;
-    box-shadow: 0 6px 30px -8px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 6px 30px -8px rgba(0, 0, 0, 0.2);
 `;
 
 export const MenuInnerContainer = styled(Container)`
@@ -130,4 +131,14 @@ export const MenuMobileItem = styled(Link)`
             width: ${spacing(2.5)};
         }
     }
+`;
+
+export const Logo = styled(Link)`
+    width: 50px;
+    height: 50px;
+    background-image: url(${logoImage});
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-size: 180%;
+    margin-right: ${spacing(2)};
 `;

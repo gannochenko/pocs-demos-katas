@@ -10,4 +10,5 @@ export const ApplicationLayoutBody = styled.main`
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+	position: relative;
 `;

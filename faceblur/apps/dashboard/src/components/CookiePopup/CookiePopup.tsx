@@ -36,17 +36,14 @@ export const CookiePopup: FC<CookiePopupPropsType> = () => {
 
   return (
     <CookiePopupRoot fadingAway={fadingAway}>
-      <CookiePopupPicture />
+      {/*<CookiePopupPicture />*/}
       <CookiePopupText>
-        Concrete cookies! I use <b>cookies</b> to improve your experience with
+        I use <b>cookies</b> to improve your experience with
         my website.
         <br />
         By further browsing you agree to accept the cookies.
         <br />
         More information <Link href="/cookie-policy">here</Link>.
-        <CookiePopupAgreeButton onClick={onAcceptClick}>
-          Accept!
-        </CookiePopupAgreeButton>
         <div>
           <CookiePopupAgreeButtonXS onClick={onAcceptClick}>
             Accept!
