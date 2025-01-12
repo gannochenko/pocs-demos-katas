@@ -2,7 +2,7 @@ import Button from "@mui/joy/Button";
 import {useRef, ChangeEvent} from "react";
 
 type UploadButtonProps = Partial<{
-	onChange: (files: File[]) => void;
+	onChange: (files: File[]) => Promise<void>;
 }>;
 
 export function UploadButton({onChange}: UploadButtonProps) {
