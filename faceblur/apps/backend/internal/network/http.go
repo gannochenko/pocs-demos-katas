@@ -77,12 +77,11 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 		return nil, syserr.Wrap(err, "could not get config")
 	}
 
-	httpMux := http.NewServeMux()
-	httpMux.Handle("/", corsMiddleware(mux, config))
+	muxAlt := corsMiddleware(mux, config)
 
 	// todo: add healthcheck and liveness here
 
-	return httpMux, nil
+	return muxAlt, nil
 }
 
 func (s *HTTPServer) Start(ctx context.Context, config *domain.Config) error {
@@ -172,7 +171,7 @@ func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Ma
 
 // corsMiddleware adds CORS headers. Normally Kubernetes ingress or CDN takes care of that, but for the dev purposes we add it here as well.
 func corsMiddleware(next http.Handler, config *domain.Config) http.Handler {
-	return http.StripPrefix("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		allowedOrigin := config.HTTP.Cors.Origin
 
 		// Handle CORS headers
@@ -185,5 +184,23 @@ func corsMiddleware(next http.Handler, config *domain.Config) http.Handler {
 			return
 		}
 		next.ServeHTTP(w, r)
-	}))
+	})
+}
+
+func corsMiddleware2(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Change "*" to specific domains in production
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
 }
