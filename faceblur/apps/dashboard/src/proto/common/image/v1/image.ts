@@ -9,7 +9,7 @@
 export const protobufPackage = "faceblur.common.image.v1";
 
 export interface CreateImage {
-  url: string;
+  objectName: string;
 }
 
 export interface Image {

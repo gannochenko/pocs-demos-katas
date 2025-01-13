@@ -17,23 +17,38 @@ type Service struct {
 	imageRepository                interfaces.ImageRepository
 	imageProcessingQueueRepository interfaces.ImageProcessingQueueRepository
 	loggerService                  interfaces.LoggerService
+	storageService                 interfaces.StorageService
+	configService                  interfaces.ConfigService
 }
 
-func NewImageService(sessionManager interfaces.SessionManager, imageRepository interfaces.ImageRepository, imageProcessingQueueRepository interfaces.ImageProcessingQueueRepository) *Service {
+func NewImageService(
+	sessionManager interfaces.SessionManager,
+	imageRepository interfaces.ImageRepository,
+	imageProcessingQueueRepository interfaces.ImageProcessingQueueRepository,
+	storageService interfaces.StorageService,
+	configService interfaces.ConfigService,
+) *Service {
 	return &Service{
 		sessionManager:                 sessionManager,
 		imageRepository:                imageRepository,
 		imageProcessingQueueRepository: imageProcessingQueueRepository,
+		storageService:                 storageService,
+		configService:                  configService,
 	}
 }
 
-func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interfaces.SessionHandle, url string) error {
+func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interfaces.SessionHandle, objectName string) error {
 	user := ctxUtil.GetUser(ctx)
 	if user == nil {
 		return syserr.NewInternal("user is missing in the context")
 	}
 
-	handle, err := s.sessionManager.Begin(handle)
+	config, err := s.configService.GetConfig()
+	if err != nil {
+		return syserr.Wrap(err, "could not load config")
+	}
+
+	handle, err = s.sessionManager.Begin(handle)
 	if err != nil {
 		return syserr.Wrap(err, "could not start transaction")
 	}
@@ -48,7 +63,7 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 	err = s.imageRepository.Create(ctx, handle.GetTx(), &database.Image{
 		ID:          imageID,
 		CreatedBy:   user.ID,
-		OriginalURL: url,
+		OriginalURL: s.storageService.GetPublicURL(config.Storage.ImageBucketName, objectName),
 		IsProcessed: false,
 	})
 	if err != nil {

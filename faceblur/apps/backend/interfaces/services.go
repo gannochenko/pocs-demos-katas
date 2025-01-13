@@ -28,4 +28,5 @@ type ConfigService interface {
 type StorageService interface {
 	GetWriter(ctx context.Context, bucketName string, objectPath string) (io.WriteCloser, error)
 	PrepareSignedURL(ctx context.Context, bucketName string, objectPath string, ttl time.Duration, method string, contentType string) (url string, err error)
+	GetPublicURL(bucketName string, objectName string) string
 }

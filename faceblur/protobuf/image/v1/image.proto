@@ -13,6 +13,7 @@ message GetUploadURLRequest {}
 message GetUploadURLResponse {
   string version = 1;
   string url = 2;
+  string objectName = 3;
 }
 
 message SubmitImageRequest {

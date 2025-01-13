@@ -7,7 +7,7 @@ option go_package = "backend/proto/common/image/v1";
 import "google/protobuf/timestamp.proto";
 
 message CreateImage {
-  string url = 1;
+  string objectName = 1;
 }
 
 message Image {

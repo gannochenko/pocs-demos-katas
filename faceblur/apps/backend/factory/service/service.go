@@ -69,6 +69,8 @@ func (f *Factory) GetImageService() interfaces.ImageService {
 			f.GetSessionManager(),
 			f.repositoryFactory.GetImageRepository(),
 			f.repositoryFactory.GetImageProcessingQueueRepository(),
+			f.GetStorageService(),
+			f.GetConfigService(),
 		)
 	}
 

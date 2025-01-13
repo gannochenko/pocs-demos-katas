@@ -21,6 +21,7 @@ export interface GetUploadURLRequest {
 export interface GetUploadURLResponse {
   version: string;
   url: string;
+  objectName: string;
 }
 
 export interface SubmitImageRequest {

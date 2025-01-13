@@ -28,8 +28,11 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ImageServiceClient interface {
+	// GetUploadURL returns a new signed URL for image upload
 	GetUploadURL(ctx context.Context, in *GetUploadURLRequest, opts ...grpc.CallOption) (*GetUploadURLResponse, error)
+	// SubmitImage creates a new image and puts it to the processing queue
 	SubmitImage(ctx context.Context, in *SubmitImageRequest, opts ...grpc.CallOption) (*SubmitImageResponse, error)
+	// ListImages returns a list of user images, paginated and sorted by creation date
 	ListImages(ctx context.Context, in *ListImagesRequest, opts ...grpc.CallOption) (*ListImagesResponse, error)
 }
 
@@ -75,8 +78,11 @@ func (c *imageServiceClient) ListImages(ctx context.Context, in *ListImagesReque
 // All implementations must embed UnimplementedImageServiceServer
 // for forward compatibility.
 type ImageServiceServer interface {
+	// GetUploadURL returns a new signed URL for image upload
 	GetUploadURL(context.Context, *GetUploadURLRequest) (*GetUploadURLResponse, error)
+	// SubmitImage creates a new image and puts it to the processing queue
 	SubmitImage(context.Context, *SubmitImageRequest) (*SubmitImageResponse, error)
+	// ListImages returns a list of user images, paginated and sorted by creation date
 	ListImages(context.Context, *ListImagesRequest) (*ListImagesResponse, error)
 	mustEmbedUnimplementedImageServiceServer()
 }

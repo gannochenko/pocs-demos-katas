@@ -18,7 +18,7 @@ func ValidateCreateImage(value interface{}) error {
 	}
 
 	return validation.ValidateStruct(image,
-		validation.Field(&image.Url, validation.Required, is.URL),
+		validation.Field(&image.ObjectName, validation.Required, is.UUID),
 	)
 }
 

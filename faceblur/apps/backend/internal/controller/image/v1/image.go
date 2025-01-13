@@ -48,14 +48,17 @@ func (c *ImageController) GetUploadURL(ctx context.Context, _ *imagepb.GetUpload
 		return nil, syserr.Wrap(err, "could not load config")
 	}
 
-	fileURL, err := c.storageService.PrepareSignedURL(ctx, config.Storage.ImageBucketName, uuid.New().String(), SignedURLTTL, http.MethodPut, "application/octet-stream")
+	objectName := uuid.New().String()
+
+	fileURL, err := c.storageService.PrepareSignedURL(ctx, config.Storage.ImageBucketName, objectName, SignedURLTTL, http.MethodPut, "application/octet-stream")
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not create signed url")
 	}
 
 	return &imagepb.GetUploadURLResponse{
-		Version: Version,
-		Url:     fileURL,
+		Version:    Version,
+		Url:        fileURL,
+		ObjectName: objectName,
 	}, nil
 }
 
@@ -66,7 +69,7 @@ func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.Subm
 		return nil, syserr.WrapAs(err, syserr.BadInputCode, "incorrect input")
 	}
 
-	err = c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.Url)
+	err = c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.ObjectName)
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not submit image")
 	}

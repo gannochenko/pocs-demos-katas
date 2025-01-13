@@ -2,12 +2,16 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
 	"encoding/json"
+
+	"github.com/samber/lo"
 
 	"backend/interfaces"
 	"backend/internal/util/syserr"
@@ -27,16 +31,16 @@ func NewStorageService(configService interfaces.ConfigService, loggerService int
 	}
 }
 
-func (s *Service) GetWriter(ctx context.Context, bucketName string, objectPath string) (io.WriteCloser, error) {
+func (s *Service) GetWriter(ctx context.Context, bucketName string, objectName string) (io.WriteCloser, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not create storage client")
 	}
 
-	return client.Bucket(bucketName).Object(objectPath).NewWriter(ctx), nil
+	return client.Bucket(bucketName).Object(objectName).NewWriter(ctx), nil
 }
 
-func (s *Service) PrepareSignedURL(ctx context.Context, bucketName string, objectPath string, ttl time.Duration, method string, contentType string) (url string, err error) {
+func (s *Service) PrepareSignedURL(ctx context.Context, bucketName string, objectName string, ttl time.Duration, method string, contentType string) (url string, err error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return "", syserr.Wrap(err, "could not create storage client")
@@ -74,7 +78,7 @@ func (s *Service) PrepareSignedURL(ctx context.Context, bucketName string, objec
 		method = http.MethodGet
 	}
 
-	return client.Bucket(bucketName).SignedURL(objectPath, &storage.SignedURLOptions{
+	return client.Bucket(bucketName).SignedURL(objectName, &storage.SignedURLOptions{
 		Scheme:         storage.SigningSchemeV4,
 		Method:         method,
 		Expires:        time.Now().Add(ttl),
@@ -84,6 +88,13 @@ func (s *Service) PrepareSignedURL(ctx context.Context, bucketName string, objec
 		ContentType:    contentType,
 		SignBytes:      signBytes,
 	})
+}
+
+func (s *Service) GetPublicURL(bucketName string, objectName string) string {
+	emulatorHost := os.Getenv("STORAGE_EMULATOR_HOST")
+	host := lo.Ternary(emulatorHost != "", emulatorHost, "https://storage.googleapis.com")
+
+	return fmt.Sprintf("%s/%s/%s", host, bucketName, url.PathEscape(objectName))
 }
 
 func (s *Service) extractCredentials(serviceAccount string) (clientEmail string, privateKey []byte, err error) {

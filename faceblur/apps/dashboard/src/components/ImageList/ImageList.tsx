@@ -3,11 +3,12 @@ import {Root, ImageItem} from "./style";
 import React from "react";
 import {PortalToID} from "../PortalToID/PortalToID";
 import {UploadButton} from "../UploadButton";
+import {ImageUpload} from "../ImageUpload";
 import {PetListProps} from "./type";
 import {useImageList} from "./useImageList";
 
 export function ImageList(props: PetListProps) {
-	const { images, uploadButtonProps } = useImageList(props);
+	const { uploads, images, uploadButtonProps, getImageUploadProps } = useImageList(props);
 
 	return (
 		<>
@@ -16,6 +17,13 @@ export function ImageList(props: PetListProps) {
 			</PortalToID>
 			<Root>
 				<Grid container spacing={2} sx={{ flexGrow: 1 }}>
+					{
+						uploads.map(upload => (
+							<Grid xs={4} id={upload.id}>
+								<ImageUpload {...getImageUploadProps(upload)} />
+							</Grid>
+						))
+					}
 					{
 						images.map(image => (
 							<Grid xs={4} id={image.id}>
