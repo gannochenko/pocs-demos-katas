@@ -1,4 +1,5 @@
 import fetchRetry from 'fetch-retry';
+import axios from "axios";
 
 export type ErrorResponse = {
 	error: string;
@@ -37,4 +38,25 @@ export const customFetch = async <I, O>(uri: string, body: I | null, token?: str
 			error: (e as Error).message,
 		};
 	}
+};
+
+export const uploadFile = async (
+	url: string,
+	file: File,
+	onProgress: (progress: number) => void
+): Promise<void> => {
+	// using axios because it supports progress out of the box
+	const response = await axios.put(url, file, {
+		headers: {
+			"Content-Type": "application/octet-stream",
+		},
+		onUploadProgress: (progressEvent) => {
+			const progress = Math.round(
+				(progressEvent.loaded / progressEvent.total!) * 100
+			);
+			onProgress(progress);
+		},
+	});
+
+	return response.data;
 };

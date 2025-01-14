@@ -3,7 +3,7 @@ import {Root, ImageItem, NoImages} from "./style";
 import React, {useEffect} from "react";
 import {PortalToID} from "../PortalToID/PortalToID";
 import {UploadButton} from "../UploadButton";
-import {ImageUpload} from "../ImageUpload";
+import {Image} from "../Image";
 import {PetListProps} from "./type";
 import {useImageList} from "./useImageList";
 
@@ -34,7 +34,7 @@ export function ImageList(props: PetListProps) {
 						{
 							uploads.map(upload => (
 								<Grid xs={4} key={upload.id}>
-									<ImageUpload {...getImageUploadProps(upload)} />
+									<Image {...getImageUploadProps(upload)} />
 								</Grid>
 							))
 						}

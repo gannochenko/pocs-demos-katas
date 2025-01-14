@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS "images"
     "created_at"    timestamptz NOT NULL DEFAULT now(),
     "updated_at"    timestamptz NOT NULL DEFAULT now(),
     "deleted_at"    timestamptz,
+    "uploaded_at"    timestamptz NOT NULL DEFAULT now(),
     "is_processed"  bool NOT NULL DEFAULT FALSE,
     "is_failed"     bool NOT NULL DEFAULT FALSE,
     PRIMARY KEY ("id"),

@@ -10,6 +10,7 @@ export const protobufPackage = "faceblur.common.image.v1";
 
 export interface CreateImage {
   objectName: string;
+  uploadedAt: Date | undefined;
 }
 
 export interface Image {
@@ -19,4 +20,5 @@ export interface Image {
   isFailed: boolean;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
+  uploadedAt: Date | undefined;
 }

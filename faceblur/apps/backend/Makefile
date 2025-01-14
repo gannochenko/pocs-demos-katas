@@ -16,5 +16,5 @@ new_migration:
 migrate_db:
 	migrate -path db/migrations -database postgres://faceblur:faceblur@localhost:5432/faceblur?sslmode=disable up
 
-seed:
+seed_db:
 	@godotenv -f ./.env.local go run ./script/seed/seed.go

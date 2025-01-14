@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 
 message CreateImage {
   string objectName = 1;
+  google.protobuf.Timestamp uploaded_at = 2;
 }
 
 message Image {
@@ -17,4 +18,5 @@ message Image {
   bool is_failed = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp uploaded_at = 7;
 }

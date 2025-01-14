@@ -32,7 +32,7 @@ func (r *Repository) Update(ctx context.Context, tx *gorm.DB, image *database.Im
 func (r *Repository) List(ctx context.Context, tx *gorm.DB, parameters database.ImageListParameters) ([]database.Image, error) {
 	var result []database.Image
 
-	session := db.GetRunner(r.session, tx).WithContext(ctx).Order("created_at desc, id asc")
+	session := db.GetRunner(r.session, tx).WithContext(ctx).Order("uploaded_at desc, created_at desc, id asc")
 	session, err := r.applyFilter(session, parameters.Filter)
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not apply filter")

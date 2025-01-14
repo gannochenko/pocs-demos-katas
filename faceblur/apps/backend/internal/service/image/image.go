@@ -2,6 +2,7 @@ package image
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -37,7 +38,7 @@ func NewImageService(
 	}
 }
 
-func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interfaces.SessionHandle, objectName string) (*domain.Image, error) {
+func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interfaces.SessionHandle, objectName string, uploadedAt *time.Time) (*domain.Image, error) {
 	user := ctxUtil.GetUser(ctx)
 	if user == nil {
 		return nil, syserr.NewInternal("user is missing in the context")
@@ -65,6 +66,7 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		CreatedBy:   user.ID,
 		OriginalURL: s.storageService.GetPublicURL(config.Storage.ImageBucketName, objectName),
 		IsProcessed: false,
+		UploadedAt:  *uploadedAt,
 	})
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not create image")

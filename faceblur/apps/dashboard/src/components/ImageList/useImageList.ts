@@ -1,18 +1,85 @@
+import {useState} from "react";
+import {useAuth0} from "@auth0/auth0-react";
 import {PetListProps} from "./type";
 import {useListImages} from "../../hooks";
-import {Image} from "../../models/image";
-import {useState} from "react";
+import {ImageModel, Upload} from "../../models/image";
+import {GetUploadURL, SubmitImage} from "../../proto/image/v1/image";
+import {isError, uploadFile} from "../../util/fetch";
 
-type Upload = {
-	id: string;
-	file: File;
-	createdAt: Date;
+const useUploader = () => {
+	const [uploads, setUploads] = useState<Upload[]>([]);
+	const { getAccessTokenSilently } = useAuth0();
+
+	const updateUpload = (id: string, updateCb: (upload: Upload) => Upload) => {
+		setUploads(prevState => {
+			return prevState.map(upload => {
+				if (upload.id === id) {
+					return updateCb(upload);
+				}
+
+				return upload;
+			});
+		});
+	};
+
+	return {
+		uploads,
+		submit: async (newUploads: Upload[]) => {
+			newUploads = newUploads.sort((a, b) => b.uploadedAt.getDate() - a.uploadedAt.getDate());
+
+			setUploads(prevUploads => {
+				return [
+					...newUploads,
+					...prevUploads,
+				];
+			});
+
+			for (const upload of newUploads) {
+				const getUploadULRResponse = await GetUploadURL({}, await getAccessTokenSilently())
+				if (isError(getUploadULRResponse)) {
+					// todo: notify
+					updateUpload(upload.id, (upload) => ({
+						...upload,
+						failed: true,
+					}))
+				} else {
+					await uploadFile(getUploadULRResponse.url, upload.file, (newProgress) => {
+						updateUpload(upload.id, (upload) => ({
+							...upload,
+							progress: newProgress,
+						}))
+					});
+					const submitImageResponse = await SubmitImage({
+						image: {
+							objectName: getUploadULRResponse.objectName,
+							uploadedAt: upload.uploadedAt,
+						},
+					}, await getAccessTokenSilently());
+					if (isError(submitImageResponse)) {
+						// todo: notify
+						updateUpload(upload.id, (upload) => ({
+							...upload,
+							failed: true,
+						}))
+					} else {
+						updateUpload(upload.id, (upload) => ({
+							...upload,
+							image: submitImageResponse.image,
+						}))
+					}
+				}
+			}
+		},
+	};
 };
 
 export function useImageList(props: PetListProps) {
 	const imagesResult = useListImages({pageNumber: 1});
-	const images: Image[] = imagesResult.data?.images ?? [];
-	const [uploads, setUploads] = useState<Upload[]>([]);
+	const images: ImageModel[] = imagesResult.data?.images ?? [];
+
+	const {uploads, submit} = useUploader();
+
+	// todo: reconcile images and uploads by id. if id is present in both, take the image, not the upload
 
 	return {
 		uploads,
@@ -21,29 +88,20 @@ export function useImageList(props: PetListProps) {
 		uploadButtonProps: {
 			onChange: async (files: File[]) => {
 				if (files.length) {
-					setUploads(prevUploads => {
-						return [
-							...files.map(file => (
-								{
-									id: Math.floor((Math.random() * 100000)).toString(),
-									file,
-									createdAt: new Date(),
-								}
-							)),
-							...prevUploads,
-						]; //.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-					})
+					submit(files.map(file => (
+						{
+							id: Math.floor((Math.random() * 100000)).toString(),
+							file,
+							uploadedAt: new Date(),
+							progress: 0,
+						}
+					)))
 				}
 			}
 		},
 		getImageUploadProps: (upload: Upload) => {
 			return {
 				upload,
-				onSuccess: (id: string) => {
-					// setUploads(uploads => {
-					// 	return uploads.filter(uploadItem => uploadItem.id !== id);
-					// })
-				},
 			};
 		},
 	}

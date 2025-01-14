@@ -11,6 +11,7 @@ import (
 	imageV1 "backend/internal/proto/common/image/v1"
 	v1 "backend/internal/proto/image/v1"
 	"backend/internal/util/syserr"
+	"backend/internal/util/types"
 	imagepb "backend/proto/image/v1"
 )
 
@@ -70,7 +71,13 @@ func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.Subm
 		return nil, syserr.WrapAs(err, syserr.BadInputCode, "incorrect input")
 	}
 
-	image, err := c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.ObjectName)
+	objectName := request.Image.ObjectName
+	uploadedAt := types.GetNowUTC()
+	if request.Image.UploadedAt != nil {
+		uploadedAt = request.Image.UploadedAt.AsTime()
+	}
+
+	image, err := c.imageService.SubmitImageForProcessing(ctx, nil, objectName, &uploadedAt)
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not submit image")
 	}

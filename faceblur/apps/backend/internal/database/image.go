@@ -28,6 +28,7 @@ type Image struct {
 	CreatedBy   uuid.UUID `gorm:"type:uuid"`
 	CreatedAt   time.Time `gorm:"type:timestamptz"`
 	UpdatedAt   time.Time `gorm:"type:timestamptz"`
+	UploadedAt  time.Time `gorm:"type:timestamptz"`
 	IsProcessed bool      `gorm:"type:bool"`
 	IsFailed    bool      `gorm:"type:bool"`
 }

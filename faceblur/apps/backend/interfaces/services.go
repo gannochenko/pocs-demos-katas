@@ -10,7 +10,7 @@ import (
 )
 
 type ImageService interface {
-	SubmitImageForProcessing(ctx context.Context, handle SessionHandle, url string) (*domain.Image, error)
+	SubmitImageForProcessing(ctx context.Context, handle SessionHandle, url string, uploadedAt *time.Time) (*domain.Image, error)
 	ListImages(ctx context.Context, handle SessionHandle, request *domain.ListImagesRequest) (*domain.ListImagesResponse, error)
 }
 
