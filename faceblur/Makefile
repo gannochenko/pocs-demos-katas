@@ -18,8 +18,8 @@ PROTO_FILES := $(shell find $(PROTO_DIR) -name "*.proto" ! -path "$(PROTO_DIR)/g
 # ---------------------------------
 
 install: ## Install external dependencies and resources.
-	#@$(MAKE) -C ./apps/api/ install
-	#@$(MAKE) -C ./apps/dashboard/ install
+	@$(MAKE) -C ./apps/backend/ install
+	@$(MAKE) -C ./apps/dashboard/ install
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
@@ -27,6 +27,7 @@ install: ## Install external dependencies and resources.
 
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
 	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
+	@$(MAKE) -C ./apps/backend/ create_resources
 
 list_resources: ## List all local resources
 	#@$(MAKE) -C ./apps/service_name/ list_resources
