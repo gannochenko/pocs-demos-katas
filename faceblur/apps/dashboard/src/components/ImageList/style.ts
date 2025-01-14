@@ -6,6 +6,12 @@ export const Root = styled("div")`
 	margin-bottom: ${spacing(6)};
 `;
 
+export const NoImages = styled("div")`
+	display: flex;
+	justify-content: center;
+	margin-top: ${spacing(15)};
+`;
+
 type ImageItemProps = {
 	image: string;
 };

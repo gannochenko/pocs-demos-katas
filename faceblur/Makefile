@@ -63,6 +63,10 @@ build_dashboard_proto:
 	@mkdir -p $(PROTO_OUT_DASHBOARD_DIR)
 	@protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs
 
+drop_images:
+	@rm -f ./.data/storage/faceblur-images/*
+	godotenv -f ./.env.local ./scripts/delete_images.sh
+
 run: ## Run an application
 ifeq ($(app),)
 	$(error Please specify the "app" parameter. Example: "make run app=service svc=api")

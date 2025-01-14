@@ -1,6 +1,6 @@
 import Grid from '@mui/joy/Grid';
-import {Root, ImageItem} from "./style";
-import React from "react";
+import {Root, ImageItem, NoImages} from "./style";
+import React, {useEffect} from "react";
 import {PortalToID} from "../PortalToID/PortalToID";
 import {UploadButton} from "../UploadButton";
 import {ImageUpload} from "../ImageUpload";
@@ -8,30 +8,45 @@ import {PetListProps} from "./type";
 import {useImageList} from "./useImageList";
 
 export function ImageList(props: PetListProps) {
-	const { uploads, images, uploadButtonProps, getImageUploadProps } = useImageList(props);
+	const { uploads, images, uploadButtonProps, getImageUploadProps, empty } = useImageList(props);
 
+	useEffect(() => {
+		return () => console.log("UNMOUNT LIST");
+	}, []);
+	
 	return (
 		<>
 			<PortalToID id="page-header-portal">
 				<UploadButton {...uploadButtonProps} />
 			</PortalToID>
 			<Root>
-				<Grid container spacing={2} sx={{ flexGrow: 1 }}>
-					{
-						uploads.map(upload => (
-							<Grid xs={4} id={upload.id}>
-								<ImageUpload {...getImageUploadProps(upload)} />
-							</Grid>
-						))
-					}
-					{
-						images.map(image => (
-							<Grid xs={4} id={image.id}>
-								<ImageItem image={image.url} />
-							</Grid>
-						))
-					}
-				</Grid>
+				{
+					empty
+					&&
+					<NoImages>
+						No images so far
+					</NoImages>
+				}
+				{
+					!empty
+					&&
+                    <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+						{
+							uploads.map(upload => (
+								<Grid xs={4} key={upload.id}>
+									<ImageUpload {...getImageUploadProps(upload)} />
+								</Grid>
+							))
+						}
+						{
+							images.map(image => (
+								<Grid xs={4} key={image.id}>
+									<ImageItem image={image.url} />
+								</Grid>
+							))
+						}
+                    </Grid>
+				}
 			</Root>
 		</>
 	);

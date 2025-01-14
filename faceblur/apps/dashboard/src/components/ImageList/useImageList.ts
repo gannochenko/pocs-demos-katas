@@ -17,10 +17,11 @@ export function useImageList(props: PetListProps) {
 	return {
 		uploads,
 		images,
+		empty: !images.length && !uploads.length && !imagesResult.isLoading,
 		uploadButtonProps: {
 			onChange: async (files: File[]) => {
 				if (files.length) {
-					setUploads(uploads => {
+					setUploads(prevUploads => {
 						return [
 							...files.map(file => (
 								{
@@ -29,8 +30,8 @@ export function useImageList(props: PetListProps) {
 									createdAt: new Date(),
 								}
 							)),
-							...uploads,
-						].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+							...prevUploads,
+						]; //.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 					})
 				}
 			}
@@ -38,9 +39,10 @@ export function useImageList(props: PetListProps) {
 		getImageUploadProps: (upload: Upload) => {
 			return {
 				upload,
-				onSuccess: () => {
-					console.log('HUGE Success!');
-					// todo: remove the thing
+				onSuccess: (id: string) => {
+					// setUploads(uploads => {
+					// 	return uploads.filter(uploadItem => uploadItem.id !== id);
+					// })
 				},
 			};
 		},

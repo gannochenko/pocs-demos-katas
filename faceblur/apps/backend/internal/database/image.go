@@ -44,6 +44,7 @@ func (p *Image) ToDomain() (*domain.Image, error) {
 
 type ImageFilter struct {
 	CreatedBy *uuid.UUID
+	ID        *uuid.UUID
 }
 
 type ImageListParameters struct {

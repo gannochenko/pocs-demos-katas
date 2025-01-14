@@ -1,4 +1,4 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {useAuth0} from "@auth0/auth0-react";
 import {GetUploadURL, ListImages, SubmitImage} from "../proto/image/v1/image";
 import {Image} from "../models/image";
@@ -55,7 +55,7 @@ type GetUploadURLResponse = {
 	objectName: string;
 };
 
-export function useGetUploadURL(onSuccess: (response: GetUploadURLResponse) => void, onFailure: () => void) {
+export function useGetUploadURL(enabled: boolean, onSuccess: (response: GetUploadURLResponse) => void, onFailure: () => void) {
 	const { getAccessTokenSilently } = useAuth0();
 	return useQuery(
 		[],
@@ -73,6 +73,7 @@ export function useGetUploadURL(onSuccess: (response: GetUploadURLResponse) => v
 			return result;
 		},
 		{
+			enabled,
 			onError: (error: any) => {
 				// todo: show notification here
 				onFailure();
@@ -134,6 +135,8 @@ type SubmitImageRequest = {
 
 export const useSubmitImage = () => {
 	const { getAccessTokenSilently } = useAuth0();
+	// const queryClient = useQueryClient();
+
 	return useMutation(
 		async ({objectName}: SubmitImageRequest) => SubmitImage({
 			image: {
@@ -142,7 +145,7 @@ export const useSubmitImage = () => {
 		}, await getAccessTokenSilently()),
 		{
 			onSuccess: () => {
-				// todo: invalidate cache here
+				//queryClient.invalidateQueries(LIST_IMAGES_KEY);
 			},
 			onError: (error: any) => {
 				// todo: show notification here

@@ -4,5 +4,5 @@ export type ImageUploadProps = Partial<{
 		file: File;
 		createdAt: Date;
 	};
-	onSuccess: () => void;
+	onSuccess: (id: string) => void;
 }>;

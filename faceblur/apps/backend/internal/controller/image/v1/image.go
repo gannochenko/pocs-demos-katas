@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"backend/interfaces"
+	imageV1 "backend/internal/proto/common/image/v1"
 	v1 "backend/internal/proto/image/v1"
 	"backend/internal/util/syserr"
 	imagepb "backend/proto/image/v1"
@@ -69,13 +70,14 @@ func (c *ImageController) SubmitImage(ctx context.Context, request *imagepb.Subm
 		return nil, syserr.WrapAs(err, syserr.BadInputCode, "incorrect input")
 	}
 
-	err = c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.ObjectName)
+	image, err := c.imageService.SubmitImageForProcessing(ctx, nil, request.Image.ObjectName)
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not submit image")
 	}
 
 	return &imagepb.SubmitImageResponse{
 		Version: Version,
+		Image:   imageV1.ConvertImageToProto(image),
 	}, nil
 }
 

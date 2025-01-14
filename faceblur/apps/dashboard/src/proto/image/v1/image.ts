@@ -30,6 +30,7 @@ export interface SubmitImageRequest {
 
 export interface SubmitImageResponse {
   version: string;
+  image: Image | undefined;
 }
 
 export interface ListImagesRequest {

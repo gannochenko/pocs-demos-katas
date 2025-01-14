@@ -37,20 +37,20 @@ func NewImageService(
 	}
 }
 
-func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interfaces.SessionHandle, objectName string) error {
+func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interfaces.SessionHandle, objectName string) (*domain.Image, error) {
 	user := ctxUtil.GetUser(ctx)
 	if user == nil {
-		return syserr.NewInternal("user is missing in the context")
+		return nil, syserr.NewInternal("user is missing in the context")
 	}
 
 	config, err := s.configService.GetConfig()
 	if err != nil {
-		return syserr.Wrap(err, "could not load config")
+		return nil, syserr.Wrap(err, "could not load config")
 	}
 
 	handle, err = s.sessionManager.Begin(handle)
 	if err != nil {
-		return syserr.Wrap(err, "could not start transaction")
+		return nil, syserr.Wrap(err, "could not start transaction")
 	}
 	defer func() {
 		err = s.sessionManager.RollbackUnlessCommitted(handle)
@@ -67,7 +67,7 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		IsProcessed: false,
 	})
 	if err != nil {
-		return syserr.Wrap(err, "could not create image")
+		return nil, syserr.Wrap(err, "could not create image")
 	}
 
 	err = s.imageProcessingQueueRepository.Create(ctx, handle.GetTx(), &database.ImageProcessingQueue{
@@ -76,17 +76,35 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		IsFailed:  false,
 	})
 	if err != nil {
-		return syserr.Wrap(err, "could not create image processing queue element")
+		return nil, syserr.Wrap(err, "could not create image processing queue element")
 	}
 
 	err = s.sessionManager.Commit(handle)
 	if err != nil {
-		return syserr.Wrap(err, "could not commit transaction")
+		return nil, syserr.Wrap(err, "could not commit transaction")
 	}
 
 	// todo: create message queue event
 
-	return nil
+	images, err := s.imageRepository.List(ctx, nil, database.ImageListParameters{
+		Filter: &database.ImageFilter{
+			ID: &imageID,
+		},
+	})
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not get the image", syserr.F("id", imageID.String()))
+	}
+
+	if len(images) == 0 {
+		return nil, syserr.Wrap(err, "image not found", syserr.F("id", imageID.String()))
+	}
+
+	domainImage, err := images[0].ToDomain()
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not convert image to domain", syserr.F("id", imageID.String()))
+	}
+
+	return domainImage, nil
 }
 
 func (s *Service) ListImages(ctx context.Context, _ interfaces.SessionHandle, request *domain.ListImagesRequest) (*domain.ListImagesResponse, error) {

@@ -5,15 +5,15 @@ import {useImageUpload} from "./useImageUpload";
 import { ImageUploadProps } from './type';
 
 export function ImageUpload(props: ImageUploadProps) {
-	const { progressProps, failed } = useImageUpload(props);
+	const { progressProps, failed, imageProps, image } = useImageUpload(props);
 
 	return (
 		<Root>
-			<Image />
+			<Image {...imageProps} />
 			<Inner>
 				<Status>
 					{
-						!failed
+						(!failed && !image)
 						&&
 						<>
                             <CircularProgress {...progressProps} />
