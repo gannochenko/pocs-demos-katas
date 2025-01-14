@@ -25,7 +25,7 @@ const useUploader = () => {
 	return {
 		uploads,
 		submit: async (newUploads: Upload[]) => {
-			newUploads = newUploads.sort((a, b) => b.uploadedAt.getDate() - a.uploadedAt.getDate());
+			newUploads = newUploads.sort((a, b) => (b.uploadedAt?.getDate() ?? 0) - (a.uploadedAt?.getDate() ?? 0));
 
 			setUploads(prevUploads => {
 				return [
@@ -43,7 +43,7 @@ const useUploader = () => {
 						failed: true,
 					}))
 				} else {
-					await uploadFile(getUploadULRResponse.url, upload.file, (newProgress) => {
+					await uploadFile(getUploadULRResponse.url, upload.file!, (newProgress) => {
 						updateUpload(upload.id, (upload) => ({
 							...upload,
 							progress: newProgress,
@@ -102,6 +102,18 @@ export function useImageList(props: PetListProps) {
 		getImageUploadProps: (upload: Upload) => {
 			return {
 				upload,
+			};
+		},
+		getImageUploadPropsByImage: (image: ImageModel) => {
+			return {
+				upload: {
+					id: image.id,
+					file: undefined,
+					image,
+					uploadedAt: image.updatedAt,
+					failed: image.isFailed,
+					progress: 100,
+				},
 			};
 		},
 	}

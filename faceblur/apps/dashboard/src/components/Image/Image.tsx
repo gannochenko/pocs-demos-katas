@@ -1,5 +1,5 @@
 import {Root} from "./style";
-import {ErrorIcon, Inner, Label, Status, ImageContainer} from "./style";
+import {ErrorIcon, Inner, Label, Status, ImageContainer, Underlay} from "./style";
 import CircularProgress from "@mui/joy/CircularProgress";
 import {Upload} from "../../models/image";
 
@@ -16,6 +16,7 @@ export function Image({ upload }: ImageProps) {
 	};
 	const imageProps = {
 		url: image?.url ?? "",
+		isProcessed: !!image?.isProcessed,
 	};
 
 	return (
@@ -26,12 +27,22 @@ export function Image({ upload }: ImageProps) {
 					{
 						(!failed && !image)
 						&&
-                        <>
+                        <Underlay>
                             <CircularProgress {...progressProps} />
                             <Label>
                                 Uploading
                             </Label>
-                        </>
+                        </Underlay>
+					}
+					{
+						(!failed && !image?.isProcessed)
+						&&
+                        <Underlay>
+                            <CircularProgress />
+                            <Label>
+                                Processing
+                            </Label>
+                        </Underlay>
 					}
 					{
 						failed

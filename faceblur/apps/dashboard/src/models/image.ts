@@ -9,8 +9,8 @@ export type ImageModel = {
 
 export type Upload = {
 	id: string;
-	file: File;
-	uploadedAt: Date;
+	file?: File;
+	uploadedAt?: Date;
 	image?: ImageModel;
 	failed?: boolean;
 	progress: number;

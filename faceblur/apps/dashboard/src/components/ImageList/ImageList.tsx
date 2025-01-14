@@ -8,7 +8,7 @@ import {PetListProps} from "./type";
 import {useImageList} from "./useImageList";
 
 export function ImageList(props: PetListProps) {
-	const { uploads, images, uploadButtonProps, getImageUploadProps, empty } = useImageList(props);
+	const { uploads, images, uploadButtonProps, getImageUploadProps, getImageUploadPropsByImage, empty } = useImageList(props);
 
 	useEffect(() => {
 		return () => console.log("UNMOUNT LIST");
@@ -41,7 +41,7 @@ export function ImageList(props: PetListProps) {
 						{
 							images.map(image => (
 								<Grid xs={4} key={image.id}>
-									<ImageItem image={image.url} />
+									<Image {...getImageUploadPropsByImage(image)} />
 								</Grid>
 							))
 						}
