@@ -4,11 +4,13 @@ import {PetListProps} from "./type";
 import {useListImages} from "../../hooks";
 import {ImageModel, Upload} from "../../models/image";
 import {GetUploadURL, SubmitImage} from "../../proto/image/v1/image";
-import {isError, uploadFile} from "../../util/fetch";
+import {isErrorResponse, uploadFile} from "../../util/fetch";
+import {useNotification} from "../../hooks/notification";
 
 const useUploader = () => {
 	const [uploads, setUploads] = useState<Upload[]>([]);
 	const { getAccessTokenSilently } = useAuth0();
+	const {showError} = useNotification();
 
 	const updateUpload = (id: string, updateCb: (upload: Upload) => Upload) => {
 		setUploads(prevState => {
@@ -20,6 +22,10 @@ const useUploader = () => {
 				return upload;
 			});
 		});
+	};
+
+	const showUploadError = (reason: string) => {
+		showError("Error uploading file", reason);
 	};
 
 	return {
@@ -36,8 +42,8 @@ const useUploader = () => {
 
 			for (const upload of newUploads) {
 				const getUploadULRResponse = await GetUploadURL({}, await getAccessTokenSilently())
-				if (isError(getUploadULRResponse)) {
-					// todo: notify
+				if (isErrorResponse(getUploadULRResponse)) {
+					showUploadError(getUploadULRResponse.error);
 					updateUpload(upload.id, (upload) => ({
 						...upload,
 						failed: true,
@@ -55,8 +61,8 @@ const useUploader = () => {
 							uploadedAt: upload.uploadedAt,
 						},
 					}, await getAccessTokenSilently());
-					if (isError(submitImageResponse)) {
-						// todo: notify
+					if (isErrorResponse(submitImageResponse)) {
+						showUploadError(submitImageResponse.error);
 						updateUpload(upload.id, (upload) => ({
 							...upload,
 							failed: true,

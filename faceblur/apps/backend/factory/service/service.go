@@ -7,6 +7,7 @@ import (
 
 	"backend/factory/repository"
 	"backend/interfaces"
+	"backend/internal/service/auth"
 	"backend/internal/service/config"
 	"backend/internal/service/image"
 	"backend/internal/service/logger"
@@ -25,6 +26,7 @@ type Factory struct {
 	loggerService  interfaces.LoggerService
 	imageService   interfaces.ImageService
 	storageService interfaces.StorageService
+	authService    interfaces.AuthService
 }
 
 func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFactory *repository.Factory) *Factory {
@@ -86,4 +88,15 @@ func (f *Factory) GetStorageService() interfaces.StorageService {
 	}
 
 	return f.storageService
+}
+
+func (f *Factory) GetAuthService() interfaces.AuthService {
+	if f.authService == nil {
+		f.authService = auth.NewAuthService(
+			f.GetConfigService(),
+			f.GetLoggerService(),
+		)
+	}
+
+	return f.authService
 }

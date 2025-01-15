@@ -48,7 +48,7 @@ func run(w io.Writer) error {
 			),
 		},
 		loggerService,
-		serviceFactory.GetConfigService(),
+		serviceFactory.GetAuthService(),
 		serviceFactory.GetRepositoryFactory().GetUserRepository(),
 	)
 	HTTPServer := network.NewHTTPServer(serviceFactory.GetConfigService())

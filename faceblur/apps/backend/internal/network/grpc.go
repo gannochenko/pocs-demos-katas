@@ -15,12 +15,12 @@ type GRPCServer struct {
 	server *grpc.Server
 }
 
-func NewGRPCServer(controllers *Controllers, loggerService interfaces.LoggerService, configService interfaces.ConfigService, userRepository interfaces.UserRepository) *GRPCServer {
+func NewGRPCServer(controllers *Controllers, loggerService interfaces.LoggerService, authService interfaces.AuthService, userRepository interfaces.UserRepository) *GRPCServer {
 	opts := grpc.ChainUnaryInterceptor(
 		MapError,
-		GetPopulateUser(loggerService, userRepository),
+		GetRequestLogger(loggerService),
 		PopulateOperationID,
-		GetLogRequest(loggerService),
+		GetUserPopulator(loggerService, authService, userRepository),
 	)
 	grpcServer := grpc.NewServer(opts)
 

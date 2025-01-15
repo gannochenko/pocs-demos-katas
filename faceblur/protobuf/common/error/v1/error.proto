@@ -4,6 +4,6 @@ package faceblur.common.error.v1;
 
 option go_package = "backend/proto/common/error/v1";
 
-message Error {
+message ErrorResponse {
   string error = 1;
 }

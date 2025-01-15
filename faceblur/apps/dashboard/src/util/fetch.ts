@@ -1,18 +1,15 @@
 import fetchRetry from 'fetch-retry';
 import axios from "axios";
+import {ErrorResponse} from "../proto/common/error/v1/error";
 
-export type ErrorResponse = {
-	error: string;
-};
-
-export function isError(error: any): error is ErrorResponse {
-	return "error" in error;
+export function isErrorResponse(response: any): response is ErrorResponse {
+	return "error" in response;
 }
 
 export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const fetchWithRetry = fetchRetry(fetch, {
-	retries: 5,
+	retries: 3,
 	retryDelay: function(attempt, error, response) {
 		return Math.pow(2, attempt) * 1000;
 	}

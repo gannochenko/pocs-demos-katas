@@ -15,6 +15,7 @@ body {
   margin: 0 !important;
   color: var(--joy-palette-text-default);
   background: var(--joy-palette-background-default);
+  font-family: "Victor Mono",sans-serif;
   font-size: 1rem;
   font-weight: normal;
   line-height: 1.5;

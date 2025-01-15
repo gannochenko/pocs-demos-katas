@@ -162,7 +162,7 @@ func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Ma
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpStatus)
 
-	responseError := &errorpb.Error{
+	responseError := &errorpb.ErrorResponse{
 		Error: lo.Ternary(grpcStatus.Code() == codes.Internal, "internal error occurred, contact support", grpcStatus.Message()),
 	}
 

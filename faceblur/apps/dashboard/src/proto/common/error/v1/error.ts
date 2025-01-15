@@ -8,6 +8,6 @@
 
 export const protobufPackage = "faceblur.common.error.v1";
 
-export interface Error {
+export interface ErrorResponse {
   error: string;
 }

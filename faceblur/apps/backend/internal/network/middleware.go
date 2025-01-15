@@ -15,60 +15,46 @@ import (
 
 	"backend/interfaces"
 	"backend/internal/database"
-	"backend/internal/domain"
 	ctxUtil "backend/internal/util/ctx"
 	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
 	"backend/internal/util/types"
 )
 
-func GetPopulateUser(loggerService interfaces.LoggerService, userRepository interfaces.UserRepository) grpc.UnaryServerInterceptor {
+func GetUserPopulator(loggerService interfaces.LoggerService, authService interfaces.AuthService, userRepository interfaces.UserRepository) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		md, _ := metadata.FromIncomingContext(ctx)
-		tokens := md["authorization"]
+		token, err := authService.ExtractToken(ctx)
+		if err != nil {
+			return nil, syserr.Wrap(err, "missing token")
+		}
 
-		if true || len(tokens) > 0 { // todo: change this
-			// todo: parse and verify token here
+		sup, err := authService.ValidateToken(ctx, token)
+		if err != nil {
+			return nil, syserr.Wrap(err, "could validate token")
+		}
 
-			sup := "auth0:19482" // todo: take this from the token
+		// sup := "auth0:19482" // debug user
 
-			// todo: cache this till token expiration time
-			users, err := userRepository.List(ctx, nil, database.UserListParameters{
-				Filter: &database.UserFilter{
-					Sup: &sup,
-				},
-			})
+		users, err := userRepository.List(ctx, nil, database.UserListParameters{
+			Filter: &database.UserFilter{
+				Sup: &sup,
+			},
+		})
+		if err != nil {
+			return nil, syserr.Wrap(err, "error getting user", syserr.F("sup", sup))
+		} else if len(users) == 0 {
+			return nil, syserr.Wrap(err, "no user found", syserr.F("sup", sup))
+		} else {
+			domainUser, err := users[0].ToDomain()
 			if err != nil {
-				loggerService.LogError(ctx, syserr.Wrap(err, "could not find user by token"), logger.F("sup", sup))
-			} else if len(users) == 0 {
-				loggerService.Error(ctx, "no user found by token", logger.F("sup", sup))
+				return nil, syserr.Wrap(err, "could not convert to domain", syserr.F("sup", sup))
 			} else {
-				domainUser, err := users[0].ToDomain()
-				if err != nil {
-					loggerService.LogError(ctx, syserr.Wrap(err, "could not convert to domain"), logger.F("sup", sup))
-				} else {
-					ctx = ctxUtil.WithUser(ctx, *domainUser)
-				}
+				ctx = ctxUtil.WithUser(ctx, *domainUser)
 			}
 		}
 
 		return handler(ctx, req)
 	}
-}
-
-func PopulateUser(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	tokens := md["authorization"]
-
-	if len(tokens) > 0 {
-		// todo: parse and verify token here
-
-		ctx = ctxUtil.WithUser(ctx, domain.User{
-			Email: "foo@bar.baz",
-		})
-	}
-
-	return handler(ctx, req)
 }
 
 func PopulateOperationID(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -82,7 +68,7 @@ func PopulateOperationID(ctx context.Context, req interface{}, _ *grpc.UnaryServ
 	return handler(ctxUtil.WithOperationID(ctx, uuid.New().String()), req)
 }
 
-func GetLogRequest(loggerService interfaces.LoggerService) grpc.UnaryServerInterceptor {
+func GetRequestLogger(loggerService interfaces.LoggerService) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		resp, err := handler(ctx, req)
 

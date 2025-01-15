@@ -22,7 +22,7 @@ export const Providers = ({ children }: PropsWithChildren) => {
             <Auth0Provider>
                 <CssVarsProvider theme={theme}>
                     <QueryClientProvider client={queryClient}>
-                        <SnackbarProvider maxSnack={3}>
+                        <SnackbarProvider maxSnack={5}>
                             <NetworkStatusProvider>
                                 <I18nextProvider i18n={i18n}>
                                     <StateProviders>

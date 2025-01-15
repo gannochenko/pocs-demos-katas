@@ -30,3 +30,8 @@ type StorageService interface {
 	PrepareSignedURL(ctx context.Context, bucketName string, objectPath string, ttl time.Duration, method string, contentType string) (url string, err error)
 	GetPublicURL(bucketName string, objectName string) string
 }
+
+type AuthService interface {
+	ValidateToken(ctx context.Context, token string) (string, error)
+	ExtractToken(ctx context.Context) (string, error)
+}

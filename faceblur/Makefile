@@ -64,6 +64,10 @@ build_dashboard_proto:
 	@mkdir -p $(PROTO_OUT_DASHBOARD_DIR)
 	@protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs
 
+build_proto:
+	@make build_backend_proto
+	@make build_dashboard_proto
+
 drop_images:
 	@rm -f ./.data/storage/faceblur-images/*
 	godotenv -f ./.env.local ./scripts/delete_images.sh

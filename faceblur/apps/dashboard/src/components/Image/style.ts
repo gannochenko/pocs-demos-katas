@@ -17,7 +17,7 @@ export const ImageContainer = styled("div")<ImageContainerProps>`
     padding-bottom: 100%;
     position: relative;
     background-image: url(${(props) => props.url});
-    filter: blur(5px);
+    filter: blur(4px);
     background-position: center; /* Centers the image */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-size: cover;
