@@ -32,7 +32,7 @@ type StorageService interface {
 }
 
 type AuthService interface {
-	ValidateToken(ctx context.Context, token string) (string, error)
+	ValidateToken(ctx context.Context, token string) (string, int64, error)
 	ExtractToken(ctx context.Context) (string, error)
 }
 

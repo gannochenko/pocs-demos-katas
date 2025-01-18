@@ -9,6 +9,7 @@ import (
 type User struct {
 	ID    uuid.UUID
 	Email string
+	Sup   string
 }
 
 type RemoteUserInfo struct {

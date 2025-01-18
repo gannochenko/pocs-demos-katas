@@ -62,27 +62,27 @@ func (s *Service) ExtractToken(ctx context.Context) (string, error) {
 	return authHeaderParts[1], nil
 }
 
-func (s *Service) ValidateToken(ctx context.Context, token string) (string, error) {
+func (s *Service) ValidateToken(ctx context.Context, token string) (string, int64, error) {
 	jwtValidator, err := s.getValidator()
 	if err != nil {
-		return "", syserr.Wrap(err, "could not get validator")
+		return "", 0, syserr.Wrap(err, "could not get validator")
 	}
 
 	claims, err := jwtValidator.ValidateToken(ctx, token)
 	if err != nil {
 		if errors.Is(err, jwtmiddleware.ErrJWTMissing) {
-			return "", syserr.NewUnauthorized("missing jwt token")
+			return "", 0, syserr.NewUnauthorized("missing jwt token")
 		}
 		if errors.Is(err, jwtmiddleware.ErrJWTInvalid) {
-			return "", syserr.NewUnauthorized("jwt token invalid")
+			return "", 0, syserr.NewUnauthorized("jwt token invalid")
 		}
 
-		return "", err
+		return "", 0, err
 	}
 
 	validatedClaims := claims.(*validator.ValidatedClaims)
 
-	return validatedClaims.RegisteredClaims.Subject, nil
+	return validatedClaims.RegisteredClaims.Subject, validatedClaims.RegisteredClaims.Expiry, nil
 }
 
 func (s *Service) getValidator() (*validator.Validator, error) {

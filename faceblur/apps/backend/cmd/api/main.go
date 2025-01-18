@@ -55,6 +55,7 @@ func run(w io.Writer) error {
 		serviceFactory.GetConfigService(),
 		serviceFactory.GetAuthService(),
 		serviceFactory.GetLoggerService(),
+		serviceFactory.GetUserService(),
 	)
 	HTTPServer := network.NewHTTPServer(serviceFactory.GetConfigService(), websocketServer)
 

@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"backend/interfaces"
+	"backend/internal/domain"
 	ctxUtil "backend/internal/util/ctx"
 	"backend/internal/util/syserr"
 	"backend/internal/util/types"
@@ -19,12 +21,13 @@ import (
 )
 
 const (
-	TOKEN_PROVISION_TIMEOUT = 3
+	TokenProvisionTimeout = 3
 )
 
 type WebsocketConnection struct {
 	id           uuid.UUID
 	userID       *uuid.UUID
+	userSup      *string
 	outgoingChan chan *v1.ServerMessage
 	incomingChan chan incomingMessage
 	expiresAt    *time.Time
@@ -67,6 +70,10 @@ func (c *WebsocketConnection) Close() error {
 	}
 
 	return nil
+}
+
+func (c *WebsocketConnection) GetKey() string {
+	return fmt.Sprintf("%s-%s", c.userID.String(), c.id.String())
 }
 
 type incomingMessage struct {
@@ -142,90 +149,96 @@ func (s *WebsocketServer) GetHandler() types.HTTPHandler {
 
 		s.loggerService.Info(ctx, "websocket is waiting for the token")
 
-		err = s.runHandshake(ctx, connection)
+		user, err := s.runHandshake(ctx, connection)
 		if err != nil {
 			return syserr.Wrap(err, "could not conduct handshake")
 		}
 
-		//ctx = ctxUtil.WithUserEmail(ctx, userEmail)
+		ctx = ctxUtil.WithUser(ctx, *user)
 
-		connection, err := s.addConnection(ctx, userEmail, connectionID, &authorizationExpiresAt)
+		err = s.addConnection(connection)
 		if err != nil {
-			return syserr.WrapAsInternal(err, "error adding a connection")
+			return syserr.Wrap(err, "error adding a connection")
 		}
 
-		s.loggerService.Info(ctx, "started listening to messages")
+		return s.serveConnection(ctx, connection)
+	}
+}
 
-		for {
-			select {
-			case <-ctx.Done():
-				return syserr.NewInternal("context is done, closing the connection")
-			case <-connection.NotValid():
-				s.loggerService.Warning(ctx, "the token was not updated in time, closing the connection")
+func (s *WebsocketServer) serveConnection(ctx context.Context, connection *WebsocketConnection) error {
+	s.loggerService.Info(ctx, "started listening to messages")
+
+	for {
+		select {
+		case <-ctx.Done():
+			return syserr.Wrap(context.Canceled, "context is done, closing the connection")
+		case <-connection.NotValid():
+			s.loggerService.Warning(ctx, "the token was not updated in time, closing the connection")
+			return nil
+		case message := <-connection.outgoingChan:
+			data, err := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+			}.Marshal(message)
+			if err != nil {
+				s.loggerService.LogError(ctx, syserr.Wrap(err, "error marshaling a message"))
+				continue
+			}
+
+			err = connection.wsConnection.WriteMessage(websocket.TextMessage, data)
+			if err != nil {
+				s.loggerService.LogError(ctx, syserr.Wrap(err, "error sending a message"))
+			}
+		case message := <-connection.incomingChan:
+			switch message.messageType {
+			case websocket.TextMessage:
+				err := s.processMessage(ctx, connection, message.message)
+				if err != nil {
+					s.loggerService.LogError(ctx, syserr.Wrap(err, "error processing an incoming message"))
+				}
+			case websocket.CloseMessage:
+				s.loggerService.Info(ctx, "close message received, closing the connection")
 				return nil
-			case message := <-connection.outgoingChannel:
-				data, err := protojsonOptions.Marshal(message)
-				if err != nil {
-
-					log.SmartLog(ctx, syserr.WrapAsInternal(err, "error marshaling an outgoing message"))
-					continue
-				}
-
-				err = conn.WriteMessage(websocket.TextMessage, data)
-				if err != nil {
-					s.loggerService.LogError(ctx, syserr.Wrap(err, "error sending an outgoing message"))
-				}
-			case message := <-incomingChannel:
-				switch message.messageType {
-				case websocket.TextMessage:
-					err = s.processMessage(ctx, userEmail, connectionID, message.message)
-					if err != nil {
-						s.loggerService.LogError(ctx, syserr.Wrap(err, "error processing an incoming message"))
-					}
-				case websocket.CloseMessage:
-					s.loggerService.Info(ctx, "close message received, closing the connection")
-					return nil
-				}
 			}
 		}
 	}
 }
 
-func (s *WebsocketServer) runHandshake(ctx context.Context, connection *WebsocketConnection) error {
+func (s *WebsocketServer) runHandshake(ctx context.Context, connection *WebsocketConnection) (*domain.User, error) {
 	for {
 		select {
 		case <-ctx.Done():
-			return syserr.Wrap(context.Canceled, "ctx done, exiting")
+			return nil, syserr.Wrap(context.Canceled, "ctx done, exiting")
 		case message := <-connection.incomingChan:
 			s.loggerService.Info(ctx, "token message received")
 
 			protoMessage, err := s.unmarshalMessage(&message)
 			if err != nil {
-				return syserr.WrapAs(err, syserr.BadInputCode, "could not decode message")
+				return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not decode message")
 			}
 
 			if protoMessage.GetType() != v1.ClientMessageType_CLIENT_MESSAGE_TYPE_TOKEN_UPDATE {
-				return syserr.WrapAs(err, syserr.BadInputCode, "first message is not of token update, closing the connection")
+				return nil, syserr.WrapAs(err, syserr.BadInputCode, "first message is not of token update, closing the connection")
 			}
 
 			token := protoMessage.GetTokenUpdate().GetToken()
 
-			sup, err := s.authService.ValidateToken(ctx, token)
+			sup, expiry, err := s.authService.ValidateToken(ctx, token)
 			if err != nil {
-				return syserr.NewBadInput("could not validate token")
+				return nil, syserr.NewBadInput("could not validate token")
 			}
 
 			user, err := s.userService.GetUserBySUP(ctx, nil, sup)
 			if err != nil {
-				return syserr.Wrap(err, "could not get user by sup")
+				return nil, syserr.Wrap(err, "could not get user by sup")
 			}
 
 			connection.userID = &user.ID
-			connection.expiresAt = info.ExpiresAt
+			connection.userSup = &user.Sup
+			connection.expiresAt = lo.ToPtr(time.Unix(expiry, 0))
 
-			break
-		case <-time.After(time.Second * TOKEN_PROVISION_TIMEOUT):
-			return syserr.NewBadInput("no token provided before the timeout, closing the connection")
+			return user, nil
+		case <-time.After(time.Second * TokenProvisionTimeout):
+			return nil, syserr.NewBadInput("no token provided before the timeout, closing the connection")
 		}
 	}
 }
@@ -245,26 +258,15 @@ func (s *WebsocketServer) getUpgrader() (*websocket.Upgrader, error) {
 	}, nil
 }
 
-func (s *Service) addConnection(ctx context.Context, userEmail string, connectionID string, expiresAt *time.Time) (*Connection, error) {
-	key := s.makeConnMapKey(userEmail, connectionID)
-	if s.connections.HasKey(key) {
-		return nil, syserror.NewInternal("connection already registered", syserror.F("user_email", userEmail), syserror.F("connection_id", connectionID))
+func (s *WebsocketServer) addConnection(connection *WebsocketConnection) error {
+	key := connection.GetKey()
+	_, hasKey := s.connections.LoadOrStore(key, connection)
+
+	if hasKey {
+		return syserr.NewInternal("connection already registered", syserr.F("user_id", connection.userID))
 	}
 
-	connection := &Connection{
-		outgoingChannel: make(chan *protopbV1.ServerMessage),
-		expiresAt:       expiresAt,
-	}
-
-	s.connections.Set(key, connection)
-
-	_, newValue := s.poolSize.Change(func(value uint32) uint32 {
-		return value + 1
-	})
-
-	s.recordConnectionPoolSize(ctx, newValue)
-
-	return connection, nil
+	return nil
 }
 
 func (s *WebsocketServer) closeAndRemoveConnection(connection *WebsocketConnection) error {
@@ -274,33 +276,11 @@ func (s *WebsocketServer) closeAndRemoveConnection(connection *WebsocketConnecti
 	}
 
 	if connection.userID != nil {
-		// the connection has already been stored in the pool, remove it
-		// todo: remove
+		key := connection.GetKey()
+		s.connections.Delete(key)
 	}
 
-	hadConnection := s.hasConnection(userEmail, connectionID)
-
-	key := s.makeConnMapKey(userEmail, connectionID)
-	s.connections.Act(func(innerMap map[string]*Connection) {
-		if maps.HasKey(innerMap, key) {
-			close(innerMap[key].outgoingChannel)
-			delete(innerMap, key)
-		}
-	})
-}
-
-func (s *Service) doesConnectionExistAndValid(userEmail string, connectionID string) bool {
-	connection, ok := s.connections.Get(s.makeConnMapKey(userEmail, connectionID))
-	if ok {
-		return connection.IsValid()
-	}
-
-	return false
-}
-
-func (s *Service) hasConnection(userEmail string, connectionID string) bool {
-	_, ok := s.connections.Get(s.makeConnMapKey(userEmail, connectionID))
-	return ok
+	return nil
 }
 
 func (s *WebsocketServer) unmarshalMessage(message *incomingMessage) (*v1.ClientMessage, error) {
@@ -341,37 +321,38 @@ func (s *WebsocketServer) createIncomingChannel(ctx context.Context, conn *webso
 	return messageChan
 }
 
-func (s *Service) processMessage(ctx context.Context, userEmail string, connectionID string, payload []byte) error {
-	if !s.doesConnectionExistAndValid(userEmail, connectionID) {
-		return syserror.NewInternal("connection was not valid when processing a message")
-	}
-
-	var protoMessage protopbV1.ClientMessage
+func (s *WebsocketServer) processMessage(ctx context.Context, connection *WebsocketConnection, payload []byte) error {
+	var protoMessage v1.ClientMessage
 	err := protojson.Unmarshal(payload, &protoMessage)
 	if err != nil {
 		return err
 	}
 
 	switch protoMessage.GetType() {
-	case protopbV1.ClientMessageType_CLIENT_MESSAGE_TYPE_TOKEN_UPDATE:
-		err = s.processTokenUpdateMessage(ctx, userEmail, connectionID, &protoMessage)
+	case v1.ClientMessageType_CLIENT_MESSAGE_TYPE_TOKEN_UPDATE:
+		err = s.processTokenUpdateMessage(ctx, connection, &protoMessage)
 	default:
-		err = syserror.NewBadInput("unrecognised message, skipped", syserror.F("payload", string(payload)))
+		err = syserr.NewBadInput("unrecognised message, skipped", syserr.F("payload", string(payload)))
 	}
 
 	return err
 }
 
-func (s *Service) processTokenUpdateMessage(ctx context.Context, userEmail string, connectionID string, protoMessage *protopbV1.ClientMessage) error {
-	info, err := s.auth.ExtractAuthInfoFromToken(ctx, protoMessage.GetTokenUpdate().Token)
+func (s *WebsocketServer) processTokenUpdateMessage(ctx context.Context, connection *WebsocketConnection, protoMessage *v1.ClientMessage) error {
+	token := protoMessage.GetTokenUpdate().GetToken()
+
+	sup, expiry, err := s.authService.ValidateToken(ctx, token)
 	if err != nil {
-		return syserror.WrapAsInternal(err, "could not read the token")
+		return syserr.NewBadInput("could not validate token")
 	}
 
-	conn, _ := s.connections.Get(s.makeConnMapKey(userEmail, connectionID))
-	conn.expiresAt = &info.ExpiresAt
+	if *connection.userSup != sup {
+		return syserr.NewBadInput("user in the token is different from the connection owner")
+	}
 
-	log.InfoCtx(ctx, "token message was processed")
+	connection.expiresAt = lo.ToPtr(time.Unix(expiry, 0))
+
+	s.loggerService.Info(ctx, "token message was processed")
 
 	return nil
 }

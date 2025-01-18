@@ -27,7 +27,7 @@ func GetGRPCUserPopulator(authService interfaces.AuthService, userService interf
 			return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not validate token")
 		}
 
-		sup, err := authService.ValidateToken(ctx, token)
+		sup, _, err := authService.ValidateToken(ctx, token)
 		if err != nil {
 			return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not validate token")
 		}
