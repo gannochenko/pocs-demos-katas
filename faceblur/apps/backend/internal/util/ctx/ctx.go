@@ -7,12 +7,10 @@ import (
 )
 
 type (
-	timestampIDKey string
 	operationIDKey string
 	userKey        string
 )
 
-const TimestampIDKey timestampIDKey = "Timestamp"
 const OperationIDKey operationIDKey = "OperationID"
 const UserKey userKey = "User"
 
@@ -50,4 +48,14 @@ func GetUser(ctx context.Context) *domain.User {
 	user := value.(domain.User)
 
 	return &user
+}
+
+func IsDone(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		return true
+	default:
+	}
+
+	return false
 }

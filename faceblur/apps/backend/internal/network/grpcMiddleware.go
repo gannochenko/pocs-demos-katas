@@ -14,50 +14,38 @@ import (
 	"google.golang.org/grpc/status"
 
 	"backend/interfaces"
-	"backend/internal/database"
 	ctxUtil "backend/internal/util/ctx"
 	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
 	"backend/internal/util/types"
 )
 
-func GetUserPopulator(loggerService interfaces.LoggerService, authService interfaces.AuthService, userRepository interfaces.UserRepository) grpc.UnaryServerInterceptor {
+func GetGRPCUserPopulator(authService interfaces.AuthService, userService interfaces.UserService) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		token, err := authService.ExtractToken(ctx)
 		if err != nil {
-			return nil, syserr.Wrap(err, "missing token")
+			return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not validate token")
 		}
 
 		sup, err := authService.ValidateToken(ctx, token)
 		if err != nil {
-			return nil, syserr.Wrap(err, "could validate token")
+			return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not validate token")
 		}
 
-		// sup := "auth0:19482" // debug user
+		//sup := "auth0:19482" // debug user
 
-		users, err := userRepository.List(ctx, nil, database.UserListParameters{
-			Filter: &database.UserFilter{
-				Sup: &sup,
-			},
-		})
+		user, err := userService.GetUserBySUP(ctx, nil, sup)
 		if err != nil {
 			return nil, syserr.Wrap(err, "error getting user", syserr.F("sup", sup))
-		} else if len(users) == 0 {
-			return nil, syserr.Wrap(err, "no user found", syserr.F("sup", sup))
 		} else {
-			domainUser, err := users[0].ToDomain()
-			if err != nil {
-				return nil, syserr.Wrap(err, "could not convert to domain", syserr.F("sup", sup))
-			} else {
-				ctx = ctxUtil.WithUser(ctx, *domainUser)
-			}
+			ctx = ctxUtil.WithUser(ctx, *user)
 		}
 
 		return handler(ctx, req)
 	}
 }
 
-func PopulateOperationID(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func GRPCPopulateOperationID(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	operationID := uuid.New().String()
 	ctx = ctxUtil.WithOperationID(ctx, operationID)
 
@@ -68,7 +56,7 @@ func PopulateOperationID(ctx context.Context, req interface{}, _ *grpc.UnaryServ
 	return handler(ctxUtil.WithOperationID(ctx, uuid.New().String()), req)
 }
 
-func GetRequestLogger(loggerService interfaces.LoggerService) grpc.UnaryServerInterceptor {
+func GRPCGetRequestLogger(loggerService interfaces.LoggerService) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		resp, err := handler(ctx, req)
 
@@ -109,7 +97,7 @@ var (
 	}
 )
 
-func MapError(
+func GRPCMapError(
 	ctx context.Context,
 	req interface{},
 	_ *grpc.UnaryServerInfo,

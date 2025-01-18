@@ -179,7 +179,7 @@ func _ImageService_ListImages_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 // ImageService_ServiceDesc is the grpc.ServiceDesc for ImageService service.
-// It's only intended for direct use with grpc.RegisterService,
+// It's only intended for direct use with grpc.RegisterGRPCService,
 // and not to be introspected or modified (even as a copy)
 var ImageService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "faceblur.image.v1.ImageService",

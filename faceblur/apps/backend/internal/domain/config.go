@@ -18,7 +18,7 @@ type StorageConfig struct {
 }
 
 type CorsConfig struct {
-	Origin string `envconfig:"ORIGIN" default:"" desc:"http cors origin"`
+	Origin []string `envconfig:"ORIGIN" default:"" desc:"http cors origin"`
 }
 
 type HTTPConfig struct {

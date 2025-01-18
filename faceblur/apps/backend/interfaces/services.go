@@ -35,3 +35,7 @@ type AuthService interface {
 	ValidateToken(ctx context.Context, token string) (string, error)
 	ExtractToken(ctx context.Context) (string, error)
 }
+
+type UserService interface {
+	GetUserBySUP(ctx context.Context, sessionHandle SessionHandle, sup string) (*domain.User, error)
+}

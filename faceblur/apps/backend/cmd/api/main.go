@@ -39,7 +39,7 @@ func run(w io.Writer) error {
 	loggerService := serviceFactory.GetLoggerService()
 
 	gRPCSever := network.NewGRPCServer(
-		&network.Controllers{
+		&network.GRPCControllers{
 			ImageServiceV1: v1.NewImageController(
 				loggerService,
 				serviceFactory.GetImageService(),
@@ -49,18 +49,31 @@ func run(w io.Writer) error {
 		},
 		loggerService,
 		serviceFactory.GetAuthService(),
-		serviceFactory.GetRepositoryFactory().GetUserRepository(),
+		serviceFactory.GetUserService(),
 	)
-	HTTPServer := network.NewHTTPServer(serviceFactory.GetConfigService())
+	websocketServer := network.NewWebsocketServer(
+		serviceFactory.GetConfigService(),
+		serviceFactory.GetAuthService(),
+		serviceFactory.GetLoggerService(),
+	)
+	HTTPServer := network.NewHTTPServer(serviceFactory.GetConfigService(), websocketServer)
 
 	var shutdownSequenceWg sync.WaitGroup
-	shutdownSequenceWg.Add(2)
+	shutdownSequenceWg.Add(3)
 
 	go func() {
 		shutdownSequenceWg.Done()
 		localErr := gRPCSever.Start(ctx, configuration)
 		if localErr != nil {
 			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start gRPC server"))
+		}
+	}()
+
+	go func() {
+		shutdownSequenceWg.Done()
+		localErr := websocketServer.Start(ctx)
+		if localErr != nil {
+			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start websocket server"))
 		}
 	}()
 
@@ -84,6 +97,10 @@ func run(w io.Writer) error {
 
 	cancel()
 	gRPCSever.Stop()
+	err = websocketServer.Stop()
+	if err != nil {
+		loggerService.LogError(ctx, err)
+	}
 	err = HTTPServer.Stop(ctx)
 	if err != nil {
 		loggerService.LogError(ctx, err)

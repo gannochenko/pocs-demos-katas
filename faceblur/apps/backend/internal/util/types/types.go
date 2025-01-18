@@ -1,9 +1,14 @@
 package types
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 type CbWithError func() error
 type Cb func()
+
+type HTTPHandler func(http.ResponseWriter, *http.Request) error
 
 func Unwrap[T any](input []T, def T) T {
 	if input == nil || len(input) == 0 {

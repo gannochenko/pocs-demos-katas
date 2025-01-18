@@ -6,28 +6,21 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 
-	imagepb "backend/proto/image/v1"
+	imagepbV1 "backend/proto/image/v1"
 )
 
-// https://github.com/grpc-ecosystem/grpc-gateway/
-
-type APISchemaItem struct {
-	RegisterClient  func(ctx context.Context, mux *runtime.ServeMux, gRPCConnection *grpc.ClientConn) error
-	RegisterService func(grpcServer *grpc.Server, controllers *Controllers)
-}
-
-type Controllers struct {
-	ImageServiceV1 imagepb.ImageServiceServer
+type GRPCControllers struct {
+	ImageServiceV1 imagepbV1.ImageServiceServer
 }
 
 var (
-	APISchema = []APISchemaItem{
+	GRPCAPI = []GRPCAPIItem{
 		{
-			RegisterClient: func(ctx context.Context, mux *runtime.ServeMux, gRPCConnection *grpc.ClientConn) error {
-				return imagepb.RegisterImageServiceHandlerClient(ctx, mux, imagepb.NewImageServiceClient(gRPCConnection))
+			RegisterHTTPClient: func(ctx context.Context, mux *runtime.ServeMux, gRPCConnection *grpc.ClientConn) error {
+				return imagepbV1.RegisterImageServiceHandlerClient(ctx, mux, imagepbV1.NewImageServiceClient(gRPCConnection))
 			},
-			RegisterService: func(grpcServer *grpc.Server, controllers *Controllers) {
-				imagepb.RegisterImageServiceServer(grpcServer, controllers.ImageServiceV1)
+			RegisterGRPCService: func(grpcServer *grpc.Server, controllers *GRPCControllers) {
+				imagepbV1.RegisterImageServiceServer(grpcServer, controllers.ImageServiceV1)
 			},
 		},
 	}

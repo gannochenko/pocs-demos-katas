@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -29,15 +30,49 @@ type HTTPServer struct {
 	server         *http.Server
 	gRPCConnection *grpc.ClientConn
 
-	configService interfaces.ConfigService
+	configService   interfaces.ConfigService
+	websocketServer interfaces.WebsocketServer
 }
 
-func NewHTTPServer(configService interfaces.ConfigService) *HTTPServer {
-	return &HTTPServer{configService: configService}
+func NewHTTPServer(configService interfaces.ConfigService, websocketServer interfaces.WebsocketServer) *HTTPServer {
+	return &HTTPServer{configService: configService, websocketServer: websocketServer}
 }
 
 func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
-	mux := runtime.NewServeMux(
+	mainRouter := mux.NewRouter()
+
+	proxyMux, err := s.getGRPCProxyMux(ctx)
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not create grpc proxy mux")
+	}
+
+	// todo: put some actual logic in here if needed
+	mainRouter.HandleFunc("/liveness", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("1"))
+	})
+	mainRouter.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("1"))
+	})
+	mainRouter.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		_ = withHTTPLogger(withHTTPErrorHandler(withHTTPContext(s.websocketServer.GetHandler())))(w, r)
+	})
+	mainRouter.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxyMux.ServeHTTP(w, r)
+	})
+
+	config, err := s.configService.GetConfig()
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not get config")
+	}
+
+	externalMux := withCorsMiddleware(mainRouter, config)
+
+	return externalMux, nil
+}
+
+// getGRPCProxyMux creates a mux that serves all paths declared in the protobuf files
+func (s *HTTPServer) getGRPCProxyMux(ctx context.Context) (*runtime.ServeMux, error) {
+	proxyMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption("*", &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{
 				EmitUnpopulated: true,
@@ -65,23 +100,14 @@ func (s *HTTPServer) GetMux(ctx context.Context) (http.Handler, error) {
 		runtime.WithErrorHandler(customErrorHandler),
 	)
 
-	for _, schemaItem := range APISchema {
-		err := schemaItem.RegisterClient(ctx, mux, s.gRPCConnection)
+	for _, schemaItem := range GRPCAPI {
+		err := schemaItem.RegisterHTTPClient(ctx, proxyMux, s.gRPCConnection)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	config, err := s.configService.GetConfig()
-	if err != nil {
-		return nil, syserr.Wrap(err, "could not get config")
-	}
-
-	muxAlt := corsMiddleware(mux, config)
-
-	// todo: add healthcheck and liveness here
-
-	return muxAlt, nil
+	return proxyMux, nil
 }
 
 func (s *HTTPServer) Start(ctx context.Context, config *domain.Config) error {
@@ -91,14 +117,14 @@ func (s *HTTPServer) Start(ctx context.Context, config *domain.Config) error {
 		return syserr.Wrap(err, "could not connect to gRPC server")
 	}
 
-	mux, err := s.GetMux(ctx)
+	serverMux, err := s.GetMux(ctx)
 	if err != nil {
 		return err
 	}
 
 	s.server = &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.HTTP.Port),
-		Handler: mux,
+		Handler: serverMux,
 		BaseContext: func(l net.Listener) context.Context {
 			return ctx
 		},
@@ -167,40 +193,4 @@ func customErrorHandler(ctx context.Context, mux *runtime.ServeMux, _ runtime.Ma
 	}
 
 	json.NewEncoder(w).Encode(responseError)
-}
-
-// corsMiddleware adds CORS headers. Normally Kubernetes ingress or CDN takes care of that, but for the dev purposes we add it here as well.
-func corsMiddleware(next http.Handler, config *domain.Config) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		allowedOrigin := config.HTTP.Cors.Origin
-
-		// Handle CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if r.Method == http.MethodOptions {
-			// Handle preflight OPTIONS request
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-func corsMiddleware2(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Change "*" to specific domains in production
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		// Handle preflight requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Call the next handler
-		next.ServeHTTP(w, r)
-	})
 }
