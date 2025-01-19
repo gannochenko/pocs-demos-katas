@@ -9,6 +9,7 @@ import (
 	"backend/interfaces"
 	"backend/internal/service/auth"
 	"backend/internal/service/config"
+	"backend/internal/service/eventBus"
 	"backend/internal/service/image"
 	"backend/internal/service/logger"
 	"backend/internal/service/storage"
@@ -23,12 +24,13 @@ type Factory struct {
 
 	sessionManager interfaces.SessionManager
 
-	configService  interfaces.ConfigService
-	loggerService  interfaces.LoggerService
-	imageService   interfaces.ImageService
-	storageService interfaces.StorageService
-	authService    interfaces.AuthService
-	userService    interfaces.UserService
+	configService   interfaces.ConfigService
+	loggerService   interfaces.LoggerService
+	imageService    interfaces.ImageService
+	storageService  interfaces.StorageService
+	authService     interfaces.AuthService
+	userService     interfaces.UserService
+	eventBusService interfaces.EventBusService
 }
 
 func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFactory *repository.Factory) *Factory {
@@ -111,4 +113,12 @@ func (f *Factory) GetUserService() interfaces.UserService {
 	}
 
 	return f.userService
+}
+
+func (f *Factory) GetEventBusService() interfaces.EventBusService {
+	if f.eventBusService == nil {
+		f.eventBusService = eventBus.NewEventBusService()
+	}
+
+	return f.eventBusService
 }

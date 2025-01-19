@@ -10,6 +10,7 @@ import { StateProviders } from '../../states/providers';
 import { NetworkStatusProvider } from '../NetworkStatusProvider';
 import { i18n } from '../../i18n/i18n';
 import {Auth0Provider} from "../Auth0Provider";
+import {WebsocketProvider} from "../WebsocketProvider";
 
 const queryClient = new QueryClient();
 
@@ -20,19 +21,21 @@ export const Providers = ({ children }: PropsWithChildren) => {
     return (
         <BrowserRouter>
             <Auth0Provider>
-                <CssVarsProvider theme={theme}>
-                    <QueryClientProvider client={queryClient}>
-                        <SnackbarProvider maxSnack={5}>
-                            <NetworkStatusProvider>
-                                <I18nextProvider i18n={i18n}>
-                                    <StateProviders>
-                                        {children}
-                                    </StateProviders>
-                                </I18nextProvider>
-                            </NetworkStatusProvider>
-                        </SnackbarProvider>
-                    </QueryClientProvider>
-                </CssVarsProvider>
+                <WebsocketProvider>
+                    <CssVarsProvider theme={theme}>
+                        <QueryClientProvider client={queryClient}>
+                            <SnackbarProvider maxSnack={5}>
+                                <NetworkStatusProvider>
+                                    <I18nextProvider i18n={i18n}>
+                                        <StateProviders>
+                                            {children}
+                                        </StateProviders>
+                                    </I18nextProvider>
+                                </NetworkStatusProvider>
+                            </SnackbarProvider>
+                        </QueryClientProvider>
+                    </CssVarsProvider>
+                </WebsocketProvider>
             </Auth0Provider>
         </BrowserRouter>
     );

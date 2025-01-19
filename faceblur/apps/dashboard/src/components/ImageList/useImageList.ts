@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useAuth0} from "@auth0/auth0-react";
 import {PetListProps} from "./type";
 import {useListImages} from "../../hooks";
@@ -6,11 +6,25 @@ import {ImageModel, Upload} from "../../models/image";
 import {GetUploadURL, SubmitImage} from "../../proto/image/v1/image";
 import {isErrorResponse, uploadFile} from "../../util/fetch";
 import {useNotification} from "../../hooks/notification";
+import {useWebsocketContext} from "../WebsocketProvider";
+import {ServerMessage, ServerMessageType} from "../../proto/websocket/v1/websocket";
 
 const useUploader = () => {
 	const [uploads, setUploads] = useState<Upload[]>([]);
 	const { getAccessTokenSilently } = useAuth0();
 	const {showError} = useNotification();
+	const {addEventListener, removeEventListener} = useWebsocketContext();
+
+	useEffect(() => {
+		const handler = (payload: ServerMessage) => {
+			console.log("RECEIVED");
+			console.log(payload);
+		};
+
+		addEventListener(ServerMessageType.SERVER_MESSAGE_TYPE_IMAGE_LIST, handler);
+
+		return () => removeEventListener(ServerMessageType.SERVER_MESSAGE_TYPE_IMAGE_LIST, handler);
+	}, [addEventListener, removeEventListener]);
 
 	const updateUpload = (id: string, updateCb: (upload: Upload) => Upload) => {
 		setUploads(prevState => {

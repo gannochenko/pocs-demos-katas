@@ -39,3 +39,5 @@ type AuthService interface {
 type UserService interface {
 	GetUserBySUP(ctx context.Context, sessionHandle SessionHandle, sup string) (*domain.User, error)
 }
+
+type EventBusService interface{}

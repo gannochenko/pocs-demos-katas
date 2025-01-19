@@ -8,6 +8,8 @@ export function isErrorResponse(response: any): response is ErrorResponse {
 
 export const apiUrl = process.env.REACT_APP_API_URL;
 
+export const getAPIURL = () => apiUrl;
+
 export const fetchWithRetry = fetchRetry(fetch, {
 	retries: 3,
 	retryDelay: function(attempt, error, response) {

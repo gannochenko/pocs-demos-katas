@@ -61,8 +61,8 @@ func (c *WebsocketConnection) NotValid() <-chan struct{} {
 }
 
 func (c *WebsocketConnection) Close() error {
-	close(c.outgoingChan)
-	close(c.incomingChan)
+	types.CloseChannelSafely(c.outgoingChan)
+	types.CloseChannelSafely(c.incomingChan)
 
 	err := c.wsConnection.Close()
 	if err != nil {
@@ -83,11 +83,12 @@ type incomingMessage struct {
 }
 
 type WebsocketServer struct {
-	configService interfaces.ConfigService
-	authService   interfaces.AuthService
-	loggerService interfaces.LoggerService
-	userService   interfaces.UserService
-	connections   sync.Map
+	configService   interfaces.ConfigService
+	authService     interfaces.AuthService
+	loggerService   interfaces.LoggerService
+	userService     interfaces.UserService
+	eventBusService interfaces.EventBusService
+	connections     sync.Map
 }
 
 func NewWebsocketServer(
@@ -95,17 +96,22 @@ func NewWebsocketServer(
 	authService interfaces.AuthService,
 	loggerService interfaces.LoggerService,
 	userService interfaces.UserService,
+	eventBusService interfaces.EventBusService,
 ) *WebsocketServer {
 	return &WebsocketServer{
-		configService: configService,
-		authService:   authService,
-		loggerService: loggerService,
-		userService:   userService,
+		configService:   configService,
+		authService:     authService,
+		loggerService:   loggerService,
+		userService:     userService,
+		eventBusService: eventBusService,
 	}
 }
 
 func (s *WebsocketServer) Start(ctx context.Context) error {
-	return nil
+	select {
+	case <-ctx.Done():
+		return nil
+	}
 }
 
 func (s *WebsocketServer) Stop() error {
@@ -253,7 +259,12 @@ func (s *WebsocketServer) getUpgrader() (*websocket.Upgrader, error) {
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
-			return lo.Contains(config.HTTP.Cors.Origin, r.Header.Get("Origin"))
+			allowedOrigins := config.HTTP.Cors.Origin
+			if lo.Contains(allowedOrigins, "*") {
+				return true
+			}
+
+			return lo.Contains(allowedOrigins, r.Header.Get("Origin"))
 		},
 	}, nil
 }
@@ -299,14 +310,14 @@ func (s *WebsocketServer) createIncomingChannel(ctx context.Context, conn *webso
 	go func() {
 		for {
 			if ctxUtil.IsDone(ctx) {
-				close(messageChan)
+				types.CloseChannelSafely(messageChan)
 				return
 			}
 
 			messageType, message, err := conn.ReadMessage()
 			if err != nil {
 				s.loggerService.LogError(ctx, syserr.Wrap(err, "could not read incoming message"))
-				close(messageChan)
+				types.CloseChannelSafely(messageChan)
 				cancel()
 				return
 			}
@@ -331,6 +342,7 @@ func (s *WebsocketServer) processMessage(ctx context.Context, connection *Websoc
 	switch protoMessage.GetType() {
 	case v1.ClientMessageType_CLIENT_MESSAGE_TYPE_TOKEN_UPDATE:
 		err = s.processTokenUpdateMessage(ctx, connection, &protoMessage)
+	// todo: add more types here when needed
 	default:
 		err = syserr.NewBadInput("unrecognised message, skipped", syserr.F("payload", string(payload)))
 	}

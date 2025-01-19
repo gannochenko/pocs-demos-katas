@@ -14,7 +14,7 @@ export const protobufPackage = "google.protobuf";
  * or the response type of an API method. For instance:
  *
  *     service Foo {
- *       rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
+ *       rpc Bar(Record<string, any>) returns (Record<string, any>);
  *     }
  *
  * The JSON representation for `Empty` is empty JSON object `{}`.

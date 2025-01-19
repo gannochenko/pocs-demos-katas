@@ -21,3 +21,16 @@ func Unwrap[T any](input []T, def T) T {
 func GetNowUTC() time.Time {
 	return time.Now().UTC().Truncate(time.Second)
 }
+
+func CloseChannelSafely[P any](ch chan P) {
+	select {
+	case _, ok := <-ch:
+		if !ok {
+			// Channel is already closed
+			return
+		}
+	default:
+		// Channel is not yet closed; safe to close
+	}
+	close(ch)
+}

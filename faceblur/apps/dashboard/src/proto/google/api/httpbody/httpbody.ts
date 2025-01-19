@@ -34,7 +34,7 @@ export const protobufPackage = "google.api";
  *     service ResourceService {
  *       rpc GetResource(GetResourceRequest) returns (google.api.HttpBody);
  *       rpc UpdateResource(google.api.HttpBody) returns
- *       (google.protobuf.Empty);
+ *       (Record<string, any>);
  *     }
  *
  * Example with streaming methods:
