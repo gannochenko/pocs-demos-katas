@@ -25,8 +25,23 @@ services:
         networks:
             - faceblur-net
 
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        ports:
+            - "5672:5672"   # RabbitMQ main port
+            - "15672:15672" # Management web interface port
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        networks:
+            - faceblur-net
+
 volumes:
     postgres-data:
+    rabbitmq_data:
 
 networks:
     faceblur-net:
