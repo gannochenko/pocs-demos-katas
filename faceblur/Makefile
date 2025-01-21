@@ -27,6 +27,7 @@ install: ## Install external dependencies and resources.
 
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
 	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
+	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_eventbus.py
 	@$(MAKE) -C ./apps/backend/ create_resources
 
 list_resources: ## List all local resources
