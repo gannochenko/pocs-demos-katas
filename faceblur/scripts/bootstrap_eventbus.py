@@ -1,3 +1,4 @@
+import os
 import pika
 
 def provision_rabbitmq_queue_and_exchange(host, exchange_name, queue_name, routing_key, exchange_type='direct'):
