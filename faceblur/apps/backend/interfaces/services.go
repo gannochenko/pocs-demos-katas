@@ -43,5 +43,5 @@ type UserService interface {
 type EventBusService interface {
 	Start(ctx context.Context) error
 	Stop() error
-	TriggerEvent(eventType domain.EventBusEventType, payload []byte) error
+	TriggerEvent(eventType domain.EventBusEventType, event *domain.EventBusEvent) error
 }
