@@ -1,6 +1,6 @@
 const ejs = require('ejs');
 
-const template = `import { customFetch } from "../../../util/fetch";
+const template = `<% if(services.length) { %>import { customFetch } from "../../../util/fetch";<% } %>
 
 <%- protocOutput %>
 <% services.forEach(service => { %>
