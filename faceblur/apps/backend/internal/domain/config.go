@@ -26,6 +26,12 @@ type HTTPConfig struct {
 	Cors CorsConfig `envconfig:"CORS"`
 }
 
+type RabbitMqConfig struct {
+	Host      string `envconfig:"HOST"`
+	Port      int    `envconfig:"PORT"`
+	QueueName string `envconfig:"QUEUE_NAME"`
+}
+
 type Config struct {
 	Postgres PostgresConfig `envconfig:"POSTGRES"`
 	LogLevel string         `envconfig:"LOG_LEVEL" default:"info" desc:"logging level"`
@@ -35,4 +41,5 @@ type Config struct {
 	Env      string         `envconfig:"ENV"`
 	GCP      GCPConfig      `envconfig:"GCP"`
 	Storage  StorageConfig  `envconfig:"STORAGE"`
+	RabbitMq RabbitMqConfig `envconfig:"RABBITMQ"`
 }

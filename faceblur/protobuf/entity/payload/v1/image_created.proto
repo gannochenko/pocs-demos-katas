@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package faceblur.entity.payload.v1;
+
+option go_package = "backend/proto/entity/payload/v1";
+
+message ImageCreated {
+}

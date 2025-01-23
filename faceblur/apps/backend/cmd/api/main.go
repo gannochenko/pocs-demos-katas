@@ -60,8 +60,10 @@ func run(w io.Writer) error {
 	)
 	HTTPServer := network.NewHTTPServer(serviceFactory.GetConfigService(), websocketServer)
 
+	eventBusService := serviceFactory.GetEventBusService()
+
 	var shutdownSequenceWg sync.WaitGroup
-	shutdownSequenceWg.Add(3)
+	shutdownSequenceWg.Add(4)
 
 	go func() {
 		shutdownSequenceWg.Done()
@@ -87,6 +89,14 @@ func run(w io.Writer) error {
 		}
 	}()
 
+	go func() {
+		shutdownSequenceWg.Done()
+		localErr := eventBusService.Start(ctx)
+		if localErr != nil {
+			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start event bus"))
+		}
+	}()
+
 	// add more background tasks here if needed
 
 	loggerService.Info(ctx, fmt.Sprintf("service started, HTTP port %d, gRPC port %d", configuration.HTTP.Port, configuration.GRPCPort))
@@ -104,6 +114,10 @@ func run(w io.Writer) error {
 		loggerService.LogError(ctx, err)
 	}
 	err = HTTPServer.Stop(ctx)
+	if err != nil {
+		loggerService.LogError(ctx, err)
+	}
+	err = eventBusService.Stop()
 	if err != nil {
 		loggerService.LogError(ctx, err)
 	}

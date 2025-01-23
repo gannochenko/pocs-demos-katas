@@ -77,6 +77,7 @@ func (f *Factory) GetImageService() interfaces.ImageService {
 			f.repositoryFactory.GetImageProcessingQueueRepository(),
 			f.GetStorageService(),
 			f.GetConfigService(),
+			f.GetEventBusService(),
 		)
 	}
 
@@ -117,7 +118,7 @@ func (f *Factory) GetUserService() interfaces.UserService {
 
 func (f *Factory) GetEventBusService() interfaces.EventBusService {
 	if f.eventBusService == nil {
-		f.eventBusService = eventBus.NewEventBusService()
+		f.eventBusService = eventBus.NewEventBusService(f.GetConfigService())
 	}
 
 	return f.eventBusService

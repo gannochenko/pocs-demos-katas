@@ -4,14 +4,13 @@ import { customFetch } from "../../../util/fetch";
 // versions:
 //   protoc-gen-ts_proto  v2.6.1
 //   protoc               v3.19.4
-// source: common/error/v1/error.proto
+// source: entity/payload/v1/image_created.proto
 
 /* eslint-disable */
 
-export const protobufPackage = "faceblur.common.error.v1";
+export const protobufPackage = "faceblur.entity.payload.v1";
 
-export interface ErrorResponse {
-  error: string;
+export interface ImageCreated {
 }
 
 

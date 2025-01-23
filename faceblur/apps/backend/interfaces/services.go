@@ -40,4 +40,8 @@ type UserService interface {
 	GetUserBySUP(ctx context.Context, sessionHandle SessionHandle, sup string) (*domain.User, error)
 }
 
-type EventBusService interface{}
+type EventBusService interface {
+	Start(ctx context.Context) error
+	Stop() error
+	TriggerEvent(eventType domain.EventBusEventType, payload []byte) error
+}

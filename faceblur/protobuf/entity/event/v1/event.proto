@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package faceblur.entity.event.v1;
+
+option go_package = "backend/proto/entity/event/v1";
+
+import "entity/payload/v1/image_created.proto";
+
+message Event {
+  oneof payload {
+    entity.payload.v1.ImageCreated image_created = 1;
+  }
+}

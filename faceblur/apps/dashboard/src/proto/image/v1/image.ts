@@ -53,6 +53,7 @@ export interface ImageService {
 }
 
 
+
 /*
 GetUploadURL returns a new signed URL for image upload
 */
@@ -73,4 +74,5 @@ ListImages returns a list of user images, paginated and sorted by creation date
 export async function ListImages(request: ListImagesRequest, token?: string) {
   return customFetch<ListImagesRequest, ListImagesResponse>("/v1/image/list", request, token);
 }
+
 

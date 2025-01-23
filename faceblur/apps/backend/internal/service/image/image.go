@@ -20,6 +20,7 @@ type Service struct {
 	loggerService                  interfaces.LoggerService
 	storageService                 interfaces.StorageService
 	configService                  interfaces.ConfigService
+	eventBusService                interfaces.EventBusService
 }
 
 func NewImageService(
@@ -28,6 +29,7 @@ func NewImageService(
 	imageProcessingQueueRepository interfaces.ImageProcessingQueueRepository,
 	storageService interfaces.StorageService,
 	configService interfaces.ConfigService,
+	eventBusService interfaces.EventBusService,
 ) *Service {
 	return &Service{
 		sessionManager:                 sessionManager,
@@ -35,6 +37,7 @@ func NewImageService(
 		imageProcessingQueueRepository: imageProcessingQueueRepository,
 		storageService:                 storageService,
 		configService:                  configService,
+		eventBusService:                eventBusService,
 	}
 }
 
@@ -86,7 +89,10 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		return nil, syserr.Wrap(err, "could not commit transaction")
 	}
 
-	// todo: create message queue event
+	err = s.eventBusService.TriggerEvent()
+	if err != nil {
+		return nil, syserr.Wrap(err, "could trigger an event")
+	}
 
 	images, err := s.imageRepository.List(ctx, nil, database.ImageListParameters{
 		Filter: &database.ImageFilter{
