@@ -63,7 +63,7 @@ build_backend_proto:
 build_dashboard_proto:
 	@rm -rf $(PROTO_OUT_DASHBOARD_DIR)
 	@mkdir -p $(PROTO_OUT_DASHBOARD_DIR)
-	@protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs
+	@DEBUG=app:* protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs --with-json-decoder
 
 build_proto:
 	@make build_backend_proto

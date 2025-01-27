@@ -89,7 +89,12 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		return nil, syserr.Wrap(err, "could not commit transaction")
 	}
 
-	err = s.eventBusService.TriggerEvent()
+	err = s.eventBusService.TriggerEvent(&domain.EventBusEvent{
+		Type: domain.EventBusEventTypeImageCreated,
+		Payload: &domain.EventBusEventPayloadImageCreated{
+			ImageID: imageID,
+		},
+	})
 	if err != nil {
 		return nil, syserr.Wrap(err, "could trigger an event")
 	}

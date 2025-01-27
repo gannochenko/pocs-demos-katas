@@ -1,15 +1,38 @@
 const ejs = require('ejs');
 
-const template = `<% if(services.length) { %>import { customFetch } from "../../../util/fetch";<% } %>
+const template = `<% if(services.length) { %>import { customFetch, isErrorResponse } from "../../../util/fetch";<% } %>
 
 <%- protocOutput %>
+<% if(hasAnyServices) { %>
+type DeepNonUndefined<T> = T extends object
+? {
+  [K in keyof T]: DeepNonUndefined<Exclude<T[K], undefined>>;
+}
+: T;
+
+type DeepReplaceDateWithNullable<T> = T extends Date
+  ? Date | null
+  : T extends object
+  ? {
+      [K in keyof T]: DeepReplaceDateWithNullable<T[K]>;
+    }
+  : T;
+<% } %>
+
 <% services.forEach(service => { %>
 <% service.methods.forEach(method => { %>
 /*
 <%= method.comment %>
 */
 export async function <%= method.name %>(request: <%= method.requestType %>, token?: string) {
-  return customFetch<<%= method.requestType %>, <%= method.responseType %>>("<%= method.url %>", request, token);
+  const data = await customFetch<<%= method.requestType %>, <%= method.responseType %>>("<%= method.url %>", request, token);
+  if (isErrorResponse(data)) {
+    return data;
+  }
+
+  await <%= method.responseType %>Decoder.decodeToPromise(data);
+  
+  return data;
 }
 <% }); %>
 <% }); %>
@@ -17,6 +40,17 @@ export async function <%= method.name %>(request: <%= method.requestType %>, tok
 
 module.exports = {
     renderTemplate: (data) => {
-        return ejs.render(template, data);
+        let hasAnyServices = false;
+        for(let i = 0; i < data.services.length; i++) {
+            if (data.services[i].methods.length) {
+                hasAnyServices = true;
+                break;
+            }
+        }
+
+        return ejs.render(template, {
+            ...data,
+            hasAnyServices,
+        });
     },
 };

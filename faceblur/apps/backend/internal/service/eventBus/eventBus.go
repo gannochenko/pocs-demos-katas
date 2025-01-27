@@ -10,6 +10,7 @@ import (
 
 	"backend/interfaces"
 	"backend/internal/domain"
+	v1 "backend/internal/proto/entity/image/event/v1"
 	"backend/internal/util/syserr"
 )
 
@@ -72,11 +73,13 @@ func (s *Service) AddEventListener(eventType domain.EventBusEventType, cb func(p
 	return nil
 }
 
-func (s *Service) TriggerEvent(eventType domain.EventBusEventType, event *domain.EventBusEvent) error {
+func (s *Service) TriggerEvent(event *domain.EventBusEvent) error {
 	headers := map[string]any{}
-	headers["eventType"] = eventType
+	headers["eventType"] = event.Type
 
-	msgBytes, err := proto.Marshal(event)
+	protoEvent := v1.ConvertEventFromProto(event)
+
+	msgBytes, err := proto.Marshal(protoEvent)
 	if err != nil {
 		return syserr.Wrap(err, "could not marshal an event payload")
 	}
