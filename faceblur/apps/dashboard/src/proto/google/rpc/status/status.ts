@@ -84,9 +84,9 @@ export interface Status {
 
 export const StatusDecoder = JsonDecoder.object(
     {
-		code: JsonDecoder.optional(JsonDecoder.number),
-		message: JsonDecoder.optional(JsonDecoder.string),
-		details: JsonDecoder.optional(JsonDecoder.array(AnyDecoder, "arrayOfDetails")),
+		code: JsonDecoder.number,
+		message: JsonDecoder.string,
+		details: JsonDecoder.array(AnyDecoder, "arrayOfDetails"),
     },
     "Status"
 );

@@ -131,8 +131,8 @@ export interface Any {
 
 export const AnyDecoder = JsonDecoder.object(
     {
-		typeUrl: JsonDecoder.optional(JsonDecoder.string),
-		value: JsonDecoder.optional(JsonDecoder.string),
+		typeUrl: JsonDecoder.string,
+		value: JsonDecoder.string,
     },
     "Any"
 );

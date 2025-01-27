@@ -175,34 +175,34 @@ export interface Mixin {
 
 export const MethodDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		requestTypeUrl: JsonDecoder.optional(JsonDecoder.string),
-		requestStreaming: JsonDecoder.optional(JsonDecoder.boolean),
-		responseTypeUrl: JsonDecoder.optional(JsonDecoder.string),
-		responseStreaming: JsonDecoder.optional(JsonDecoder.boolean),
-		options: JsonDecoder.optional(JsonDecoder.array(OptionDecoder, "arrayOfOptions")),
-		syntax: JsonDecoder.optional(SyntaxDecoder),
+		name: JsonDecoder.string,
+		requestTypeUrl: JsonDecoder.string,
+		requestStreaming: JsonDecoder.boolean,
+		responseTypeUrl: JsonDecoder.string,
+		responseStreaming: JsonDecoder.boolean,
+		options: JsonDecoder.array(OptionDecoder, "arrayOfOptions"),
+		syntax: SyntaxDecoder,
     },
     "Method"
 );
 
 export const MixinDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		root: JsonDecoder.optional(JsonDecoder.string),
+		name: JsonDecoder.string,
+		root: JsonDecoder.string,
     },
     "Mixin"
 );
 
 export const ApiDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		methods: JsonDecoder.optional(JsonDecoder.array(MethodDecoder, "arrayOfMethods")),
-		options: JsonDecoder.optional(JsonDecoder.array(OptionDecoder, "arrayOfOptions")),
-		version: JsonDecoder.optional(JsonDecoder.string),
-		sourceContext: JsonDecoder.optional(SourceContextDecoder),
-		mixins: JsonDecoder.optional(JsonDecoder.array(MixinDecoder, "arrayOfMixins")),
-		syntax: JsonDecoder.optional(SyntaxDecoder),
+		name: JsonDecoder.string,
+		methods: JsonDecoder.array(MethodDecoder, "arrayOfMethods"),
+		options: JsonDecoder.array(OptionDecoder, "arrayOfOptions"),
+		version: JsonDecoder.string,
+		sourceContext: SourceContextDecoder,
+		mixins: JsonDecoder.array(MixinDecoder, "arrayOfMixins"),
+		syntax: SyntaxDecoder,
     },
     "Api"
 );

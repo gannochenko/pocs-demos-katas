@@ -47,9 +47,9 @@ export interface DateMessage {
 
 export const DateMessageDecoder = JsonDecoder.object(
     {
-		year: JsonDecoder.optional(JsonDecoder.number),
-		month: JsonDecoder.optional(JsonDecoder.number),
-		day: JsonDecoder.optional(JsonDecoder.number),
+		year: JsonDecoder.number,
+		month: JsonDecoder.number,
+		day: JsonDecoder.number,
     },
     "DateMessage"
 );

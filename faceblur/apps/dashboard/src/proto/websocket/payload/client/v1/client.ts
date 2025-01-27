@@ -17,7 +17,7 @@ export interface TokenUpdate {
 
 export const TokenUpdateDecoder = JsonDecoder.object(
     {
-		token: JsonDecoder.optional(JsonDecoder.string),
+		token: JsonDecoder.string,
     },
     "TokenUpdate"
 );

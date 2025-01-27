@@ -52,40 +52,40 @@ export const GetUploadURLRequestDecoder = JsonDecoder.object(
 
 export const GetUploadURLResponseDecoder = JsonDecoder.object(
     {
-		version: JsonDecoder.optional(JsonDecoder.string),
-		url: JsonDecoder.optional(JsonDecoder.string),
-		objectName: JsonDecoder.optional(JsonDecoder.string),
+		version: JsonDecoder.string,
+		url: JsonDecoder.string,
+		objectName: JsonDecoder.string,
     },
     "GetUploadURLResponse"
 );
 
 export const SubmitImageRequestDecoder = JsonDecoder.object(
     {
-		image: JsonDecoder.optional(CreateImageDecoder),
+		image: CreateImageDecoder,
     },
     "SubmitImageRequest"
 );
 
 export const SubmitImageResponseDecoder = JsonDecoder.object(
     {
-		version: JsonDecoder.optional(JsonDecoder.string),
-		image: JsonDecoder.optional(ImageDecoder),
+		version: JsonDecoder.string,
+		image: ImageDecoder,
     },
     "SubmitImageResponse"
 );
 
 export const ListImagesRequestDecoder = JsonDecoder.object(
     {
-		pageNavigation: JsonDecoder.optional(PageNavigationRequestDecoder),
+		pageNavigation: PageNavigationRequestDecoder,
     },
     "ListImagesRequest"
 );
 
 export const ListImagesResponseDecoder = JsonDecoder.object(
     {
-		version: JsonDecoder.optional(JsonDecoder.string),
-		images: JsonDecoder.optional(JsonDecoder.array(ImageDecoder, "arrayOfImages")),
-		pageNavigation: JsonDecoder.optional(PageNavigationResponseDecoder),
+		version: JsonDecoder.string,
+		images: JsonDecoder.array(ImageDecoder, "arrayOfImages"),
+		pageNavigation: PageNavigationResponseDecoder,
     },
     "ListImagesResponse"
 );

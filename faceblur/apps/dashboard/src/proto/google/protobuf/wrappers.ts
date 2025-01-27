@@ -95,63 +95,63 @@ export interface BytesValue {
 
 export const DoubleValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.number),
+		value: JsonDecoder.number,
     },
     "DoubleValue"
 );
 
 export const FloatValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.number),
+		value: JsonDecoder.number,
     },
     "FloatValue"
 );
 
 export const Int64ValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.number),
+		value: JsonDecoder.number,
     },
     "Int64Value"
 );
 
 export const UInt64ValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.number),
+		value: JsonDecoder.number,
     },
     "UInt64Value"
 );
 
 export const Int32ValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.number),
+		value: JsonDecoder.number,
     },
     "Int32Value"
 );
 
 export const UInt32ValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.number),
+		value: JsonDecoder.number,
     },
     "UInt32Value"
 );
 
 export const BoolValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.boolean),
+		value: JsonDecoder.boolean,
     },
     "BoolValue"
 );
 
 export const StringValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.string),
+		value: JsonDecoder.string,
     },
     "StringValue"
 );
 
 export const BytesValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.string),
+		value: JsonDecoder.string,
     },
     "BytesValue"
 );

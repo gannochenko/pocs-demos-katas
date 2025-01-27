@@ -207,102 +207,102 @@ export interface LocalizedMessage {
 
 export const RetryInfoDecoder = JsonDecoder.object(
     {
-		retryDelay: JsonDecoder.optional(DurationDecoder),
+		retryDelay: DurationDecoder,
     },
     "RetryInfo"
 );
 
 export const DebugInfoDecoder = JsonDecoder.object(
     {
-		stackEntries: JsonDecoder.optional(JsonDecoder.array(JsonDecoder.string, "arrayOfStackEntries")),
-		detail: JsonDecoder.optional(JsonDecoder.string),
+		stackEntries: JsonDecoder.array(JsonDecoder.string, "arrayOfStackEntries"),
+		detail: JsonDecoder.string,
     },
     "DebugInfo"
 );
 
 export const QuotaFailureDecoder_ViolationDecoder = JsonDecoder.object(
     {
-		subject: JsonDecoder.optional(JsonDecoder.string),
-		description: JsonDecoder.optional(JsonDecoder.string),
+		subject: JsonDecoder.string,
+		description: JsonDecoder.string,
     },
     "Violation"
 );
 
 export const PreconditionFailureDecoder_ViolationDecoder = JsonDecoder.object(
     {
-		type: JsonDecoder.optional(JsonDecoder.string),
-		subject: JsonDecoder.optional(JsonDecoder.string),
-		description: JsonDecoder.optional(JsonDecoder.string),
+		type: JsonDecoder.string,
+		subject: JsonDecoder.string,
+		description: JsonDecoder.string,
     },
     "Violation"
 );
 
 export const BadRequestDecoder_FieldViolationDecoder = JsonDecoder.object(
     {
-		field: JsonDecoder.optional(JsonDecoder.string),
-		description: JsonDecoder.optional(JsonDecoder.string),
+		field: JsonDecoder.string,
+		description: JsonDecoder.string,
     },
     "FieldViolation"
 );
 
 export const RequestInfoDecoder = JsonDecoder.object(
     {
-		requestId: JsonDecoder.optional(JsonDecoder.string),
-		servingData: JsonDecoder.optional(JsonDecoder.string),
+		requestId: JsonDecoder.string,
+		servingData: JsonDecoder.string,
     },
     "RequestInfo"
 );
 
 export const ResourceInfoDecoder = JsonDecoder.object(
     {
-		resourceType: JsonDecoder.optional(JsonDecoder.string),
-		resourceName: JsonDecoder.optional(JsonDecoder.string),
-		owner: JsonDecoder.optional(JsonDecoder.string),
-		description: JsonDecoder.optional(JsonDecoder.string),
+		resourceType: JsonDecoder.string,
+		resourceName: JsonDecoder.string,
+		owner: JsonDecoder.string,
+		description: JsonDecoder.string,
     },
     "ResourceInfo"
 );
 
 export const HelpDecoder_LinkDecoder = JsonDecoder.object(
     {
-		description: JsonDecoder.optional(JsonDecoder.string),
-		url: JsonDecoder.optional(JsonDecoder.string),
+		description: JsonDecoder.string,
+		url: JsonDecoder.string,
     },
     "Link"
 );
 
 export const LocalizedMessageDecoder = JsonDecoder.object(
     {
-		locale: JsonDecoder.optional(JsonDecoder.string),
-		message: JsonDecoder.optional(JsonDecoder.string),
+		locale: JsonDecoder.string,
+		message: JsonDecoder.string,
     },
     "LocalizedMessage"
 );
 
 export const QuotaFailureDecoder = JsonDecoder.object(
     {
-		violations: JsonDecoder.optional(JsonDecoder.array(QuotaFailureDecoder_ViolationDecoder, "arrayOfViolations")),
+		violations: JsonDecoder.array(QuotaFailureDecoder_ViolationDecoder, "arrayOfViolations"),
     },
     "QuotaFailure"
 );
 
 export const PreconditionFailureDecoder = JsonDecoder.object(
     {
-		violations: JsonDecoder.optional(JsonDecoder.array(PreconditionFailureDecoder_ViolationDecoder, "arrayOfViolations")),
+		violations: JsonDecoder.array(PreconditionFailureDecoder_ViolationDecoder, "arrayOfViolations"),
     },
     "PreconditionFailure"
 );
 
 export const BadRequestDecoder = JsonDecoder.object(
     {
-		fieldViolations: JsonDecoder.optional(JsonDecoder.array(BadRequestDecoder_FieldViolationDecoder, "arrayOfFieldViolations")),
+		fieldViolations: JsonDecoder.array(BadRequestDecoder_FieldViolationDecoder, "arrayOfFieldViolations"),
     },
     "BadRequest"
 );
 
 export const HelpDecoder = JsonDecoder.object(
     {
-		links: JsonDecoder.optional(JsonDecoder.array(HelpDecoder_LinkDecoder, "arrayOfLinks")),
+		links: JsonDecoder.array(HelpDecoder_LinkDecoder, "arrayOfLinks"),
     },
     "Help"
 );

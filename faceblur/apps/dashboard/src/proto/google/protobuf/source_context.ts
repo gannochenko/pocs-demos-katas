@@ -25,7 +25,7 @@ export interface SourceContext {
 
 export const SourceContextDecoder = JsonDecoder.object(
     {
-		fileName: JsonDecoder.optional(JsonDecoder.string),
+		fileName: JsonDecoder.string,
     },
     "SourceContext"
 );

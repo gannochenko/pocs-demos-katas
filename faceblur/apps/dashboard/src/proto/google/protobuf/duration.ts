@@ -91,8 +91,8 @@ export interface Duration {
 
 export const DurationDecoder = JsonDecoder.object(
     {
-		seconds: JsonDecoder.optional(JsonDecoder.number),
-		nanos: JsonDecoder.optional(JsonDecoder.number),
+		seconds: JsonDecoder.number,
+		nanos: JsonDecoder.number,
     },
     "Duration"
 );

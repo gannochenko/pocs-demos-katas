@@ -33,9 +33,9 @@ export interface Money {
 
 export const MoneyDecoder = JsonDecoder.object(
     {
-		currencyCode: JsonDecoder.optional(JsonDecoder.string),
-		units: JsonDecoder.optional(JsonDecoder.number),
-		nanos: JsonDecoder.optional(JsonDecoder.number),
+		currencyCode: JsonDecoder.string,
+		units: JsonDecoder.number,
+		nanos: JsonDecoder.number,
     },
     "Money"
 );

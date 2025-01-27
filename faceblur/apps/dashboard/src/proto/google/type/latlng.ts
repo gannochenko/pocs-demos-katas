@@ -27,8 +27,8 @@ export interface LatLng {
 
 export const LatLngDecoder = JsonDecoder.object(
     {
-		latitude: JsonDecoder.optional(JsonDecoder.number),
-		longitude: JsonDecoder.optional(JsonDecoder.number),
+		latitude: JsonDecoder.number,
+		longitude: JsonDecoder.number,
     },
     "LatLng"
 );

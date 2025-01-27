@@ -36,10 +36,10 @@ export interface TimeOfDay {
 
 export const TimeOfDayDecoder = JsonDecoder.object(
     {
-		hours: JsonDecoder.optional(JsonDecoder.number),
-		minutes: JsonDecoder.optional(JsonDecoder.number),
-		seconds: JsonDecoder.optional(JsonDecoder.number),
-		nanos: JsonDecoder.optional(JsonDecoder.number),
+		hours: JsonDecoder.number,
+		minutes: JsonDecoder.number,
+		seconds: JsonDecoder.number,
+		nanos: JsonDecoder.number,
     },
     "TimeOfDay"
 );

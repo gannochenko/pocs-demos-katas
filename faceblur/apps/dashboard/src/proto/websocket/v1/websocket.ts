@@ -42,20 +42,20 @@ export const ClientMessageTypeDecoder = JsonDecoder.enumeration<ClientMessageTyp
 
 export const ServerMessageDecoder = JsonDecoder.object(
     {
-		timestamp: JsonDecoder.optional(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
-		type: JsonDecoder.optional(ServerMessageTypeDecoder),
-		payloadVersion: JsonDecoder.optional(JsonDecoder.string),
-		imageList: JsonDecoder.optional(ImageListDecoder),
+		timestamp: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
+		type: ServerMessageTypeDecoder,
+		payloadVersion: JsonDecoder.string,
+		imageList: ImageListDecoder,
     },
     "ServerMessage"
 );
 
 export const ClientMessageDecoder = JsonDecoder.object(
     {
-		timestamp: JsonDecoder.optional(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
-		type: JsonDecoder.optional(ClientMessageTypeDecoder),
-		payloadVersion: JsonDecoder.optional(JsonDecoder.string),
-		tokenUpdate: JsonDecoder.optional(TokenUpdateDecoder),
+		timestamp: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
+		type: ClientMessageTypeDecoder,
+		payloadVersion: JsonDecoder.string,
+		tokenUpdate: TokenUpdateDecoder,
     },
     "ClientMessage"
 );

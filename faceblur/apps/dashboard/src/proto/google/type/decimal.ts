@@ -88,7 +88,7 @@ export interface Decimal {
 
 export const DecimalDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.optional(JsonDecoder.string),
+		value: JsonDecoder.string,
     },
     "Decimal"
 );

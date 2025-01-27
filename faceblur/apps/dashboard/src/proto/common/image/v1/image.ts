@@ -27,21 +27,21 @@ export interface Image {
 
 export const CreateImageDecoder = JsonDecoder.object(
     {
-		objectName: JsonDecoder.optional(JsonDecoder.string),
-		uploadedAt: JsonDecoder.optional(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
+		objectName: JsonDecoder.string,
+		uploadedAt: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
     },
     "CreateImage"
 );
 
 export const ImageDecoder = JsonDecoder.object(
     {
-		id: JsonDecoder.optional(JsonDecoder.string),
-		url: JsonDecoder.optional(JsonDecoder.string),
-		isProcessed: JsonDecoder.optional(JsonDecoder.boolean),
-		isFailed: JsonDecoder.optional(JsonDecoder.boolean),
-		createdAt: JsonDecoder.optional(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
-		updatedAt: JsonDecoder.optional(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
-		uploadedAt: JsonDecoder.optional(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
+		id: JsonDecoder.string,
+		url: JsonDecoder.string,
+		isProcessed: JsonDecoder.boolean,
+		isFailed: JsonDecoder.boolean,
+		createdAt: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
+		updatedAt: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
+		uploadedAt: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
     },
     "Image"
 );

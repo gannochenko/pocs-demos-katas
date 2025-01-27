@@ -24,18 +24,18 @@ export interface PageNavigationResponse {
 
 export const PageNavigationRequestDecoder = JsonDecoder.object(
     {
-		pageSize: JsonDecoder.optional(JsonDecoder.number),
-		pageNumber: JsonDecoder.optional(JsonDecoder.number),
+		pageSize: JsonDecoder.number,
+		pageNumber: JsonDecoder.number,
     },
     "PageNavigationRequest"
 );
 
 export const PageNavigationResponseDecoder = JsonDecoder.object(
     {
-		pageSize: JsonDecoder.optional(JsonDecoder.number),
-		pageNumber: JsonDecoder.optional(JsonDecoder.number),
-		pageCount: JsonDecoder.optional(JsonDecoder.number),
-		total: JsonDecoder.optional(JsonDecoder.number),
+		pageSize: JsonDecoder.number,
+		pageNumber: JsonDecoder.number,
+		pageCount: JsonDecoder.number,
+		total: JsonDecoder.number,
     },
     "PageNavigationResponse"
 );

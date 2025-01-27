@@ -17,7 +17,7 @@ export interface ErrorResponse {
 
 export const ErrorResponseDecoder = JsonDecoder.object(
     {
-		error: JsonDecoder.optional(JsonDecoder.string),
+		error: JsonDecoder.string,
     },
     "ErrorResponse"
 );

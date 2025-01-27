@@ -120,8 +120,8 @@ export interface Timestamp {
 
 export const TimestampDecoder = JsonDecoder.object(
     {
-		seconds: JsonDecoder.optional(JsonDecoder.number),
-		nanos: JsonDecoder.optional(JsonDecoder.number),
+		seconds: JsonDecoder.number,
+		nanos: JsonDecoder.number,
     },
     "Timestamp"
 );

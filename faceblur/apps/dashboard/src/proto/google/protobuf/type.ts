@@ -170,56 +170,56 @@ export const SyntaxDecoder = JsonDecoder.enumeration<Syntax>(Syntax, "Syntax");
 
 export const OptionDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		value: JsonDecoder.optional(AnyDecoder),
+		name: JsonDecoder.string,
+		value: AnyDecoder,
     },
     "Option"
 );
 
 export const FieldDecoder = JsonDecoder.object(
     {
-		kind: JsonDecoder.optional(FieldDecoder_KindDecoder),
-		cardinality: JsonDecoder.optional(FieldDecoder_CardinalityDecoder),
-		number: JsonDecoder.optional(JsonDecoder.number),
-		name: JsonDecoder.optional(JsonDecoder.string),
-		typeUrl: JsonDecoder.optional(JsonDecoder.string),
-		oneofIndex: JsonDecoder.optional(JsonDecoder.number),
-		packed: JsonDecoder.optional(JsonDecoder.boolean),
-		options: JsonDecoder.optional(JsonDecoder.array(OptionDecoder, "arrayOfOptions")),
-		jsonName: JsonDecoder.optional(JsonDecoder.string),
-		defaultValue: JsonDecoder.optional(JsonDecoder.string),
+		kind: FieldDecoder_KindDecoder,
+		cardinality: FieldDecoder_CardinalityDecoder,
+		number: JsonDecoder.number,
+		name: JsonDecoder.string,
+		typeUrl: JsonDecoder.string,
+		oneofIndex: JsonDecoder.number,
+		packed: JsonDecoder.boolean,
+		options: JsonDecoder.array(OptionDecoder, "arrayOfOptions"),
+		jsonName: JsonDecoder.string,
+		defaultValue: JsonDecoder.string,
     },
     "Field"
 );
 
 export const EnumValueDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		number: JsonDecoder.optional(JsonDecoder.number),
-		options: JsonDecoder.optional(JsonDecoder.array(OptionDecoder, "arrayOfOptions")),
+		name: JsonDecoder.string,
+		number: JsonDecoder.number,
+		options: JsonDecoder.array(OptionDecoder, "arrayOfOptions"),
     },
     "EnumValue"
 );
 
 export const TypeDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		fields: JsonDecoder.optional(JsonDecoder.array(FieldDecoder, "arrayOfFields")),
-		oneofs: JsonDecoder.optional(JsonDecoder.array(JsonDecoder.string, "arrayOfOneofs")),
-		options: JsonDecoder.optional(JsonDecoder.array(OptionDecoder, "arrayOfOptions")),
-		sourceContext: JsonDecoder.optional(SourceContextDecoder),
-		syntax: JsonDecoder.optional(SyntaxDecoder),
+		name: JsonDecoder.string,
+		fields: JsonDecoder.array(FieldDecoder, "arrayOfFields"),
+		oneofs: JsonDecoder.array(JsonDecoder.string, "arrayOfOneofs"),
+		options: JsonDecoder.array(OptionDecoder, "arrayOfOptions"),
+		sourceContext: SourceContextDecoder,
+		syntax: SyntaxDecoder,
     },
     "Type"
 );
 
 export const EnumDecoder = JsonDecoder.object(
     {
-		name: JsonDecoder.optional(JsonDecoder.string),
-		enumvalue: JsonDecoder.optional(JsonDecoder.array(EnumValueDecoder, "arrayOfEnumvalue")),
-		options: JsonDecoder.optional(JsonDecoder.array(OptionDecoder, "arrayOfOptions")),
-		sourceContext: JsonDecoder.optional(SourceContextDecoder),
-		syntax: JsonDecoder.optional(SyntaxDecoder),
+		name: JsonDecoder.string,
+		enumvalue: JsonDecoder.array(EnumValueDecoder, "arrayOfEnumvalue"),
+		options: JsonDecoder.array(OptionDecoder, "arrayOfOptions"),
+		sourceContext: SourceContextDecoder,
+		syntax: SyntaxDecoder,
     },
     "Enum"
 );

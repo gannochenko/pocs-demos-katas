@@ -80,26 +80,26 @@ export const NullValueDecoder = JsonDecoder.enumeration<NullValue>(NullValue, "N
 
 export const StructDecoder = JsonDecoder.object(
     {
-		fields: JsonDecoder.optional(ValueDecoder),
+		fields: ValueDecoder,
     },
     "Struct"
 );
 
 export const ValueDecoder = JsonDecoder.object(
     {
-		nullValue: JsonDecoder.optional(NullValueDecoder),
-		numberValue: JsonDecoder.optional(JsonDecoder.number),
-		stringValue: JsonDecoder.optional(JsonDecoder.string),
-		boolValue: JsonDecoder.optional(JsonDecoder.boolean),
-		structValue: JsonDecoder.optional(StructDecoder),
-		listValue: JsonDecoder.optional(ListValueDecoder),
+		nullValue: NullValueDecoder,
+		numberValue: JsonDecoder.number,
+		stringValue: JsonDecoder.string,
+		boolValue: JsonDecoder.boolean,
+		structValue: StructDecoder,
+		listValue: ListValueDecoder,
     },
     "Value"
 );
 
 export const ListValueDecoder = JsonDecoder.object(
     {
-		values: JsonDecoder.optional(JsonDecoder.array(ValueDecoder, "arrayOfValues")),
+		values: JsonDecoder.array(ValueDecoder, "arrayOfValues"),
     },
     "ListValue"
 );

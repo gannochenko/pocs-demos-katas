@@ -135,17 +135,17 @@ export interface PostalAddress {
 
 export const PostalAddressDecoder = JsonDecoder.object(
     {
-		revision: JsonDecoder.optional(JsonDecoder.number),
-		regionCode: JsonDecoder.optional(JsonDecoder.string),
-		languageCode: JsonDecoder.optional(JsonDecoder.string),
-		postalCode: JsonDecoder.optional(JsonDecoder.string),
-		sortingCode: JsonDecoder.optional(JsonDecoder.string),
-		administrativeArea: JsonDecoder.optional(JsonDecoder.string),
-		locality: JsonDecoder.optional(JsonDecoder.string),
-		sublocality: JsonDecoder.optional(JsonDecoder.string),
-		addressLines: JsonDecoder.optional(JsonDecoder.array(JsonDecoder.string, "arrayOfAddressLines")),
-		recipients: JsonDecoder.optional(JsonDecoder.array(JsonDecoder.string, "arrayOfRecipients")),
-		organization: JsonDecoder.optional(JsonDecoder.string),
+		revision: JsonDecoder.number,
+		regionCode: JsonDecoder.string,
+		languageCode: JsonDecoder.string,
+		postalCode: JsonDecoder.string,
+		sortingCode: JsonDecoder.string,
+		administrativeArea: JsonDecoder.string,
+		locality: JsonDecoder.string,
+		sublocality: JsonDecoder.string,
+		addressLines: JsonDecoder.array(JsonDecoder.string, "arrayOfAddressLines"),
+		recipients: JsonDecoder.array(JsonDecoder.string, "arrayOfRecipients"),
+		organization: JsonDecoder.string,
     },
     "PostalAddress"
 );

@@ -18,7 +18,7 @@ export interface ImageList {
 
 export const ImageListDecoder = JsonDecoder.object(
     {
-		images: JsonDecoder.optional(JsonDecoder.array(ImageDecoder, "arrayOfImages")),
+		images: JsonDecoder.array(ImageDecoder, "arrayOfImages"),
     },
     "ImageList"
 );
