@@ -123,7 +123,7 @@ func (s *HTTPServer) Start(ctx context.Context, config *domain.Config) error {
 	}
 
 	s.server = &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.HTTP.Port),
+		Addr:    fmt.Sprintf(":%d", config.Backend.HTTP.Port),
 		Handler: serverMux,
 		BaseContext: func(l net.Listener) context.Context {
 			return ctx
@@ -155,7 +155,7 @@ func (s *HTTPServer) Stop(ctx context.Context) error {
 
 func (s *HTTPServer) connectToGRPCServer(config *domain.Config) (*grpc.ClientConn, error) {
 	return grpc.Dial(
-		fmt.Sprintf("0.0.0.0:%d", config.GRPCPort),
+		fmt.Sprintf("0.0.0.0:%d", config.Backend.GRPCPort),
 		// the connection takes place in the VPC tier, no security is needed
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)

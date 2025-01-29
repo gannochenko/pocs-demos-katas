@@ -45,12 +45,12 @@ func (s *Service) Start(ctx context.Context) error {
 		log.Fatalf("Failed to open a channel: %v", err)
 	}
 
-	err = s.consumeMessages(ctx, s.channel, config.RabbitMq.QueueName)
+	err = s.consumeMessages(ctx, s.channel, config.RabbitMq.EventBus.QueueName)
 	if err != nil {
 		return syserr.Wrap(err, "could not start consuming messages")
 	}
 
-	s.queueName = config.RabbitMq.QueueName
+	s.queueName = config.RabbitMq.EventBus.QueueName
 
 	return nil
 }

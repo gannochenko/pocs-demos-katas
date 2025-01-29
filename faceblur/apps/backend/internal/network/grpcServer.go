@@ -43,7 +43,7 @@ func NewGRPCServer(controllers *GRPCControllers, loggerService interfaces.Logger
 
 func (s *GRPCServer) Start(ctx context.Context, configuration *domain.Config) error {
 	lc := net.ListenConfig{}
-	listener, err := lc.Listen(ctx, "tcp", fmt.Sprintf(":%d", configuration.GRPCPort))
+	listener, err := lc.Listen(ctx, "tcp", fmt.Sprintf(":%d", configuration.Backend.GRPCPort))
 	if err != nil {
 		return err
 	}

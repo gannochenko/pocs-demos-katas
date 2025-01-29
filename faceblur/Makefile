@@ -63,7 +63,7 @@ build_backend_proto:
 build_dashboard_proto:
 	@rm -rf $(PROTO_OUT_DASHBOARD_DIR)
 	@mkdir -p $(PROTO_OUT_DASHBOARD_DIR)
-	@DEBUG=app:* protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs --with-json-decoder --with-json-decoder-required-fields
+	@DEBUG=app:* protoweb build -i $(PROTO_DIR) -o $(PROTO_OUT_DASHBOARD_DIR) -t ./apps/dashboard/protoweb.cjs --with-json-decoder --with-json-decoder-required-fields --with-json-decoder-ignore-files *google/protobuf/descriptor.proto*,*google/api*,*google/protobuf/struct*
 
 build_proto:
 	@make build_backend_proto
@@ -72,6 +72,9 @@ build_proto:
 drop_images:
 	@rm -f ./.data/storage/faceblur-images/*
 	godotenv -f ./.env.local ./scripts/delete_images.sh
+
+copy_local_env:
+	@tr '\n' ';' < ./.env.local | pbcopy
 
 run: ## Run an application
 ifeq ($(app),)

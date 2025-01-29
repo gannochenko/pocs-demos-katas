@@ -1,13 +1,13 @@
 import {useEffect, useState} from "react";
 import {useAuth0} from "@auth0/auth0-react";
 import {PetListProps} from "./type";
-import {useListImages} from "../../hooks";
-import {ImageModel, Upload} from "../../models/image";
-import {GetUploadURL, SubmitImage} from "../../proto/image/v1/image";
-import {isErrorResponse, uploadFile} from "../../util/fetch";
-import {useNotification} from "../../hooks/notification";
+import {useListImages} from "@/hooks";
+import {ImageModel, Upload} from "@/models/image";
+import {isErrorResponse, uploadFile} from "@/util/fetch";
+import {useNotification} from "@/hooks/notification";
 import {useWebsocketContext} from "../WebsocketProvider";
-import {ServerMessage, ServerMessageType} from "../../proto/websocket/v1/websocket";
+import {ServerMessage, ServerMessageType} from "@/proto/websocket/v1/websocket";
+import {GetUploadURL, SubmitImage} from "@/proto/image/v1/image";
 
 const useUploader = () => {
 	const [uploads, setUploads] = useState<Upload[]>([]);
@@ -72,7 +72,7 @@ const useUploader = () => {
 					const submitImageResponse = await SubmitImage({
 						image: {
 							objectName: getUploadULRResponse.objectName,
-							uploadedAt: upload.uploadedAt,
+							uploadedAt: upload.uploadedAt!,
 						},
 					}, await getAccessTokenSilently());
 					if (isErrorResponse(submitImageResponse)) {

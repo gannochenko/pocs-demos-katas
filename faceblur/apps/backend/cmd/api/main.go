@@ -99,7 +99,7 @@ func run(w io.Writer) error {
 
 	// add more background tasks here if needed
 
-	loggerService.Info(ctx, fmt.Sprintf("service started, HTTP port %d, gRPC port %d", configuration.HTTP.Port, configuration.GRPCPort))
+	loggerService.Info(ctx, fmt.Sprintf("service started, HTTP port %d, gRPC port %d", configuration.Backend.HTTP.Port, configuration.Backend.GRPCPort))
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)

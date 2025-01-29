@@ -16,7 +16,7 @@ export interface Money {
      * The whole units of the amount.
      * For example if `currencyCode` is `"USD"`, then 1 unit is one US dollar.
      */
-    units: number;
+    units: string;
     /**
      * Number of nano (10^-9) units of the amount.
      * The value must be between -999,999,999 and +999,999,999 inclusive.
@@ -34,7 +34,7 @@ export interface Money {
 export const MoneyDecoder = JsonDecoder.object(
     {
 		currencyCode: JsonDecoder.string,
-		units: JsonDecoder.number,
+		units: JsonDecoder.string,
 		nanos: JsonDecoder.number,
     },
     "Money"

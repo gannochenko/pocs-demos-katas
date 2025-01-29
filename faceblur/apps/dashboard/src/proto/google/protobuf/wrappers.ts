@@ -33,7 +33,7 @@ export interface FloatValue {
  */
 export interface Int64Value {
     /** The int64 value. */
-    value: number;
+    value: string;
 }
 /**
  * Wrapper message for `uint64`.
@@ -42,7 +42,7 @@ export interface Int64Value {
  */
 export interface UInt64Value {
     /** The uint64 value. */
-    value: number;
+    value: string;
 }
 /**
  * Wrapper message for `int32`.
@@ -109,14 +109,14 @@ export const FloatValueDecoder = JsonDecoder.object(
 
 export const Int64ValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.number,
+		value: JsonDecoder.string,
     },
     "Int64Value"
 );
 
 export const UInt64ValueDecoder = JsonDecoder.object(
     {
-		value: JsonDecoder.number,
+		value: JsonDecoder.string,
     },
     "UInt64Value"
 );

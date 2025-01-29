@@ -259,7 +259,7 @@ func (s *WebsocketServer) getUpgrader() (*websocket.Upgrader, error) {
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
-			allowedOrigins := config.HTTP.Cors.Origin
+			allowedOrigins := config.Backend.HTTP.Cors.Origin
 			if lo.Contains(allowedOrigins, "*") {
 				return true
 			}

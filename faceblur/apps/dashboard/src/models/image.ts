@@ -3,14 +3,14 @@ export type ImageModel = {
 	url: string;
 	isProcessed: boolean;
 	isFailed: boolean;
-	createdAt: Date | undefined;
-	updatedAt: Date | undefined;
+	createdAt: Date | null;
+	updatedAt: Date | null;
 };
 
 export type Upload = {
 	id: string;
 	file?: File;
-	uploadedAt?: Date;
+	uploadedAt: Date | null;
 	image?: ImageModel;
 	failed?: boolean;
 	progress: number;

@@ -1,6 +1,6 @@
 import fetchRetry from 'fetch-retry';
 import axios from "axios";
-import {ErrorResponse} from "../proto/common/error/v1/error";
+import {ErrorResponse} from "@/proto/common/error/v1/error";
 
 export function isErrorResponse(response: any): response is ErrorResponse {
 	return "error" in response;

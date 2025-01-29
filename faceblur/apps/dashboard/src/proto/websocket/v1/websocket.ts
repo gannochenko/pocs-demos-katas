@@ -45,7 +45,7 @@ export const ServerMessageDecoder = JsonDecoder.object(
 		timestamp: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
 		type: ServerMessageTypeDecoder,
 		payloadVersion: JsonDecoder.string,
-		imageList: ImageListDecoder,
+		imageList: JsonDecoder.optional(ImageListDecoder),
     },
     "ServerMessage"
 );
@@ -55,7 +55,7 @@ export const ClientMessageDecoder = JsonDecoder.object(
 		timestamp: JsonDecoder.nullable(JsonDecoder.string.map((stringDate) => { const parsedDate = new Date(stringDate); return isNaN(parsedDate.getTime()) ? null : parsedDate; })),
 		type: ClientMessageTypeDecoder,
 		payloadVersion: JsonDecoder.string,
-		tokenUpdate: TokenUpdateDecoder,
+		tokenUpdate: JsonDecoder.optional(TokenUpdateDecoder),
     },
     "ClientMessage"
 );

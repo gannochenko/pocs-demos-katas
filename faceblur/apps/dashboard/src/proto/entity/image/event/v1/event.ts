@@ -18,7 +18,7 @@ export interface Event {
 
 export const EventDecoder = JsonDecoder.object(
     {
-		imageCreated: ImageCreatedDecoder,
+		imageCreated: JsonDecoder.optional(ImageCreatedDecoder),
     },
     "Event"
 );

@@ -30,7 +30,7 @@ export const AuthWidget = forwardRef<HTMLDivElement, AuthWidgetPropsType>(
                 {
                     isAuthenticated
                     &&
-                    <Typography>Welcome, {firstName} | <Link {...singOutButtonProps}>Sign out</Link></Typography>
+                    <Typography>Welcome back, {firstName} | <Link {...singOutButtonProps}>Sign out</Link></Typography>
                 }
             </AuthWidgetRoot>
         );

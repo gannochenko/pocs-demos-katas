@@ -23,4 +23,4 @@ def provision_rabbitmq_queue_and_exchange(host, exchange_name, queue_name, routi
     except Exception as e:
         print(f"Failed to provision RabbitMQ components: {e}")
 
-provision_rabbitmq_queue_and_exchange(os.getenv('RABBITMQ_HOST'), os.getenv('RABBITMQ_EXCHANGE_NAME'), os.getenv('RABBITMQ_QUEUE_NAME'), os.getenv('RABBITMQ_ROUTING_KEY'))
+provision_rabbitmq_queue_and_exchange(os.getenv('RABBITMQ_HOST'), os.getenv('RABBITMQ_EVENT_BUS_EXCHANGE_NAME'), os.getenv('RABBITMQ_EVENT_BUS_QUEUE_NAME'), os.getenv('RABBITMQ_EVENT_BUS_ROUTING_KEY'))

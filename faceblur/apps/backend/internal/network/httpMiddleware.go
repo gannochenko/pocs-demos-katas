@@ -31,7 +31,7 @@ func withHTTPContext(next types.HTTPHandler) types.HTTPHandler {
 // withCorsMiddleware adds CORS headers. Normally Kubernetes ingress or CDN takes care of that, but for the dev purposes we add it here as well.
 func withCorsMiddleware(next http.Handler, config *domain.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		allowedOrigin := config.HTTP.Cors.Origin[0]
+		allowedOrigin := config.Backend.HTTP.Cors.Origin[0]
 
 		// Handle CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)

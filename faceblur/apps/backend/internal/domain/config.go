@@ -26,20 +26,30 @@ type HTTPConfig struct {
 	Cors CorsConfig `envconfig:"CORS"`
 }
 
-type RabbitMqConfig struct {
-	Host      string `envconfig:"HOST"`
-	Port      int    `envconfig:"PORT"`
+type RabbitMqConfigEventBus struct {
 	QueueName string `envconfig:"QUEUE_NAME"`
+}
+
+type RabbitMqConfig struct {
+	Host     string                 `envconfig:"HOST"`
+	Port     int                    `envconfig:"PORT"`
+	EventBus RabbitMqConfigEventBus `envconfig:"EVENT_BUS"`
+}
+
+type BackendConfig struct {
+	HTTP     HTTPConfig `envconfig:"HTTP"`
+	GRPCPort int        `envconfig:"GRPC_PORT" default:"4646" desc:"grpc port"`
 }
 
 type Config struct {
 	Postgres PostgresConfig `envconfig:"POSTGRES"`
 	LogLevel string         `envconfig:"LOG_LEVEL" default:"info" desc:"logging level"`
-	HTTP     HTTPConfig     `envconfig:"HTTP"`
-	GRPCPort int            `envconfig:"GRPC_PORT" default:"4646" desc:"grpc port"`
 	Auth0    Auth0Config    `envconfig:"AUTH0"`
 	Env      string         `envconfig:"ENV"`
 	GCP      GCPConfig      `envconfig:"GCP"`
 	Storage  StorageConfig  `envconfig:"STORAGE"`
 	RabbitMq RabbitMqConfig `envconfig:"RABBITMQ"`
+
+	// app-specific
+	Backend BackendConfig `envconfig:"BACKEND"`
 }
