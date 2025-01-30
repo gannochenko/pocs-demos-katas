@@ -7,10 +7,10 @@ import { JsonDecoder } from "ts.data.json";
 //   protoc               v3.19.4
 // source: entity/image/event/v1/event.proto
 /* eslint-disable */
-import { type ImageCreated, ImageCreatedDecoder } from "../../payload/v1/image_created";
+import { type ImageCreatedPayload, ImageCreatedPayloadDecoder } from "../../payload/v1/image_created";
 export const protobufPackage = "faceblur.entity.image.event.v1";
 export interface Event {
-    imageCreated?: ImageCreated | undefined;
+    imageCreated?: ImageCreatedPayload | undefined;
 }
 
 
@@ -18,7 +18,7 @@ export interface Event {
 
 export const EventDecoder = JsonDecoder.object(
     {
-		imageCreated: JsonDecoder.optional(ImageCreatedDecoder),
+		imageCreated: JsonDecoder.optional(ImageCreatedPayloadDecoder),
     },
     "Event"
 );

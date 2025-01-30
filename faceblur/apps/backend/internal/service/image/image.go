@@ -30,6 +30,7 @@ func NewImageService(
 	storageService interfaces.StorageService,
 	configService interfaces.ConfigService,
 	eventBusService interfaces.EventBusService,
+	loggerService interfaces.LoggerService,
 ) *Service {
 	return &Service{
 		sessionManager:                 sessionManager,
@@ -38,6 +39,7 @@ func NewImageService(
 		storageService:                 storageService,
 		configService:                  configService,
 		eventBusService:                eventBusService,
+		loggerService:                  loggerService,
 	}
 }
 
@@ -96,7 +98,7 @@ func (s *Service) SubmitImageForProcessing(ctx context.Context, handle interface
 		},
 	})
 	if err != nil {
-		return nil, syserr.Wrap(err, "could trigger an event")
+		s.loggerService.LogError(ctx, syserr.Wrap(err, "could not trigger an event"))
 	}
 
 	images, err := s.imageRepository.List(ctx, nil, database.ImageListParameters{

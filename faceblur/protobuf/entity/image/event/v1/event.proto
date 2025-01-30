@@ -7,7 +7,8 @@ option go_package = "backend/proto/entity/image/event/v1";
 import "entity/image/payload/v1/image_created.proto";
 
 message Event {
+  // todo: event type should probably be defined and included here
   oneof payload {
-    entity.image.payload.v1.ImageCreated image_created = 1;
+    entity.image.payload.v1.ImageCreatedPayload image_created = 1;
   }
 }

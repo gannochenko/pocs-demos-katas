@@ -4,5 +4,6 @@ package faceblur.entity.image.payload.v1;
 
 option go_package = "backend/proto/entity/image/payload/v1";
 
-message ImageCreated {
+message ImageCreatedPayload {
+  string image_id = 1;
 }

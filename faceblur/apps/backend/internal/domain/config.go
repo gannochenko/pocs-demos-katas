@@ -27,7 +27,9 @@ type HTTPConfig struct {
 }
 
 type RabbitMqConfigEventBus struct {
-	QueueName string `envconfig:"QUEUE_NAME"`
+	QueueName    string `envconfig:"QUEUE_NAME"`
+	RoutingKey   string `envconfig:"ROUTING_KEY"`
+	ExchangeName string `envconfig:"EXCHANGE_NAME"`
 }
 
 type RabbitMqConfig struct {

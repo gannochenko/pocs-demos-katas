@@ -44,4 +44,5 @@ type EventBusService interface {
 	Start(ctx context.Context) error
 	Stop() error
 	TriggerEvent(event *domain.EventBusEvent) error
+	AddEventListener(eventType domain.EventBusEventType, cb func(event *domain.EventBusEvent)) error
 }

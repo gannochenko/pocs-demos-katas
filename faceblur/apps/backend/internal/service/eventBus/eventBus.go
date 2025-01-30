@@ -10,20 +10,27 @@ import (
 
 	"backend/interfaces"
 	"backend/internal/domain"
-	v1 "backend/internal/proto/entity/image/event/v1"
+	protoEventConverterV1 "backend/internal/proto/entity/image/event/v1"
 	"backend/internal/util/syserr"
+	protoEventV1 "backend/proto/entity/image/event/v1"
 )
 
+type EventHandler = func(event *domain.EventBusEvent)
+
 type Service struct {
-	configService interfaces.ConfigService
-	connection    *amqp091.Connection
-	channel       *amqp091.Channel
-	queueName     string
+	configService  interfaces.ConfigService
+	loggerService  interfaces.LoggerService
+	connection     *amqp091.Connection
+	channel        *amqp091.Channel
+	config         *domain.Config
+	eventListeners map[domain.EventBusEventType][]EventHandler // todo: make this map thread-safe
 }
 
-func NewEventBusService(configService interfaces.ConfigService) *Service {
+func NewEventBusService(configService interfaces.ConfigService, loggerService interfaces.LoggerService) *Service {
 	return &Service{
-		configService: configService,
+		configService:  configService,
+		loggerService:  loggerService,
+		eventListeners: make(map[domain.EventBusEventType][]EventHandler),
 	}
 }
 
@@ -32,6 +39,8 @@ func (s *Service) Start(ctx context.Context) error {
 	if err != nil {
 		return syserr.Wrap(err, "could not extract config")
 	}
+
+	s.config = config
 
 	conn, err := amqp091.Dial(fmt.Sprintf("amqp://guest:guest@%s:%d/", config.RabbitMq.Host, config.RabbitMq.Port))
 	if err != nil {
@@ -45,39 +54,55 @@ func (s *Service) Start(ctx context.Context) error {
 		log.Fatalf("Failed to open a channel: %v", err)
 	}
 
-	err = s.consumeMessages(ctx, s.channel, config.RabbitMq.EventBus.QueueName)
+	err = s.consumeMessages(ctx, s.channel)
 	if err != nil {
 		return syserr.Wrap(err, "could not start consuming messages")
 	}
-
-	s.queueName = config.RabbitMq.EventBus.QueueName
 
 	return nil
 }
 
 func (s *Service) Stop() error {
-	err := s.connection.Close()
-	if err != nil {
-		return syserr.Wrap(err, "could not close connection")
+	if s.connection != nil {
+		err := s.connection.Close()
+		if err != nil {
+			return syserr.Wrap(err, "could not close connection")
+		}
 	}
 
-	err = s.channel.Close()
-	if err != nil {
-		return syserr.Wrap(err, "could not close channel")
+	if s.channel != nil {
+		err := s.channel.Close()
+		if err != nil {
+			return syserr.Wrap(err, "could not close channel")
+		}
 	}
 
 	return nil
 }
 
-func (s *Service) AddEventListener(eventType domain.EventBusEventType, cb func(payload []byte)) error {
+func (s *Service) AddEventListener(eventType domain.EventBusEventType, cb EventHandler) error {
+	_, ok := s.eventListeners[eventType]
+	if !ok {
+		s.eventListeners[eventType] = make([]EventHandler, 0)
+	}
+
+	s.eventListeners[eventType] = append(s.eventListeners[eventType], cb)
+
 	return nil
 }
 
 func (s *Service) TriggerEvent(event *domain.EventBusEvent) error {
-	headers := map[string]any{}
-	headers["eventType"] = event.Type
+	if s.channel == nil {
+		return syserr.NewInternal("client disconnected")
+	}
 
-	protoEvent := v1.ConvertEventFromProto(event)
+	headers := amqp091.Table{}
+	headers["eventType"] = string(event.Type)
+
+	protoEvent, err := protoEventConverterV1.ConvertEventToProto(event)
+	if err != nil {
+		return syserr.Wrap(err, "could not convert payload to proto")
+	}
 
 	msgBytes, err := proto.Marshal(protoEvent)
 	if err != nil {
@@ -85,8 +110,8 @@ func (s *Service) TriggerEvent(event *domain.EventBusEvent) error {
 	}
 
 	err = s.channel.Publish(
-		"",
-		s.queueName,
+		s.config.RabbitMq.EventBus.ExchangeName,
+		s.config.RabbitMq.EventBus.RoutingKey,
 		false,
 		false,
 		amqp091.Publishing{
@@ -102,9 +127,9 @@ func (s *Service) TriggerEvent(event *domain.EventBusEvent) error {
 	return nil
 }
 
-func (s *Service) consumeMessages(ctx context.Context, ch *amqp091.Channel, queueName string) error {
+func (s *Service) consumeMessages(ctx context.Context, ch *amqp091.Channel) error {
 	msgs, err := ch.Consume(
-		queueName,
+		s.config.RabbitMq.EventBus.QueueName,
 		"",
 		true,
 		false,
@@ -125,8 +150,25 @@ func (s *Service) consumeMessages(ctx context.Context, ch *amqp091.Channel, queu
 				return nil
 			}
 
-			// unmarshall body
-			log.Printf("Received a message: %s", msg.Body)
+			var event protoEventV1.Event
+			err = proto.Unmarshal(msg.Body, &event)
+			if err != nil {
+				s.loggerService.LogError(ctx, syserr.Wrap(err, "could not unmarshal event bus message"))
+				continue
+			}
+
+			domainEvent, err := protoEventConverterV1.ConvertEventToDomain(&event)
+			if err != nil {
+				s.loggerService.LogError(ctx, syserr.Wrap(err, "could not convert event to domain"))
+				continue
+			}
+
+			listeners, ok := s.eventListeners[domainEvent.Type]
+			if ok && len(listeners) > 0 {
+				for _, listener := range listeners {
+					listener(domainEvent)
+				}
+			}
 		}
 	}
 }

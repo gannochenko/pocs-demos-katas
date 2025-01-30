@@ -8,16 +8,18 @@ import { JsonDecoder } from "ts.data.json";
 // source: entity/image/payload/v1/image_created.proto
 /* eslint-disable */
 export const protobufPackage = "faceblur.entity.image.payload.v1";
-export interface ImageCreated {
+export interface ImageCreatedPayload {
+    imageId: string;
 }
 
 
 
 
-export const ImageCreatedDecoder = JsonDecoder.object(
+export const ImageCreatedPayloadDecoder = JsonDecoder.object(
     {
+		imageId: JsonDecoder.string,
     },
-    "ImageCreated"
+    "ImageCreatedPayload"
 );
 
 
