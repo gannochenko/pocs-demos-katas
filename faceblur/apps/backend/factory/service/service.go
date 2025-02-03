@@ -11,6 +11,7 @@ import (
 	"backend/internal/service/config"
 	"backend/internal/service/eventBus"
 	"backend/internal/service/image"
+	"backend/internal/service/imageProcessor"
 	"backend/internal/service/logger"
 	"backend/internal/service/storage"
 	"backend/internal/service/user"
@@ -24,13 +25,14 @@ type Factory struct {
 
 	sessionManager interfaces.SessionManager
 
-	configService   interfaces.ConfigService
-	loggerService   interfaces.LoggerService
-	imageService    interfaces.ImageService
-	storageService  interfaces.StorageService
-	authService     interfaces.AuthService
-	userService     interfaces.UserService
-	eventBusService interfaces.EventBusService
+	configService         interfaces.ConfigService
+	loggerService         interfaces.LoggerService
+	imageService          interfaces.ImageService
+	storageService        interfaces.StorageService
+	authService           interfaces.AuthService
+	userService           interfaces.UserService
+	eventBusService       interfaces.EventBusService
+	imageProcessorService interfaces.ImageProcessorService
 }
 
 func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFactory *repository.Factory) *Factory {
@@ -123,4 +125,14 @@ func (f *Factory) GetEventBusService() interfaces.EventBusService {
 	}
 
 	return f.eventBusService
+}
+
+func (f *Factory) GetImageProcessorService() interfaces.ImageProcessorService {
+	if f.imageProcessorService == nil {
+		f.imageProcessorService = imageProcessor.NewImageProcessor(
+			f.GetEventBusService(),
+		)
+	}
+
+	return f.imageProcessorService
 }
