@@ -131,6 +131,7 @@ func (f *Factory) GetImageProcessorService() interfaces.ImageProcessorService {
 	if f.imageProcessorService == nil {
 		f.imageProcessorService = imageProcessor.NewImageProcessor(
 			f.GetEventBusService(),
+			f.GetLoggerService(),
 		)
 	}
 
