@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package faceblur.websocket.payload.client.v1;
+
+option go_package = "backend/proto/websocket/payload/client/v1";
+
+message TokenUpdate {
+  string token = 1;
+}

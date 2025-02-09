@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+
+    postgres:
+        image: postgres
+        restart: always
+        env_file:
+            - '.env.local'
+        ports:
+            - "5432:5432"
+        command: "-c log_statement=all"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        networks:
+            - faceblur-net
+
+    storage:
+        image: fsouza/fake-gcs-server
+        ports:
+            - "9023:8000"
+        command: ["-scheme", "both", "-public-host", "localhost"]
+        volumes:
+            - ./.data/storage/:/storage
+        networks:
+            - faceblur-net
+
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        ports:
+            - "5672:5672"   # RabbitMQ main port
+            - "15672:15672" # Management web interface port
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        networks:
+            - faceblur-net
+
+volumes:
+    postgres-data:
+    rabbitmq_data:
+
+networks:
+    faceblur-net:

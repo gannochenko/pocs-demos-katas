@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+
+    postgres:
+        image: postgres
+        restart: always
+        env_file:
+            - '.env.test'
+        ports:
+            - "5432:5432"
+        command: "-c log_statement=all"
+        volumes:
+            - postgres-data-test:/var/lib/postgresql/data
+        networks:
+            - faceblur-net-test
+
+volumes:
+    postgres-data-test:
+
+networks:
+    faceblur-net-test:

@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package faceblur.image.v1;
+
+option go_package = "backend/proto/v1/imagepb";
+
+import "google/api/annotations/annotations.proto";
+import "common/image/v1/image.proto";
+import "common/page_navigation/v1/page_navigation.proto";
+
+message GetUploadURLRequest {}
+
+message GetUploadURLResponse {
+  string version = 1;
+  string url = 2;
+  string objectName = 3;
+}
+
+message SubmitImageRequest {
+  common.image.v1.CreateImage image = 1;
+}
+
+message SubmitImageResponse {
+  string version = 1;
+  common.image.v1.Image image = 2;
+}
+
+message ListImagesRequest {
+  common.page_navigation.v1.PageNavigationRequest page_navigation = 1;
+}
+
+message ListImagesResponse {
+  string version = 1;
+  repeated common.image.v1.Image images = 2;
+  common.page_navigation.v1.PageNavigationResponse page_navigation = 3;
+}
+
+service ImageService {
+  // GetUploadURL returns a new signed URL for image upload
+  rpc GetUploadURL(GetUploadURLRequest) returns (GetUploadURLResponse) {
+    option (google.api.http) = {
+      post : "/v1/image/upload-url/get"
+      body : "*"
+    };
+  }
+
+  // SubmitImage creates a new image and puts it to the processing queue
+  rpc SubmitImage(SubmitImageRequest) returns (SubmitImageResponse) {
+    option (google.api.http) = {
+      post : "/v1/image/submit"
+      body : "*"
+    };
+  }
+
+  // ListImages returns a list of user images, paginated and sorted by creation date
+  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {
+    option (google.api.http) = {
+      post : "/v1/image/list"
+      body : "*"
+    };
+  }
+}

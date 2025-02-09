@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package faceblur.websocket.payload.server.v1;
+
+option go_package = "backend/proto/websocket/payload/server/v1";
+
+import "common/image/v1/image.proto";
+
+message ImageList {
+  repeated common.image.v1.Image images = 1;
+}

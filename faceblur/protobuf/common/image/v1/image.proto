@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package faceblur.common.image.v1;
+
+option go_package = "backend/proto/common/image/v1";
+
+import "google/protobuf/timestamp.proto";
+
+message CreateImage {
+  string objectName = 1;
+  google.protobuf.Timestamp uploaded_at = 2;
+}
+
+message Image {
+  string id = 1;
+  string url = 2;
+  bool is_processed = 3;
+  bool is_failed = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp uploaded_at = 7;
+}

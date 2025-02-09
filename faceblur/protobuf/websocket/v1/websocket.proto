@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package faceblur.websocket.v1;
+
+option go_package = "backend/proto/websocket/v1";
+
+import "google/protobuf/timestamp.proto";
+import "websocket/payload/client/v1/client.proto";
+import "websocket/payload/server/v1/server.proto";
+
+enum ServerMessageType {
+  SERVER_MESSAGE_TYPE_UNSPECIFIED = 0;
+  SERVER_MESSAGE_TYPE_IMAGE_LIST = 1;
+}
+
+message ServerMessage {
+  google.protobuf.Timestamp timestamp = 1;
+  ServerMessageType type = 2;
+  string payload_version = 3;
+  oneof payload {
+    websocket.payload.server.v1.ImageList image_list = 4;
+  }
+}
+
+enum ClientMessageType {
+  CLIENT_MESSAGE_TYPE_UNSPECIFIED = 0;
+  CLIENT_MESSAGE_TYPE_TOKEN_UPDATE = 1;
+}
+
+message ClientMessage {
+  google.protobuf.Timestamp timestamp = 1;
+  ClientMessageType type = 2;
+  string payload_version = 3;
+  oneof payload {
+    websocket.payload.client.v1.TokenUpdate token_update = 4;
+  }
+}

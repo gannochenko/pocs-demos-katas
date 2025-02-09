@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package faceblur.common.error.v1;
+
+option go_package = "backend/proto/common/error/v1";
+
+message ErrorResponse {
+  string error = 1;
+}
