@@ -2,6 +2,7 @@ import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import { Document } from '@langchain/core/documents';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { QdrantVectorStore } from '@langchain/qdrant';
 
 require('dotenv').config({ path: './.env.local' });
 
@@ -43,4 +44,9 @@ const model = new ChatOpenAI({ model: 'gpt-4o-mini-2024-07-18' });
 
   const vector1 = await embeddings.embedQuery(allSplits[0].pageContent);
   const vector2 = await embeddings.embedQuery(allSplits[1].pageContent);
+
+  const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, {
+    url: process.env.QDRANT_URL,
+    collectionName: 'langchainjs-testing',
+  });
 })().catch(console.error);
