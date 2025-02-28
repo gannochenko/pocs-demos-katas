@@ -2,7 +2,6 @@ package eventBus
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/rabbitmq/amqp091-go"
@@ -42,7 +41,7 @@ func (s *Service) Start(ctx context.Context) error {
 
 	s.config = config
 
-	conn, err := amqp091.Dial(fmt.Sprintf("amqp://guest:guest@%s:%d/", config.RabbitMq.Host, config.RabbitMq.Port))
+	conn, err := amqp091.Dial(config.RabbitMq.DSN)
 	if err != nil {
 		return syserr.Wrap(err, "could not open connection")
 	}

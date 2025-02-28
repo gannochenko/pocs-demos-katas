@@ -25,13 +25,16 @@ install: ## Install external dependencies and resources.
 	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 	@npm install @gannochenko/protoweb -g
 
+install_scripts:
+	@cd ./scripts && python3 -m venv venv || true && source venv/bin/activate || true && pip install -r requirements.txt || true && deactivate || true
+
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
-	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_gcp.py
-	@godotenv -f ./.env.local python3.7 ./scripts/bootstrap_eventbus.py
-	@$(MAKE) -C ./apps/backend/ create_resources
+	@godotenv -f ./.env.local python3 ./scripts/bootstrap_gcp.py
+	@godotenv -f ./.env.local python3 ./scripts/bootstrap_eventbus.py
+# @$(MAKE) -C ./apps/backend/ create_resources
 
 list_resources: ## List all local resources
-	#@$(MAKE) -C ./apps/service_name/ list_resources
+	@$(MAKE) -C ./apps/service_name/ list_resources
 
 remove_resources: ## Remove all local resources
 

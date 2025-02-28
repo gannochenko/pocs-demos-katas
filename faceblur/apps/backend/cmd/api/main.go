@@ -85,7 +85,7 @@ func run(w io.Writer) error {
 		shutdownSequenceWg.Done()
 		localErr := HTTPServer.Start(ctx, configuration)
 		if localErr != nil {
-			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start gRPC server"))
+			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start HTTP server"))
 		}
 	}()
 
@@ -131,7 +131,7 @@ func run(w io.Writer) error {
 func main() {
 	err := run(os.Stdout)
 	if err != nil {
-		loggerUtil.Error(nil, slog.New(slog.NewJSONHandler(os.Stdout, nil)), fmt.Sprintf("could not start the application: %s", err.Error()))
+		loggerUtil.Error(context.TODO(), slog.New(slog.NewJSONHandler(os.Stdout, nil)), fmt.Sprintf("could not start the application: %s", err.Error()))
 
 		os.Exit(1)
 	}
