@@ -26,12 +26,15 @@ install: ## Install external dependencies and resources.
 	@npm install @gannochenko/protoweb -g
 
 install_scripts:
-	@cd ./scripts && python3 -m venv venv || true && source venv/bin/activate || true && pip install -r requirements.txt || true && deactivate || true
+	@cd ./scripts; python3 -m venv venv; source venv/bin/activate; pip install -r requirements.txt; deactivate
 
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
 	@godotenv -f ./.env.local python3 ./scripts/bootstrap_gcp.py
 	@godotenv -f ./.env.local python3 ./scripts/bootstrap_eventbus.py
-# @$(MAKE) -C ./apps/backend/ create_resources
+
+create_app_resources:
+	@$(MAKE) -C ./apps/backend/ create_resources
+	@$(MAKE) -C ./apps/dashboard/ create_resources
 
 list_resources: ## List all local resources
 	@$(MAKE) -C ./apps/service_name/ list_resources

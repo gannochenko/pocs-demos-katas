@@ -1,10 +1,34 @@
 import os
 import pika
+import urllib.parse
 
-def provision_rabbitmq_queue_and_exchange(host, exchange_name, queue_name, routing_key, exchange_type='direct'):
+def parse_rabbitmq_dsn(dsn):
+    """Parses a RabbitMQ DSN and returns connection parameters."""
+    parsed_url = urllib.parse.urlparse(dsn)
+    
+    return {
+        "host": parsed_url.hostname or "localhost",
+        "port": parsed_url.port or 5672,
+        "username": parsed_url.username or "guest",
+        "password": parsed_url.password or "guest",
+        "vhost": parsed_url.path.lstrip('/') or "/"
+    }
+
+def provision_rabbitmq_queue_and_exchange(dsn, exchange_name, queue_name, routing_key, exchange_type='direct'):
     try:
-        # Connect to RabbitMQ server
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+        # Parse the DSN
+        params = parse_rabbitmq_dsn(dsn)
+
+        # Connect to RabbitMQ server using DSN parameters
+        credentials = pika.PlainCredentials(params["username"], params["password"])
+        connection_params = pika.ConnectionParameters(
+            host=params["host"],
+            port=params["port"],
+            virtual_host=params["vhost"],
+            credentials=credentials
+        )
+
+        connection = pika.BlockingConnection(connection_params)
         channel = connection.channel()
 
         # Declare an exchange
@@ -23,4 +47,12 @@ def provision_rabbitmq_queue_and_exchange(host, exchange_name, queue_name, routi
     except Exception as e:
         print(f"Failed to provision RabbitMQ components: {e}")
 
-provision_rabbitmq_queue_and_exchange(os.getenv('RABBITMQ_HOST'), os.getenv('RABBITMQ_EVENT_BUS_EXCHANGE_NAME'), os.getenv('RABBITMQ_EVENT_BUS_QUEUE_NAME'), os.getenv('RABBITMQ_EVENT_BUS_ROUTING_KEY'))
+# Use RabbitMQ DSN from the environment variable
+RABBITMQ_DSN = os.getenv('RABBITMQ_DSN', 'amqp://guest:guest@localhost:5672/')
+
+provision_rabbitmq_queue_and_exchange(
+    RABBITMQ_DSN,
+    os.getenv('RABBITMQ_EVENT_BUS_EXCHANGE_NAME'),
+    os.getenv('RABBITMQ_EVENT_BUS_QUEUE_NAME'),
+    os.getenv('RABBITMQ_EVENT_BUS_ROUTING_KEY')
+)
