@@ -4,32 +4,33 @@
 
 2. Install what's needed
 
-~~~bash
+```bash
 make install
-~~~
+```
 
 3. Run the infra in a separate terminal
 
-~~~bash
+```bash
 make run_local_infra
-~~~
+```
 
 4. Create resources
 
-~~~bash
+```bash
 make create_resources
-~~~
+make create_app_resources
+```
 
 5. Run apps, each command in a separate terminal
 
-~~~bash
+```bash
 make run app=backend svc=api
-~~~
+```
 
-~~~bash
+```bash
 make run app=backend svc=worker
-~~~
+```
 
-~~~bash
+```bash
 make run app=dashboard
-~~~
+```

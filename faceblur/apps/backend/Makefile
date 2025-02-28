@@ -1,5 +1,6 @@
 install:
-	go mod download
+	@brew install golang-migrate
+	@go mod download
 
 run:
 	@godotenv -f ./.env.local go run ./cmd/$(svc)/main.go
