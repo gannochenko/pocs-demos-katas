@@ -33,7 +33,7 @@ type RabbitMqConfigEventBus struct {
 }
 
 type RabbitMqConfig struct {
-	DSN string `envconfig:"DSN"`
+	DSN      string                 `envconfig:"DSN"`
 	EventBus RabbitMqConfigEventBus `envconfig:"EVENT_BUS"`
 }
 
