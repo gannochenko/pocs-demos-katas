@@ -44,7 +44,15 @@ export const WebsocketProvider = ({ children }: PropsWithChildren<WebsocketProvi
 
 	const { sendJsonMessage, lastJsonMessage, readyState } = useReactWebSocket(url, {
 		onOpen: async () => {
-			sendJsonMessage(makeTokenMessage(await getAccessTokenSilently()));
+			let token = "";
+			try {
+				token = await getAccessTokenSilently()
+			} catch (e) {
+				//showError("Unauthorized");
+				return;
+			}
+
+			sendJsonMessage(makeTokenMessage(token));
 		},
 		retryOnError: true,
 		shouldReconnect: () => true,
@@ -53,7 +61,15 @@ export const WebsocketProvider = ({ children }: PropsWithChildren<WebsocketProvi
 	useEffect(() => {
 		const timer = setInterval(async () => {
 			if (readyState === ReadyState.OPEN) {
-				sendJsonMessage(makeTokenMessage(await getAccessTokenSilently()));
+				let token = "";
+				try {
+					token = await getAccessTokenSilently()
+				} catch (e) {
+					//showError("Unauthorized");
+					return;
+				}
+
+				sendJsonMessage(makeTokenMessage(token));
 			}
 		}, 10000);
 

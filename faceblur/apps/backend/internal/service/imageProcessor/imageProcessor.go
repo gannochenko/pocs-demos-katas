@@ -39,18 +39,18 @@ func (s *Service) Start(ctx context.Context) error {
 		return syserr.Wrap(err, "could not start listening to events")
 	}
 
-	select {
-	case <-ctx.Done():
-		return syserr.Wrap(ctx.Err(), "context is done")
-	default:
-		if s.newMessages.Swap(false) {
-			fmt.Println("Flag was true, reacting now!")
-			// get the new unprocessed messages
+	for {
+		select {
+		case <-ctx.Done():
+			return syserr.Wrap(ctx.Err(), "context is done")
+		default:
+			if s.newMessages.Swap(false) {
+				fmt.Println("Flag was true, reacting now!")
+				// get the new unprocessed messages
+			}
+			time.Sleep(100 * time.Millisecond)
 		}
-		time.Sleep(100 * time.Millisecond)
 	}
-
-	return nil
 }
 
 func (s *Service) Stop() error {

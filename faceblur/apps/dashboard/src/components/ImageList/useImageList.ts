@@ -54,8 +54,16 @@ const useUploader = () => {
 				];
 			});
 
+			let token = "";
+			try {
+				token = await getAccessTokenSilently()
+			} catch (e) {
+				showError("Unauthorized");
+				return;
+			}
+
 			for (const upload of newUploads) {
-				const getUploadULRResponse = await GetUploadURL({}, await getAccessTokenSilently())
+				const getUploadULRResponse = await GetUploadURL({}, token)
 				if (isErrorResponse(getUploadULRResponse)) {
 					showUploadError(getUploadULRResponse.error);
 					updateUpload(upload.id, (upload) => ({
@@ -74,7 +82,7 @@ const useUploader = () => {
 							objectName: getUploadULRResponse.objectName,
 							uploadedAt: upload.uploadedAt!,
 						},
-					}, await getAccessTokenSilently());
+					}, token);
 					if (isErrorResponse(submitImageResponse)) {
 						showUploadError(submitImageResponse.error);
 						updateUpload(upload.id, (upload) => ({

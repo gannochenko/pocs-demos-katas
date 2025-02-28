@@ -1,4 +1,4 @@
-package worker
+package main
 
 import (
 	"context"
@@ -35,13 +35,21 @@ func run(w io.Writer) error {
 	//}
 
 	loggerService := serviceFactory.GetLoggerService()
-
 	imageProcessor := serviceFactory.GetImageProcessorService()
+	eventBusService := serviceFactory.GetEventBusService()
 
 	loggerService.Info(ctx, "service started")
 
 	var shutdownSequenceWg sync.WaitGroup
-	shutdownSequenceWg.Add(1)
+	shutdownSequenceWg.Add(2)
+
+	go func() {
+		shutdownSequenceWg.Done()
+		localErr := eventBusService.Start(ctx)
+		if localErr != nil {
+			loggerService.LogError(ctx, syserr.Wrap(localErr, "could not start event bus"))
+		}
+	}()
 
 	go func() {
 		shutdownSequenceWg.Done()
@@ -61,6 +69,10 @@ func run(w io.Writer) error {
 	err = imageProcessor.Stop()
 	if err != nil {
 		loggerService.LogError(ctx, syserr.Wrap(err, "could not stop image processor"))
+	}
+	err = eventBusService.Stop()
+	if err != nil {
+		loggerService.LogError(ctx, err)
 	}
 
 	shutdownSequenceWg.Wait()
