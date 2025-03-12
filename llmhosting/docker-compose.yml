@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    env_file:
+      - ".env.local"
+    ports:
+      - "5432:5432"
+    command: "-c log_statement=all"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - llmhost-net
+
+  mac-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    networks:
+      - llmhost-net
+    restart: unless-stopped
+    depends_on:
+      - mac-monitor
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000" # Changed to 3001 to avoid conflict with NestJS app
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    networks:
+      - llmhost-net
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  #   postgres-data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  llmhost-net:
+    driver: bridge
