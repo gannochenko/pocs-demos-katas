@@ -90,6 +90,12 @@ func (s *Service) AddEventListener(eventType domain.EventBusEventType, cb EventH
 	return nil
 }
 
+func (s *Service) RemoveEventListener(eventType domain.EventBusEventType, cb EventHandler) error {
+	// todo: implement this
+
+	return nil
+}
+
 func (s *Service) TriggerEvent(event *domain.EventBusEvent) error {
 	if s.channel == nil {
 		return syserr.NewInternal("client disconnected")

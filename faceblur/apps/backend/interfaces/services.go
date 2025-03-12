@@ -45,6 +45,7 @@ type EventBusService interface {
 	Stop() error
 	TriggerEvent(event *domain.EventBusEvent) error
 	AddEventListener(eventType domain.EventBusEventType, cb func(event *domain.EventBusEvent)) error
+	RemoveEventListener(eventType domain.EventBusEventType, cb func(event *domain.EventBusEvent)) error
 }
 
 type ImageProcessorService interface {

@@ -43,6 +43,15 @@ func (p *ImageProcessingQueue) ToDomain() (*domain.ImageProcessingQueue, error) 
 	return result, nil
 }
 
+type ImageProcessingQueueUpdate struct {
+	ID            uuid.UUID
+	CompletedAt   *FieldValue[*time.Time]
+	IsFailed      *FieldValue[*bool]
+	IsCompleted   *FieldValue[*bool]
+	FailureReason *FieldValue[*string]
+	OperationID   *FieldValue[*string]
+}
+
 type ImageProcessingQueueFilter struct {
 	CreatedBy *uuid.UUID
 	IsFailed *bool

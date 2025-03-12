@@ -21,6 +21,6 @@ type ImageRepository interface {
 
 type ImageProcessingQueueRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueue) error
-	Update(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueue) error
+	Update(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueueUpdate) error
 	List(ctx context.Context, tx *gorm.DB, parameters database.ImageProcessingQueueListParameters) ([]database.ImageProcessingQueue, error)
 }

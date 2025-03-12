@@ -27,8 +27,36 @@ func (r *Repository) Create(ctx context.Context, tx *gorm.DB, element *database.
 	return res.Error
 }
 
-func (r *Repository) Update(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueue) error {
-	return nil
+func (r *Repository) Update(ctx context.Context, tx *gorm.DB, element *database.ImageProcessingQueueUpdate) error {
+	if element == nil {
+		return syserr.NewBadInput("no element provided")
+	}
+
+	updates := make(map[string]interface{})
+
+	if element.CompletedAt != nil {
+		updates["completed_at"] = element.CompletedAt.Value
+	}
+	if element.IsFailed != nil {
+		updates["is_failed"] = element.IsFailed.Value
+	}
+	if element.FailureReason != nil {
+		updates["failure_reason"] = element.FailureReason.Value
+	}
+	if element.OperationID != nil {
+		updates["operation_id"] = element.OperationID.Value
+	}
+
+	if len(updates) == 0 {
+		return nil
+	}
+
+	result := db.GetRunner(r.session, tx).WithContext(ctx).
+		Model(&database.ImageProcessingQueue{}).
+		Where("id = ?", element.ID).
+		Updates(updates)
+
+	return result.Error
 }
 
 func (r *Repository) List(ctx context.Context, tx *gorm.DB, parameters database.ImageProcessingQueueListParameters) ([]database.ImageProcessingQueue, error) {

@@ -3,6 +3,7 @@ package imageProcessor
 import (
 	"context"
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -12,6 +13,9 @@ import (
 	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
 
+	ctxUtil "backend/internal/util/ctx"
+
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -47,39 +51,54 @@ func NewImageProcessor(
 }
 
 func (s *Service) Start(ctx context.Context) error {
-	// todo: implement the worker pool here
-	err := s.init(ctx)
+	var wg sync.WaitGroup
+
+	err := s.init(ctx, &wg)
 	if err != nil {
 		return syserr.Wrap(err, "could not initialize")
 	}
 
-	err = s.eventBusService.AddEventListener(domain.EventBusEventTypeImageCreated, func(event *domain.EventBusEvent) {
+	callback := func(event *domain.EventBusEvent) {
 		s.loggerService.Info(ctx, "new event received", logger.F("event", event))
 		s.hasNewMessages.Store(true)
-	})
+	}
+
+	err = s.eventBusService.AddEventListener(domain.EventBusEventTypeImageCreated, callback)
 	if err != nil {
 		return syserr.Wrap(err, "could not start listening to events")
 	}
+	defer func(){
+		// todo: this will not work
+		s.eventBusService.RemoveEventListener(domain.EventBusEventTypeImageCreated, callback)
+	}()
 
-	// running one cycle, no waitgroup is needed
-	for {
-		select {
-		case <-ctx.Done():
-			return syserr.Wrap(ctx.Err(), "context is done")
-		default:
-			if s.hasNewMessages.Swap(false) {
-				err = s.ProcessImages(ctx)
-				if err != nil {
-					s.loggerService.LogError(ctx, syserr.Wrap(err, "could not process images"))
+	wg.Add(1)
+	go func(){
+		defer wg.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				err = syserr.Wrap(ctx.Err(), "context is done")
+				return
+			default:
+				if s.hasNewMessages.Swap(false) {
+					err = s.ProcessImages(ctx)
+					if err != nil {
+						s.loggerService.LogError(ctx, syserr.Wrap(err, "could not process images"))
+					}
+					time.Sleep(100 * time.Millisecond)
 				}
 			}
-			time.Sleep(100 * time.Millisecond)
 		}
-	}
+	}()
+
+	wg.Wait()
+
+	return err
 }
 
 func (s *Service) ProcessImages(ctx context.Context) error {
-	fmt.Println("processing images")
 	for {
 		select {
 		case <-ctx.Done():
@@ -93,6 +112,11 @@ func (s *Service) ProcessImages(ctx context.Context) error {
 			})
 			if err != nil {
 				return syserr.Wrap(err, "could not list images")
+			}
+
+			if len(res) == 0 {
+				// nothing left to do
+				return nil
 			}
 	
 			s.bufferSize.Add(int64(len(res)))
@@ -113,7 +137,7 @@ func (s *Service) Stop() error {
 	return nil
 }
 
-func (s *Service) init(ctx context.Context) error {
+func (s *Service) init(ctx context.Context, wg *sync.WaitGroup) error {
 	config, err := s.configService.GetConfig()
 	if err != nil {
 		return syserr.Wrap(err, "could not extract config")
@@ -125,12 +149,45 @@ func (s *Service) init(ctx context.Context) error {
 	}
 
 	for i := 0;	i < workerPoolSize; i++ {
-		go s.processImage(ctx, i)
+		wg.Add(1)
+		go s.processImage(ctx, i, wg)
 	}
 
 	return nil
 }
 
-func (s *Service) processImage(ctx context.Context, workerId int) {
+func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitGroup) {
+	defer func(){
+		wg.Done()
+		s.loggerService.Info(ctx, fmt.Sprintf("worker %d exited", workerId), logger.F("workerId", workerId))
+	}()
 
+	operationID := uuid.New().String()
+	processCtx := ctxUtil.WithOperationID(ctx, operationID)
+
+	s.loggerService.Info(ctx, fmt.Sprintf("worker %d started", workerId), logger.F("workerId", workerId))
+
+	for {
+		select {
+		case <-processCtx.Done():
+			return
+		case image := <-s.channel:
+			// process!
+
+			s.imageQueueRepository.Update(processCtx, nil, &database.ImageProcessingQueueUpdate{
+				ID: image.ID,
+				OperationID: &database.FieldValue[*string]{Value: &operationID},
+				IsCompleted: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
+				CompletedAt: &database.FieldValue[*time.Time]{Value: lo.ToPtr(time.Now().UTC())},
+			})
+
+			// todo: notify user
+			s.eventBusService.TriggerEvent(&domain.EventBusEvent{
+				Type: domain.EventBusEventTypeImageProcessed,
+				Payload: &domain.EventBusEventPayload{
+					ImageID: image.ID,
+				},
+			})
+		}
+	}
 }
