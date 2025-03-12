@@ -25,6 +25,22 @@ func ConvertEventToDomain(event *protoEventV1.Event) (*domain.EventBusEvent, err
 		}, nil
 	}
 
+	payloadImageProcessed := event.GetImageProcessed()
+	if payloadImageProcessed != nil {
+		imageID, err := uuid.Parse(payloadImageProcessed.ImageId)
+		if err != nil {
+			return nil, syserr.WrapAs(err, syserr.BadInputCode, "could not convert image id to uuid")
+		}
+
+		return &domain.EventBusEvent{
+			Type: domain.EventBusEventTypeImageProcessed,
+			Payload: &domain.EventBusEventPayloadImageProcessed{
+				ImageID: imageID,
+				Failed:  payloadImageProcessed.Failed,
+			},
+		}, nil
+	}
+
 	return nil, syserr.NewBadInput("unknown message received")
 }
 

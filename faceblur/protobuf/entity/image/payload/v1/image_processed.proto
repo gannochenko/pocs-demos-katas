@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package faceblur.entity.image.payload.v1;
+
+option go_package = "backend/proto/entity/image/payload/v1";
+
+message ImageProcessedPayload {
+  string image_id = 1;
+  bool failed = 2;
+}

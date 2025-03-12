@@ -15,6 +15,7 @@ type EventBusEventPayloadImageCreated struct {
 
 type EventBusEventPayloadImageProcessed struct {
 	ImageID uuid.UUID
+	Failed bool
 }
 
 type EventBusEvent struct {

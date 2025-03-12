@@ -159,7 +159,7 @@ func (s *Service) consumeMessages(ctx context.Context, ch *amqp091.Channel) erro
 			err = proto.Unmarshal(msg.Body, &event)
 			if err != nil {
 				s.loggerService.LogError(ctx, syserr.Wrap(err, "could not unmarshal event bus message"))
-				err = msg.Reject(true)
+				err = msg.Reject(false)
 				if err != nil {
 					s.loggerService.LogError(ctx, syserr.Wrap(err, "could not reject message"))
 				}
@@ -170,7 +170,7 @@ func (s *Service) consumeMessages(ctx context.Context, ch *amqp091.Channel) erro
 			domainEvent, err := protoEventConverterV1.ConvertEventToDomain(&event)
 			if err != nil {
 				s.loggerService.LogError(ctx, syserr.Wrap(err, "could not convert event to domain"))
-				err = msg.Reject(true)
+				err = msg.Reject(false)
 				if err != nil {
 					s.loggerService.LogError(ctx, syserr.Wrap(err, "could not reject message"))
 				}

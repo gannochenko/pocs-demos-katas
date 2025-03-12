@@ -105,6 +105,8 @@ func (s *Service) Start(ctx context.Context) error {
 }
 
 func (s *Service) ProcessImages(ctx context.Context) error {
+	s.loggerService.Info(ctx, "processing images")
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -114,7 +116,7 @@ func (s *Service) ProcessImages(ctx context.Context) error {
 				// the buffer is getting empty, let's add some items
 				res, err := s.imageQueueRepository.List(ctx, nil, database.ImageProcessingQueueListParameters{
 					Filter: &database.ImageProcessingQueueFilter{
-						IsFailed: lo.ToPtr(true),
+						IsFailed: lo.ToPtr(false),
 						IsCompleted: lo.ToPtr(false),
 					},
 					Pagination: &database.Pagination{
@@ -125,6 +127,8 @@ func (s *Service) ProcessImages(ctx context.Context) error {
 				if err != nil {
 					return syserr.Wrap(err, "could not list images")
 				}
+
+				s.loggerService.Info(ctx, "found images", logger.F("count", len(res)))
 
 				if len(res) == 0 {
 					// nothing left to do
@@ -193,12 +197,9 @@ func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitG
 		case task := <-s.channel:
 			// todo: process here, with a timeout
 
-			err := s.imageQueueRepository.Update(processCtx, nil, &database.ImageProcessingQueueUpdate{
-				ID: task.ID,
-				OperationID: &database.FieldValue[*string]{Value: &operationID},
-				IsCompleted: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
-				CompletedAt: &database.FieldValue[*time.Time]{Value: lo.ToPtr(time.Now().UTC())},
-			})
+			s.loggerService.Info(ctx, "processing image", logger.F("imageId", task.ID))
+
+			err := s.markTaskSucessful(processCtx, task, operationID)
 			if err != nil {
 				s.loggerService.Error(ctx, "could not update image processing queue", logger.F("error", err))
 				continue
@@ -218,4 +219,13 @@ func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitG
 			s.taskBuffer.Delete(task.ID)
 		}
 	}
+}
+
+func (s *Service) markTaskSucessful(ctx context.Context, task database.ImageProcessingQueue, operationID string) error {
+	return s.imageQueueRepository.Update(ctx, nil, &database.ImageProcessingQueueUpdate{
+		ID: task.ID,
+		OperationID: &database.FieldValue[*string]{Value: &operationID},
+		IsCompleted: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
+		CompletedAt: &database.FieldValue[*time.Time]{Value: lo.ToPtr(time.Now().UTC())},
+	})
 }
