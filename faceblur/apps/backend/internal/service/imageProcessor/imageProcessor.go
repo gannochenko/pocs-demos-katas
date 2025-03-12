@@ -14,9 +14,15 @@ import (
 	"backend/internal/util/syserr"
 
 	ctxUtil "backend/internal/util/ctx"
+	typeUtil "backend/internal/util/types"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+)
+
+const (
+	taskBufferThreshold = 5
+	imageProcessingQueueBatchSize = 30
 )
 
 type Service struct {
@@ -25,8 +31,8 @@ type Service struct {
 	loggerService   interfaces.LoggerService
 	imageQueueRepository interfaces.ImageProcessingQueueRepository
 
-	hasNewMessages atomic.Bool
-	bufferSize atomic.Int64
+	hasNewTasks atomic.Bool
+	taskBuffer sync.Map
 
 	channel chan database.ImageProcessingQueue
 }
@@ -45,7 +51,7 @@ func NewImageProcessor(
 		channel: make(chan database.ImageProcessingQueue),
 	}
 
-	result.hasNewMessages.Store(false)
+	result.hasNewTasks.Store(true) // upon startup check if there are some tasks
 
 	return result
 }
@@ -60,7 +66,7 @@ func (s *Service) Start(ctx context.Context) error {
 
 	callback := func(event *domain.EventBusEvent) {
 		s.loggerService.Info(ctx, "new event received", logger.F("event", event))
-		s.hasNewMessages.Store(true)
+		s.hasNewTasks.Store(true)
 	}
 
 	err = s.eventBusService.AddEventListener(domain.EventBusEventTypeImageCreated, callback)
@@ -82,7 +88,7 @@ func (s *Service) Start(ctx context.Context) error {
 				err = syserr.Wrap(ctx.Err(), "context is done")
 				return
 			default:
-				if s.hasNewMessages.Swap(false) {
+				if s.hasNewTasks.Swap(false) {
 					err = s.ProcessImages(ctx)
 					if err != nil {
 						s.loggerService.LogError(ctx, syserr.Wrap(err, "could not process images"))
@@ -104,33 +110,46 @@ func (s *Service) ProcessImages(ctx context.Context) error {
 		case <-ctx.Done():
 			return syserr.Wrap(ctx.Err(), "context is done")
 		default:
-			res, err := s.imageQueueRepository.List(ctx, nil, database.ImageProcessingQueueListParameters{
-				Filter: &database.ImageProcessingQueueFilter{
-					IsFailed: lo.ToPtr(true),
-					IsCompleted: lo.ToPtr(false),
-				},
-			})
-			if err != nil {
-				return syserr.Wrap(err, "could not list images")
+			if typeUtil.GetSyncMapSize(&s.taskBuffer) < taskBufferThreshold {
+				// the buffer is getting empty, let's add some items
+				res, err := s.imageQueueRepository.List(ctx, nil, database.ImageProcessingQueueListParameters{
+					Filter: &database.ImageProcessingQueueFilter{
+						IsFailed: lo.ToPtr(true),
+						IsCompleted: lo.ToPtr(false),
+					},
+					Pagination: &database.Pagination{
+						PageNumber: 1,
+						PageSize: imageProcessingQueueBatchSize,
+					},
+				})
+				if err != nil {
+					return syserr.Wrap(err, "could not list images")
+				}
+
+				if len(res) == 0 {
+					// nothing left to do
+					return nil
+				}
+
+				wasAdded := false
+				for _, task := range res {
+					if _, ok := s.taskBuffer.Load(task.ID); !ok {
+						s.taskBuffer.Store(task.ID, task)
+						wasAdded = true
+
+						s.channel <- task
+					}
+				}
+
+				if !wasAdded {
+					// all tasks are already in the buffer, exiting
+					return nil
+				}
 			}
 
-			if len(res) == 0 {
-				// nothing left to do
-				return nil
-			}
-	
-			s.bufferSize.Add(int64(len(res)))
-	
 			time.Sleep(time.Second)
 		}
 	}
-
-	// todo: 
-	// 1. get N images, save the buffer size
-	// 2. feed the images to the workers
-	// 3. when a worker is done, it decreases the buffer size
-	// 4. here run an endless cycle and keep adding new items to the buffer if it drops below a certain threshold
-	// 5. if no new images were found, exit the cycle
 }
 
 func (s *Service) Stop() error {
@@ -171,23 +190,32 @@ func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitG
 		select {
 		case <-processCtx.Done():
 			return
-		case image := <-s.channel:
-			// process!
+		case task := <-s.channel:
+			// todo: process here, with a timeout
 
-			s.imageQueueRepository.Update(processCtx, nil, &database.ImageProcessingQueueUpdate{
-				ID: image.ID,
+			err := s.imageQueueRepository.Update(processCtx, nil, &database.ImageProcessingQueueUpdate{
+				ID: task.ID,
 				OperationID: &database.FieldValue[*string]{Value: &operationID},
 				IsCompleted: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
 				CompletedAt: &database.FieldValue[*time.Time]{Value: lo.ToPtr(time.Now().UTC())},
 			})
+			if err != nil {
+				s.loggerService.Error(ctx, "could not update image processing queue", logger.F("error", err))
+				continue
+			}
 
-			// todo: notify user
-			s.eventBusService.TriggerEvent(&domain.EventBusEvent{
+			err = s.eventBusService.TriggerEvent(&domain.EventBusEvent{
 				Type: domain.EventBusEventTypeImageProcessed,
-				Payload: &domain.EventBusEventPayload{
-					ImageID: image.ID,
+				Payload: &domain.EventBusEventPayloadImageProcessed{
+					ImageID: task.ID,
 				},
 			})
+			if err != nil {
+				s.loggerService.Error(ctx, "could not trigger event bus event", logger.F("error", err))
+				continue
+			}
+
+			s.taskBuffer.Delete(task.ID)
 		}
 	}
 }

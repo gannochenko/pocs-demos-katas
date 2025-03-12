@@ -2,6 +2,7 @@ package types
 
 import (
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -33,4 +34,14 @@ func CloseChannelSafely[P any](ch chan P) {
 		// Channel is not yet closed; safe to close
 	}
 	close(ch)
+}
+
+func GetSyncMapSize(m *sync.Map) int {
+	count := 0
+	m.Range(func(_, _ interface{}) bool {
+		count++
+		return true
+	})
+
+	return count
 }
