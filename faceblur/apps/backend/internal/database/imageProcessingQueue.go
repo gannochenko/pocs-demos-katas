@@ -45,6 +45,8 @@ func (p *ImageProcessingQueue) ToDomain() (*domain.ImageProcessingQueue, error) 
 
 type ImageProcessingQueueFilter struct {
 	CreatedBy *uuid.UUID
+	IsFailed *bool
+	IsCompleted *bool
 }
 
 type ImageProcessingQueueListParameters struct {

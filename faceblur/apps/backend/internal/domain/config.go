@@ -40,6 +40,11 @@ type RabbitMqConfig struct {
 type BackendConfig struct {
 	HTTP     HTTPConfig `envconfig:"HTTP"`
 	GRPCPort int        `envconfig:"GRPC_PORT" default:"4646" desc:"grpc port"`
+	Worker   WorkerConfig `envconfig:"WORKER"`
+}
+
+type WorkerConfig struct {
+	ThreadCount int `envconfig:"THREAD_COUNT" default:"10" desc:"worker thread count"`
 }
 
 type Config struct {

@@ -2,7 +2,9 @@ package imageProcessingQueue
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"backend/internal/database"
@@ -53,6 +55,14 @@ func (r *Repository) applyFilter(session *gorm.DB, filter *database.ImageProcess
 
 	if filter.CreatedBy != nil {
 		session = session.Where("created_by = ?", *filter.CreatedBy)
+	}
+
+	if filter.IsFailed != nil {
+		session = session.Where("is_failed = ?", *filter.IsFailed)
+	}
+
+	if filter.IsCompleted != nil {
+		session = session.Where(fmt.Sprintf("completed_at is %s null", lo.Ternary(*filter.IsCompleted, "not", "")))
 	}
 
 	return session, nil

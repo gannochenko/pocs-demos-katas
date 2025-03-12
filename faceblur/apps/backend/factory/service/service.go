@@ -130,8 +130,10 @@ func (f *Factory) GetEventBusService() interfaces.EventBusService {
 func (f *Factory) GetImageProcessorService() interfaces.ImageProcessorService {
 	if f.imageProcessorService == nil {
 		f.imageProcessorService = imageProcessor.NewImageProcessor(
+			f.GetConfigService(),
 			f.GetEventBusService(),
 			f.GetLoggerService(),
+			f.GetRepositoryFactory().GetImageProcessingQueueRepository(),
 		)
 	}
 
