@@ -29,8 +29,8 @@ install_scripts:
 	@cd ./scripts; python3 -m venv venv; source venv/bin/activate; pip install -r requirements.txt; deactivate
 
 create_resources: ## Create the local resources, such as data tables, buckets, etc.
-	@godotenv -f ./.env.local python3 ./scripts/bootstrap_gcp.py
 	@godotenv -f ./.env.local python3 ./scripts/bootstrap_eventbus.py
+	@godotenv -f ./.env.local python3 ./scripts/bootstrap_gcp.py
 
 create_app_resources:
 	@$(MAKE) -C ./apps/backend/ create_resources

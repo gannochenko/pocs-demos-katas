@@ -30,6 +30,7 @@ type Service struct {
 	eventBusService interfaces.EventBusService
 	loggerService   interfaces.LoggerService
 	imageQueueRepository interfaces.ImageProcessingQueueRepository
+	imageRepository interfaces.ImageRepository
 
 	hasNewTasks atomic.Bool
 	taskBuffer sync.Map
@@ -42,12 +43,14 @@ func NewImageProcessor(
 	eventBusService interfaces.EventBusService,
 	loggerService interfaces.LoggerService,
 	imageQueueRepository interfaces.ImageProcessingQueueRepository,
+	imageRepository interfaces.ImageRepository,
 ) *Service {
 	result := &Service{
 		configService: configService,
 		eventBusService: eventBusService,
 		loggerService:   loggerService,
 		imageQueueRepository: imageQueueRepository,
+		imageRepository: imageRepository,
 		channel: make(chan database.ImageProcessingQueue),
 	}
 
@@ -205,6 +208,12 @@ func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitG
 				continue
 			}
 
+			err = s.markImageProcessed(processCtx, task.ImageID)
+			if err != nil {
+				s.loggerService.Error(ctx, "could not update image", logger.F("error", err))
+				continue
+			}
+
 			err = s.eventBusService.TriggerEvent(&domain.EventBusEvent{
 				Type: domain.EventBusEventTypeImageProcessed,
 				Payload: &domain.EventBusEventPayloadImageProcessed{
@@ -227,5 +236,13 @@ func (s *Service) markTaskSucessful(ctx context.Context, task database.ImageProc
 		OperationID: &database.FieldValue[*string]{Value: &operationID},
 		IsCompleted: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
 		CompletedAt: &database.FieldValue[*time.Time]{Value: lo.ToPtr(time.Now().UTC())},
+	})
+}
+
+func (s *Service) markImageProcessed(ctx context.Context, imageID uuid.UUID) error {
+	return s.imageRepository.Update(ctx, nil, &database.ImageUpdate{
+		ID: imageID,
+		IsProcessed: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
+		IsFailed: &database.FieldValue[*bool]{Value: lo.ToPtr(false)},
 	})
 }

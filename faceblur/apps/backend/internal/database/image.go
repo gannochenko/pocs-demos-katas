@@ -43,6 +43,14 @@ func (p *Image) ToDomain() (*domain.Image, error) {
 	return result, nil
 }
 
+type ImageUpdate struct {
+	ID          uuid.UUID
+	URL         *FieldValue[*string]
+	OriginalURL *FieldValue[*string]
+	IsProcessed *FieldValue[*bool]
+	IsFailed *FieldValue[*bool]
+}
+
 type ImageFilter struct {
 	CreatedBy *uuid.UUID
 	ID        *uuid.UUID
