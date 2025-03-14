@@ -11,6 +11,12 @@ pip3 install -r requirements.txt
 
 ```
 
+## Freezing
+
+```
+pip freeze > requirements.txt
+```
+
 ## Usage
 
 ```
