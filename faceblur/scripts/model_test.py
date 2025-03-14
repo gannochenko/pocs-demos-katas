@@ -9,6 +9,8 @@ model = YOLO(model_path)
 file = "/Users/gannochenko/proj/tryout/onnxruntime_go_examples/image_object_detect/input.png"
 
 output = model(Image.open(file))
+print(output)
+
 resultss = Detections.from_ultralytics(output[0])
 print(resultss)
 
