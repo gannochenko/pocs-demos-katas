@@ -59,3 +59,7 @@ func IsDone(ctx context.Context) bool {
 
 	return false
 }
+
+func IsTimeouted(ctx context.Context) bool {
+	return ctx.Err() == context.DeadlineExceeded
+}

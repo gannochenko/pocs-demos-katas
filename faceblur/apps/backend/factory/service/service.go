@@ -10,6 +10,7 @@ import (
 	"backend/internal/service/auth"
 	"backend/internal/service/config"
 	"backend/internal/service/eventBus"
+	"backend/internal/service/facedetection"
 	"backend/internal/service/image"
 	"backend/internal/service/imageProcessor"
 	"backend/internal/service/logger"
@@ -33,6 +34,7 @@ type Factory struct {
 	userService           interfaces.UserService
 	eventBusService       interfaces.EventBusService
 	imageProcessorService interfaces.ImageProcessorService
+	faceDetectionService interfaces.FaceDetectionService
 }
 
 func NewServiceFactory(session *gorm.DB, outputWriter io.Writer, repositoryFactory *repository.Factory) *Factory {
@@ -135,8 +137,20 @@ func (f *Factory) GetImageProcessorService() interfaces.ImageProcessorService {
 			f.GetLoggerService(),
 			f.GetRepositoryFactory().GetImageProcessingQueueRepository(),
 			f.GetRepositoryFactory().GetImageRepository(),
+			f.GetFaceDetectionService(),
 		)
 	}
 
 	return f.imageProcessorService
+}
+
+func (f *Factory) GetFaceDetectionService() interfaces.FaceDetectionService {
+	if f.faceDetectionService == nil {
+		f.faceDetectionService = facedetection.NewService(
+			f.GetConfigService(),
+			f.GetLoggerService(),
+		)
+	}
+
+	return f.faceDetectionService
 }

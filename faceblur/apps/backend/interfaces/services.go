@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"image"
 	"io"
 	"time"
 
@@ -51,4 +52,8 @@ type EventBusService interface {
 type ImageProcessorService interface {
 	Start(ctx context.Context) error
 	Stop() error
+}
+
+type FaceDetectionService interface {
+	Detect(ctx context.Context, image image.Image) ([]*domain.FaceDetection, error)
 }

@@ -31,6 +31,7 @@ type Service struct {
 	loggerService   interfaces.LoggerService
 	imageQueueRepository interfaces.ImageProcessingQueueRepository
 	imageRepository interfaces.ImageRepository
+	faceDetectionService interfaces.FaceDetectionService
 
 	hasNewTasks atomic.Bool
 	taskBuffer sync.Map
@@ -44,6 +45,7 @@ func NewImageProcessor(
 	loggerService interfaces.LoggerService,
 	imageQueueRepository interfaces.ImageProcessingQueueRepository,
 	imageRepository interfaces.ImageRepository,
+	faceDetectionService interfaces.FaceDetectionService,
 ) *Service {
 	result := &Service{
 		configService: configService,
@@ -52,6 +54,7 @@ func NewImageProcessor(
 		imageQueueRepository: imageQueueRepository,
 		imageRepository: imageRepository,
 		channel: make(chan database.ImageProcessingQueue),
+		faceDetectionService: faceDetectionService,
 	}
 
 	result.hasNewTasks.Store(true) // upon startup check if there are some tasks
@@ -198,19 +201,52 @@ func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitG
 		case <-processCtx.Done():
 			return
 		case task := <-s.channel:
-			// todo: process here, with a timeout
-
 			s.loggerService.Info(ctx, "processing image", logger.F("imageId", task.ID))
 
-			err := s.markTaskSucessful(processCtx, task, operationID)
+			taskCtx, cancelTaskCtx := context.WithTimeout(processCtx, time.Second * 15)
+			defer cancelTaskCtx()
+
+			var err error
+			var detections []*domain.FaceDetection
+
+			// todo: download the image
+
+			// detect faces
+			detections, err = s.faceDetectionService.Detect(taskCtx, task.ImageData)
 			if err != nil {
-				s.loggerService.Error(ctx, "could not update image processing queue", logger.F("error", err))
+				s.loggerService.Error(processCtx, "could not detect faces", logger.F("error", err))
 				continue
 			}
 
+			if ctxUtil.IsTimeouted(taskCtx) {
+				s.loggerService.Error(processCtx, "context is done", logger.F("error", err))
+				continue
+			}
+
+			// todo: blur faces on _detections_ regions
+
+			if ctxUtil.IsTimeouted(taskCtx) {
+				s.loggerService.Error(processCtx, "context is done", logger.F("error", err))
+				continue
+			}
+
+			// todo: save image
+
+			if ctxUtil.IsTimeouted(taskCtx) {
+				s.loggerService.Error(processCtx, "context is done", logger.F("error", err))
+				continue
+			}
+
+			// todo: save the udpated image here
 			err = s.markImageProcessed(processCtx, task.ImageID)
 			if err != nil {
-				s.loggerService.Error(ctx, "could not update image", logger.F("error", err))
+				s.loggerService.Error(processCtx, "could not update image", logger.F("error", err))
+				continue
+			}
+
+			err = s.markTaskSucessful(processCtx, task, operationID)
+			if err != nil {
+				s.loggerService.Error(processCtx, "could not update image processing queue", logger.F("error", err))
 				continue
 			}
 
@@ -221,7 +257,7 @@ func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitG
 				},
 			})
 			if err != nil {
-				s.loggerService.Error(ctx, "could not trigger event bus event", logger.F("error", err))
+				s.loggerService.Error(processCtx, "could not trigger event bus event", logger.F("error", err))
 				continue
 			}
 
