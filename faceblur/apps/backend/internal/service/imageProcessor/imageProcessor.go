@@ -212,7 +212,7 @@ func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.Wait
 				if err != nil {
 					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not update image processing queue"))
 				}
-				err = s.markImageProcessed(processCtx, task.ImageID, false, nil)
+				err = s.markImageProcessed(processCtx, task.ImageID, true, nil)
 				if err != nil {
 					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not mark image processed"))
 				}
@@ -249,7 +249,6 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		return syserr.NewInternal("image not found", syserr.F("id", task.ID))
 	}
 
-	// todo: download the image
 	image, err := imageUtil.DownloadImage(imageElement.OriginalURL)
 	if err != nil {
 		return syserr.Wrap(err, "could not download image")
