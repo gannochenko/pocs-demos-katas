@@ -33,6 +33,7 @@ type Service struct {
 	imageQueueRepository interfaces.ImageProcessingQueueRepository
 	imageRepository interfaces.ImageRepository
 	faceDetectionService interfaces.FaceDetectionService
+	storageService interfaces.StorageService
 
 	hasNewTasks atomic.Bool
 	taskBuffer sync.Map
@@ -47,6 +48,7 @@ func NewImageProcessor(
 	imageQueueRepository interfaces.ImageProcessingQueueRepository,
 	imageRepository interfaces.ImageRepository,
 	faceDetectionService interfaces.FaceDetectionService,
+	storageService interfaces.StorageService,
 ) *Service {
 	result := &Service{
 		configService: configService,
@@ -56,6 +58,7 @@ func NewImageProcessor(
 		imageRepository: imageRepository,
 		channel: make(chan database.ImageProcessingQueue),
 		faceDetectionService: faceDetectionService,
+		storageService: storageService,
 	}
 
 	result.hasNewTasks.Store(true) // upon startup check if there are some tasks
@@ -221,6 +224,13 @@ func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.Wait
 }
 
 func (s *Service) processTask(processCtx context.Context, task database.ImageProcessingQueue) error {
+	var err error
+
+	config, err := s.configService.GetConfig()
+	if err != nil {
+		return syserr.Wrap(err, "could not extract config")
+	}
+
 	s.loggerService.Info(processCtx, "processing image", logger.F("imageId", task.ID))
 
 	operationID := ctxUtil.GetOperationID(processCtx)
@@ -228,7 +238,6 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 	taskCtx, cancelTaskCtx := context.WithTimeout(processCtx, time.Second * 15)
 	defer cancelTaskCtx()
 
-	var err error
 	var detections []*domain.BoundingBox
 
 	imageElement, err := s.imageRepository.GetByID(taskCtx, nil, task.ImageID)
@@ -265,7 +274,16 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		return syserr.Wrap(err, "could not encode image")
 	}
 
-	// todo: upload an image
+	writer, err := s.storageService.GetWriter(taskCtx, config.Storage.ImageBucketName, operationID)
+	if err != nil {
+		return syserr.Wrap(err, "could not get writer")
+	}
+	defer writer.Close()
+
+	_, err = writer.Write(buffer.Bytes())
+	if err != nil {
+		return syserr.Wrap(err, "could not write image")
+	}
 
 	if ctxUtil.IsTimeouted(taskCtx) {
 		return syserr.Wrap(err, "context is done")
@@ -291,6 +309,8 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 	if err != nil {
 		return syserr.Wrap(err, "could not trigger event bus event")
 	}
+
+	s.loggerService.Info(processCtx, "image was processed", logger.F("imageId", task.ID))
 
 	return nil
 }
