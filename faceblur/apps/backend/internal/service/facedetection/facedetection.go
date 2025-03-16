@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"image"
 	"runtime"
+	"sync"
 
 	"github.com/nfnt/resize"
 	ort "github.com/yalue/onnxruntime_go"
@@ -30,12 +31,17 @@ func (m *modelSession) Destroy() {
 type Service struct {
 	configService interfaces.ConfigService
 	loggerService interfaces.LoggerService
+
+	ortCreated bool
+	ortCreationMutex sync.Mutex
 }
 
 func NewService(configService interfaces.ConfigService, loggerService interfaces.LoggerService) *Service {
 	return &Service{
 		configService: configService,
 		loggerService: loggerService,
+		ortCreationMutex: sync.Mutex{},
+		ortCreated: false,
 	}
 }
 
@@ -166,21 +172,39 @@ func (s *Service) processOutput(ctx context.Context, output []float32, originalW
 	return boundingBoxes
 }
 
+func (s *Service) initORT() error {
+	if s.ortCreated {
+		return nil
+	}
+
+	s.ortCreationMutex.Lock()
+	defer s.ortCreationMutex.Unlock()
+
+	libraryPath, err := s.getSharedLibPath()
+	if err != nil {
+		return syserr.Wrap(err, "could not get library path")
+	}
+
+	ort.SetSharedLibraryPath(libraryPath)
+	err = ort.InitializeEnvironment()
+	if err != nil {
+		return syserr.Wrap(err, "error initializing ORT environment")
+	}
+
+	s.ortCreated = true
+
+	return nil
+}
+
 func (s *Service) initSession() (*modelSession, error) {
 	config, err := s.configService.GetConfig()
 	if err != nil {
 		return nil, syserr.Wrap(err, "could not get config")
 	}
 
-	libraryPath, err := s.getSharedLibPath()
+	err = s.initORT()
 	if err != nil {
-		return nil, syserr.Wrap(err, "could not get library path")
-	}
-
-	ort.SetSharedLibraryPath(libraryPath)
-	err = ort.InitializeEnvironment()
-	if err != nil {
-		return nil, syserr.Wrap(err, "error initializing ORT environment")
+		return nil, syserr.Wrap(err, "could not initialize ORT")
 	}
 
 	inputShape := ort.NewShape(1, 3, 640, 640)
