@@ -2,14 +2,14 @@ package image
 
 import (
 	"backend/internal/util/syserr"
-	"fmt"
 	"image"
+	_ "image/gif"  // Register GIF format
+	_ "image/jpeg" // Register JPEG format
+	_ "image/png"  // Register PNG format
 	"net/http"
 )
 
 func DownloadImage(url string) (image.Image, error) {
-	fmt.Println("Downloading image from ", url)
-
 	// Fetch the image
 	resp, err := http.Get(url)
 	if err != nil {

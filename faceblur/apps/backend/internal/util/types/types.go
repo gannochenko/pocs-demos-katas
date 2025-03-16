@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math"
 	"net/http"
 	"sync"
 	"time"
@@ -44,4 +45,8 @@ func GetSyncMapSize(m *sync.Map) int {
 	})
 
 	return count
+}
+
+func Float32ToInt32(value float32) int32 {
+	return int32(math.Round(float64(value)))
 }

@@ -256,7 +256,9 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 	}
 
 	fmt.Println("Detections:")
-	fmt.Printf("%v\n", detections)
+	for _, detection := range detections {
+		fmt.Printf("%v\n", detection)
+	}
 	// todo: blur faces on _detections_ regions
 
 	if ctxUtil.IsTimeouted(taskCtx) {

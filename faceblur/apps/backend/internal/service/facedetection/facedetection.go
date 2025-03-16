@@ -3,9 +3,10 @@ package facedetection
 import (
 	"backend/interfaces"
 	"backend/internal/domain"
-	utilImage "backend/internal/util/image"
+	imageUtil "backend/internal/util/image"
 	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
+	typeUtil "backend/internal/util/types"
 	"context"
 	"fmt"
 	"image"
@@ -60,11 +61,27 @@ func (s *Service) Detect(ctx context.Context, image image.Image) ([]*domain.Face
 	}
 
 	boundingBoxes := s.processOutput(ctx, modelSession.Output.GetData(), originalWidth, originalHeight)
+	boundingBoxes = imageUtil.FilterDistinctBoxes(boundingBoxes, 0.45, 0.9, 0)
+
 	for i, boundingBox := range boundingBoxes {
 		fmt.Printf("Box %d: %s\n", i, &boundingBox)
 	}
 
-	return nil, nil
+	result := make([]*domain.FaceDetection, len(boundingBoxes))
+	for i, boundingBox := range boundingBoxes {
+		result[i] = &domain.FaceDetection{
+			TopLeft: &domain.Coordinate{
+				X: typeUtil.Float32ToInt32(boundingBox.X1),
+				Y: typeUtil.Float32ToInt32(boundingBox.Y1),
+			},
+			BottomRight: &domain.Coordinate{
+				X: typeUtil.Float32ToInt32(boundingBox.X2),
+				Y: typeUtil.Float32ToInt32(boundingBox.Y2),
+			},
+		}
+	}
+
+	return result, nil
 }
 
 func (s *Service) prepareInput(pic image.Image, dst *ort.Tensor[float32]) error {
@@ -118,8 +135,8 @@ func (s *Service) getSharedLibPath() (string, error) {
 	return "", syserr.NewInternal("unable to find a version of the onnxruntime library supporting this system")
 }
 
-func (s *Service) processOutput(ctx context.Context, output []float32, originalWidth, originalHeight int) []utilImage.BoundingBox {
-	boundingBoxes := make([]utilImage.BoundingBox, 0)
+func (s *Service) processOutput(ctx context.Context, output []float32, originalWidth, originalHeight int) []imageUtil.BoundingBox {
+	boundingBoxes := make([]imageUtil.BoundingBox, 0)
 
 	detectionCount := len(output) / 5 // Ensure we don't go out of bounds
 
@@ -142,7 +159,7 @@ func (s *Service) processOutput(ctx context.Context, output []float32, originalW
 		x2 := (xc + w/2) / 640 * float32(originalWidth)
 		y2 := (yc + h/2) / 640 * float32(originalHeight)
 
-		boundingBoxes = append(boundingBoxes, utilImage.BoundingBox{
+		boundingBoxes = append(boundingBoxes, imageUtil.BoundingBox{
 			Confidence: confidence,
 			X1:         x1,
 			Y1:         y1,
