@@ -212,7 +212,7 @@ func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.Wait
 				if err != nil {
 					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not update image processing queue"))
 				}
-				err = s.markImageProcessed(processCtx, task.ImageID, false)
+				err = s.markImageProcessed(processCtx, task.ImageID, false, "")
 				if err != nil {
 					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not mark image processed"))
 				}
@@ -264,7 +264,7 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		return syserr.Wrap(err, "context is done")
 	}
 
-	image, err = imageUtil.BlurBoxes(image, detections, 3.0)
+	image, err = imageUtil.BlurBoxes(image, detections, 7.0)
 	if err != nil {
 		return syserr.Wrap(err, "could not blur faces")
 	}
@@ -289,8 +289,7 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		return syserr.Wrap(err, "context is done")
 	}
 
-	// todo: save the udpated image here
-	err = s.markImageProcessed(processCtx, task.ImageID, false)
+	err = s.markImageProcessed(processCtx, task.ImageID, false, s.storageService.GetPublicURL(config.Storage.ImageBucketName, operationID))
 	if err != nil {
 		return syserr.Wrap(err, "could not update image")
 	}
@@ -335,10 +334,11 @@ func (s *Service) markTaskFailed(ctx context.Context, task database.ImageProcess
 	})
 }
 
-func (s *Service) markImageProcessed(ctx context.Context, imageID uuid.UUID, failed bool) error {
+func (s *Service) markImageProcessed(ctx context.Context, imageID uuid.UUID, failed bool, url string) error {
 	return s.imageRepository.Update(ctx, nil, &database.ImageUpdate{
 		ID: imageID,
 		IsProcessed: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
 		IsFailed: &database.FieldValue[*bool]{Value: &failed},
+		URL: &database.FieldValue[*string]{Value: &url},
 	})
 }
