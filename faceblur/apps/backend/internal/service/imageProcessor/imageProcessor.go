@@ -229,7 +229,7 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 	defer cancelTaskCtx()
 
 	var err error
-	var detections []*domain.FaceDetection
+	var detections []*domain.BoundingBox
 
 	imageElement, err := s.imageRepository.GetByID(taskCtx, nil, task.ImageID)
 	if err != nil {
@@ -255,14 +255,14 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		return syserr.Wrap(err, "context is done")
 	}
 
-	fmt.Println("Detections:")
-	for _, detection := range detections {
-		fmt.Printf("%v\n", detection)
+	image, err = imageUtil.BlurBoxes(image, detections, 3.0)
+	if err != nil {
+		return syserr.Wrap(err, "could not blur faces")
 	}
-	// todo: blur faces on _detections_ regions
 
-	if ctxUtil.IsTimeouted(taskCtx) {
-		return syserr.Wrap(err, "context is done")
+	buffer, err := imageUtil.EncodeImage(image, "jpg", 90)
+	if err != nil {
+		return syserr.Wrap(err, "could not encode image")
 	}
 
 	// todo: upload an image

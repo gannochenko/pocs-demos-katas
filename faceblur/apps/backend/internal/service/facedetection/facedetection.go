@@ -6,7 +6,6 @@ import (
 	imageUtil "backend/internal/util/image"
 	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
-	typeUtil "backend/internal/util/types"
 	"context"
 	"fmt"
 	"image"
@@ -40,7 +39,7 @@ func NewService(configService interfaces.ConfigService, loggerService interfaces
 	}
 }
 
-func (s *Service) Detect(ctx context.Context, image image.Image) ([]*domain.FaceDetection, error) {
+func (s *Service) Detect(ctx context.Context, image image.Image) ([]*domain.BoundingBox, error) {
 	originalWidth := image.Bounds().Canon().Dx()
 	originalHeight := image.Bounds().Canon().Dy()
 
@@ -63,21 +62,17 @@ func (s *Service) Detect(ctx context.Context, image image.Image) ([]*domain.Face
 	boundingBoxes := s.processOutput(ctx, modelSession.Output.GetData(), originalWidth, originalHeight)
 	boundingBoxes = imageUtil.FilterDistinctBoxes(boundingBoxes, 0.45, 0.9, 0)
 
-	for i, boundingBox := range boundingBoxes {
-		fmt.Printf("Box %d: %s\n", i, &boundingBox)
-	}
+	// for i, boundingBox := range boundingBoxes {
+	// 	fmt.Printf("Box %d: %s\n", i, &boundingBox)
+	// }
 
-	result := make([]*domain.FaceDetection, len(boundingBoxes))
+	result := make([]*domain.BoundingBox, len(boundingBoxes))
 	for i, boundingBox := range boundingBoxes {
-		result[i] = &domain.FaceDetection{
-			TopLeft: &domain.Coordinate{
-				X: typeUtil.Float32ToInt32(boundingBox.X1),
-				Y: typeUtil.Float32ToInt32(boundingBox.Y1),
-			},
-			BottomRight: &domain.Coordinate{
-				X: typeUtil.Float32ToInt32(boundingBox.X2),
-				Y: typeUtil.Float32ToInt32(boundingBox.Y2),
-			},
+		result[i] = &domain.BoundingBox{
+			X1: boundingBox.X1,
+			Y1: boundingBox.Y1,
+			X2: boundingBox.X2,
+			Y2: boundingBox.Y2,
 		}
 	}
 

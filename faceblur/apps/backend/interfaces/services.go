@@ -55,5 +55,5 @@ type ImageProcessorService interface {
 }
 
 type FaceDetectionService interface {
-	Detect(ctx context.Context, image image.Image) ([]*domain.FaceDetection, error)
+	Detect(ctx context.Context, image image.Image) ([]*domain.BoundingBox, error)
 }

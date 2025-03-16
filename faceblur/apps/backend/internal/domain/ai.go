@@ -1,11 +1,5 @@
 package domain
 
-type Coordinate struct {
-	X int32
-	Y int32
-}
-
-type FaceDetection struct {
-	TopLeft *Coordinate
-	BottomRight *Coordinate
+type BoundingBox struct {
+	X1, Y1, X2, Y2 float32
 }
