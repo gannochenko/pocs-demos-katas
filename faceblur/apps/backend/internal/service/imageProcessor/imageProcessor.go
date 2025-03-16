@@ -14,6 +14,7 @@ import (
 	"backend/internal/util/syserr"
 
 	ctxUtil "backend/internal/util/ctx"
+	imageUtil "backend/internal/util/image"
 	typeUtil "backend/internal/util/types"
 
 	"github.com/google/uuid"
@@ -179,91 +180,117 @@ func (s *Service) init(ctx context.Context, wg *sync.WaitGroup) error {
 
 	for i := 0;	i < workerPoolSize; i++ {
 		wg.Add(1)
-		go s.processImage(ctx, i, wg)
+		go s.processImages(ctx, i, wg)
 	}
 
 	return nil
 }
 
-func (s *Service) processImage(ctx context.Context, workerId int, wg *sync.WaitGroup) {
+func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.WaitGroup) {
 	defer func(){
 		wg.Done()
 		s.loggerService.Info(ctx, fmt.Sprintf("worker %d exited", workerId), logger.F("workerId", workerId))
 	}()
 
-	operationID := uuid.New().String()
-	processCtx := ctxUtil.WithOperationID(ctx, operationID)
-
 	s.loggerService.Info(ctx, fmt.Sprintf("worker %d started", workerId), logger.F("workerId", workerId))
 
 	for {
 		select {
-		case <-processCtx.Done():
+		case <-ctx.Done():
 			return
 		case task := <-s.channel:
-			s.loggerService.Info(ctx, "processing image", logger.F("imageId", task.ID))
+			operationID := uuid.New().String()
+			processCtx := ctxUtil.WithOperationID(ctx, operationID)
 
-			taskCtx, cancelTaskCtx := context.WithTimeout(processCtx, time.Second * 15)
-			defer cancelTaskCtx()
-
-			var err error
-			var detections []*domain.FaceDetection
-
-			// todo: download the image
-
-			// detect faces
-			detections, err = s.faceDetectionService.Detect(taskCtx, task.ImageData)
+			err := s.processTask(processCtx, task)
 			if err != nil {
-				s.loggerService.Error(processCtx, "could not detect faces", logger.F("error", err))
-				continue
-			}
-
-			if ctxUtil.IsTimeouted(taskCtx) {
-				s.loggerService.Error(processCtx, "context is done", logger.F("error", err))
-				continue
-			}
-
-			// todo: blur faces on _detections_ regions
-
-			if ctxUtil.IsTimeouted(taskCtx) {
-				s.loggerService.Error(processCtx, "context is done", logger.F("error", err))
-				continue
-			}
-
-			// todo: save image
-
-			if ctxUtil.IsTimeouted(taskCtx) {
-				s.loggerService.Error(processCtx, "context is done", logger.F("error", err))
-				continue
-			}
-
-			// todo: save the udpated image here
-			err = s.markImageProcessed(processCtx, task.ImageID)
-			if err != nil {
-				s.loggerService.Error(processCtx, "could not update image", logger.F("error", err))
-				continue
-			}
-
-			err = s.markTaskSucessful(processCtx, task, operationID)
-			if err != nil {
-				s.loggerService.Error(processCtx, "could not update image processing queue", logger.F("error", err))
-				continue
-			}
-
-			err = s.eventBusService.TriggerEvent(&domain.EventBusEvent{
-				Type: domain.EventBusEventTypeImageProcessed,
-				Payload: &domain.EventBusEventPayloadImageProcessed{
-					ImageID: task.ID,
-				},
-			})
-			if err != nil {
-				s.loggerService.Error(processCtx, "could not trigger event bus event", logger.F("error", err))
-				continue
+				s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not process task"))
+				err = s.markTaskFailed(processCtx, task, operationID, err.Error())
+				if err != nil {
+					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not update image processing queue"))
+				}
+				err = s.markImageProcessed(processCtx, task.ImageID, false)
+				if err != nil {
+					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not mark image processed"))
+				}
 			}
 
 			s.taskBuffer.Delete(task.ID)
 		}
 	}
+}
+
+func (s *Service) processTask(processCtx context.Context, task database.ImageProcessingQueue) error {
+	s.loggerService.Info(processCtx, "processing image", logger.F("imageId", task.ID))
+
+	operationID := ctxUtil.GetOperationID(processCtx)
+
+	taskCtx, cancelTaskCtx := context.WithTimeout(processCtx, time.Second * 15)
+	defer cancelTaskCtx()
+
+	var err error
+	var detections []*domain.FaceDetection
+
+	imageElement, err := s.imageRepository.GetByID(taskCtx, nil, task.ImageID)
+	if err != nil {
+		return syserr.Wrap(err, "could not get image")
+	}
+
+	if imageElement == nil {
+		return syserr.NewInternal("image not found", syserr.F("id", task.ID))
+	}
+
+	// todo: download the image
+	image, err := imageUtil.DownloadImage(imageElement.OriginalURL)
+	if err != nil {
+		return syserr.Wrap(err, "could not download image")
+	}
+
+	detections, err = s.faceDetectionService.Detect(taskCtx, image)
+	if err != nil {
+		return syserr.Wrap(err, "could not detect faces")
+	}
+
+	if ctxUtil.IsTimeouted(taskCtx) {
+		return syserr.Wrap(err, "context is done")
+	}
+
+	fmt.Println("Detections:")
+	fmt.Printf("%v\n", detections)
+	// todo: blur faces on _detections_ regions
+
+	if ctxUtil.IsTimeouted(taskCtx) {
+		return syserr.Wrap(err, "context is done")
+	}
+
+	// todo: upload an image
+
+	if ctxUtil.IsTimeouted(taskCtx) {
+		return syserr.Wrap(err, "context is done")
+	}
+
+	// todo: save the udpated image here
+	err = s.markImageProcessed(processCtx, task.ImageID, false)
+	if err != nil {
+		return syserr.Wrap(err, "could not update image")
+	}
+
+	err = s.markTaskSucessful(processCtx, task, operationID)
+	if err != nil {
+		return syserr.Wrap(err, "could not update image processing queue")
+	}
+
+	err = s.eventBusService.TriggerEvent(&domain.EventBusEvent{
+		Type: domain.EventBusEventTypeImageProcessed,
+		Payload: &domain.EventBusEventPayloadImageProcessed{
+			ImageID: task.ID,
+		},
+	})
+	if err != nil {
+		return syserr.Wrap(err, "could not trigger event bus event")
+	}
+
+	return nil
 }
 
 func (s *Service) markTaskSucessful(ctx context.Context, task database.ImageProcessingQueue, operationID string) error {
@@ -275,10 +302,21 @@ func (s *Service) markTaskSucessful(ctx context.Context, task database.ImageProc
 	})
 }
 
-func (s *Service) markImageProcessed(ctx context.Context, imageID uuid.UUID) error {
+func (s *Service) markTaskFailed(ctx context.Context, task database.ImageProcessingQueue, operationID string, reason string) error {
+	return s.imageQueueRepository.Update(ctx, nil, &database.ImageProcessingQueueUpdate{
+		ID: task.ID,
+		OperationID: &database.FieldValue[*string]{Value: &operationID},
+		IsCompleted: &database.FieldValue[*bool]{Value: lo.ToPtr(false)},
+		IsFailed: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
+		CompletedAt: &database.FieldValue[*time.Time]{Value: nil},
+		FailureReason: &database.FieldValue[*string]{Value: &reason},
+	})
+}
+
+func (s *Service) markImageProcessed(ctx context.Context, imageID uuid.UUID, failed bool) error {
 	return s.imageRepository.Update(ctx, nil, &database.ImageUpdate{
 		ID: imageID,
 		IsProcessed: &database.FieldValue[*bool]{Value: lo.ToPtr(true)},
-		IsFailed: &database.FieldValue[*bool]{Value: lo.ToPtr(false)},
+		IsFailed: &database.FieldValue[*bool]{Value: &failed},
 	})
 }

@@ -7,6 +7,7 @@ import (
 	"backend/internal/util/db"
 	"backend/internal/util/syserr"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -74,6 +75,25 @@ func (r *Repository) List(ctx context.Context, tx *gorm.DB, parameters database.
 	return result, nil
 }
 
+func (r *Repository) GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (*database.Image, error) {
+	res, err := r.List(ctx, tx, database.ImageListParameters{
+		Filter: &database.ImageFilter{ID: &id},
+		Pagination: &database.Pagination{
+			PageNumber: 1,
+			PageSize: 1,
+		},
+	})
+	if err != nil {
+		return nil, syserr.Wrap(err, "could not apply filter")
+	}
+
+	if len(res) != 1 {
+		return nil, nil
+	}
+
+	return &res[0], nil
+}
+
 func (r *Repository) Count(ctx context.Context, tx *gorm.DB, parameters database.ImageCountParameters) (int32, error) {
 	var result int64
 
@@ -96,6 +116,10 @@ func (r *Repository) applyFilter(session *gorm.DB, filter *database.ImageFilter)
 		return session, nil
 	}
 
+	if filter.ID != nil {
+		session = session.Where("id = ?", *filter.ID)
+	}
+	
 	if filter.CreatedBy != nil {
 		session = session.Where("created_by = ?", *filter.CreatedBy)
 	}
