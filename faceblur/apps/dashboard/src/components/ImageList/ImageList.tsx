@@ -17,11 +17,9 @@ export function ImageList(props: PetListProps) {
     empty,
   } = useImageList(props);
 
-  useEffect(() => {
-    return () => console.log("UNMOUNT LIST");
-  }, []);
-
-  console.log("RENDER LIST", images);
+  // useEffect(() => {
+  //   return () => console.log("UNMOUNT LIST");
+  // }, []);
 
   return (
     <>

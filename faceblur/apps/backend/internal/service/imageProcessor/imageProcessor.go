@@ -264,7 +264,7 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		return syserr.Wrap(err, "context is done")
 	}
 
-	image, err = imageUtil.BlurBoxes(image, detections, 7.0)
+	image, err = imageUtil.BlurBoxes(image, detections, 9.0)
 	if err != nil {
 		return syserr.Wrap(err, "could not blur faces")
 	}
