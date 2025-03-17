@@ -111,7 +111,10 @@ func NewWebsocketServer(
 func (s *WebsocketServer) Start(ctx context.Context) error {
 	callback := func(event *domain.EventBusEvent) {
 		s.loggerService.Info(ctx, "websocket: new event received", logger.F("event", event))
-		
+		err := s.DispatchMessage(event)
+		if err != nil {
+			s.loggerService.LogError(ctx, syserr.Wrap(err, "could not dispatch event"))
+		}
 	}
 
 	err := s.eventBusService.AddEventListener(domain.EventBusEventTypeImageProcessed, callback)
@@ -126,6 +129,24 @@ func (s *WebsocketServer) Start(ctx context.Context) error {
 }
 
 func (s *WebsocketServer) Stop() error {
+	// todo: call s.eventBusService.RemoveEventListener()
+	return nil
+}
+
+func (s *WebsocketServer) DispatchMessage(event *domain.EventBusEvent) error {
+	s.connections.Range(func(key, value interface{}) bool {
+		// connection, ok := value.(*WebsocketConnection)
+		// if !ok {
+		// 	return true
+		// }
+
+		// connection.outgoingChan <- &v1.ServerMessage{
+		// 	Type: v1.ServerMessageType_SERVER_MESSAGE_TYPE_EVENT,
+		// 	Event: event,
+		// }
+		return true
+	})
+	
 	return nil
 }
 
