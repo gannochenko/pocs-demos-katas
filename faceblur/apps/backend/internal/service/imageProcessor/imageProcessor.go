@@ -302,6 +302,7 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 		Type: domain.EventBusEventTypeImageProcessed,
 		Payload: &domain.EventBusEventPayloadImageProcessed{
 			ImageID: task.ID,
+			CreatorID: task.CreatedBy.String(),
 		},
 	})
 	if err != nil {

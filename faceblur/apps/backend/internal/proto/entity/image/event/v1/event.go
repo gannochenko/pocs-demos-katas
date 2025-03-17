@@ -59,6 +59,19 @@ func ConvertEventToProto(event *domain.EventBusEvent) (*protoEventV1.Event, erro
 				ImageId: domainPayload.ImageID.String(),
 			},
 		}
+	case domain.EventBusEventTypeImageProcessed:
+		domainPayload, ok := event.Payload.(*domain.EventBusEventPayloadImageProcessed)
+		if !ok {
+			return nil, syserr.NewInternal("payload is not of type EventBusEventPayloadImageProcessed")
+		}
+
+		protoEvent.Payload = &protoEventV1.Event_ImageProcessed{
+			ImageProcessed: &protoPayloadV1.ImageProcessedPayload{
+				ImageId: domainPayload.ImageID.String(),
+				Failed:  domainPayload.Failed,
+				CreatorId: domainPayload.CreatorID,
+			},
+		}
 	}
 
 	return protoEvent, nil

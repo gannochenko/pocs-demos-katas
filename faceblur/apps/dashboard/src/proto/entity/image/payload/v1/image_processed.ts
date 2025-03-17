@@ -5,21 +5,25 @@ import { JsonDecoder } from "ts.data.json";
 // versions:
 //   protoc-gen-ts_proto  v2.6.1
 //   protoc               v5.29.3
-// source: entity/image/payload/v1/image_created.proto
+// source: entity/image/payload/v1/image_processed.proto
 /* eslint-disable */
 export const protobufPackage = "faceblur.entity.image.payload.v1";
-export interface ImageCreatedPayload {
+export interface ImageProcessedPayload {
     imageId: string;
+    failed: boolean;
+    creatorId: string;
 }
 
 
 
 
-export const ImageCreatedPayloadDecoder = JsonDecoder.object(
+export const ImageProcessedPayloadDecoder = JsonDecoder.object(
     {
 		imageId: JsonDecoder.string,
+		failed: JsonDecoder.boolean,
+		creatorId: JsonDecoder.string,
     },
-    "ImageCreatedPayload"
+    "ImageProcessedPayload"
 );
 
 
