@@ -37,6 +37,7 @@ func ConvertEventToDomain(event *protoEventV1.Event) (*domain.EventBusEvent, err
 			Payload: &domain.EventBusEventPayloadImageProcessed{
 				ImageID: imageID,
 				Failed:  payloadImageProcessed.Failed,
+				CreatorID:  payloadImageProcessed.CreatorId,
 			},
 		}, nil
 	}

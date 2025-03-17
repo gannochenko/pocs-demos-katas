@@ -75,7 +75,7 @@ func (s *Service) Start(ctx context.Context) error {
 	}
 
 	callback := func(event *domain.EventBusEvent) {
-		s.loggerService.Info(ctx, "new event received", logger.F("event", event))
+		s.loggerService.Info(ctx, "worker: new event received", logger.F("event", event))
 		s.hasNewTasks.Store(true)
 	}
 
@@ -83,10 +83,6 @@ func (s *Service) Start(ctx context.Context) error {
 	if err != nil {
 		return syserr.Wrap(err, "could not start listening to events")
 	}
-	defer func(){
-		// todo: this will not work
-		s.eventBusService.RemoveEventListener(domain.EventBusEventTypeImageCreated, callback)
-	}()
 
 	wg.Add(1)
 	go func(){
@@ -167,6 +163,9 @@ func (s *Service) ProcessImages(ctx context.Context) error {
 }
 
 func (s *Service) Stop() error {
+	// todo: implement this
+	// s.eventBusService.RemoveEventListener(domain.EventBusEventTypeImageCreated, callback)
+
 	return nil
 }
 

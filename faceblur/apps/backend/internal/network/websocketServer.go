@@ -15,6 +15,7 @@ import (
 	"backend/interfaces"
 	"backend/internal/domain"
 	ctxUtil "backend/internal/util/ctx"
+	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
 	"backend/internal/util/types"
 	v1 "backend/proto/websocket/v1"
@@ -108,6 +109,16 @@ func NewWebsocketServer(
 }
 
 func (s *WebsocketServer) Start(ctx context.Context) error {
+	callback := func(event *domain.EventBusEvent) {
+		s.loggerService.Info(ctx, "websocket: new event received", logger.F("event", event))
+		
+	}
+
+	err := s.eventBusService.AddEventListener(domain.EventBusEventTypeImageProcessed, callback)
+	if err != nil {
+		return syserr.Wrap(err, "could not start listening to events")
+	}
+
 	select {
 	case <-ctx.Done():
 		return nil
