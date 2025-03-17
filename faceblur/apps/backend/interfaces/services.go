@@ -9,6 +9,8 @@ import (
 
 	"backend/internal/domain"
 	"backend/internal/util/logger"
+
+	otelMetric "go.opentelemetry.io/otel/metric"
 )
 
 type ImageService interface {
@@ -63,4 +65,7 @@ type MonitoringService interface {
 	GetHandler() http.Handler
 	Start() error
 	Stop()
+	AddInt64Counter(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string) error
+	RecordInt64Gauge(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64GaugeOption) error
+	RecordInt64Histogram(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64HistogramOption) error
 }

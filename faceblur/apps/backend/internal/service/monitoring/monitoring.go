@@ -11,7 +11,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	openTelemetryPrometheus "go.opentelemetry.io/otel/exporters/prometheus"
+	otelMetric "go.opentelemetry.io/otel/metric"
 
 	// "go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/sdk/metric"
@@ -68,6 +70,54 @@ func (s *Service) GetHandler() http.Handler {
 	return promhttp.InstrumentMetricHandler(
 		s.prometheusRegistry, promhttp.HandlerFor(s.prometheusRegistry, promhttp.HandlerOpts{}),
 	)
+}
+
+func (s *Service) AddInt64Counter(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string) error {
+	counter, err := otel.GetMeterProvider().Meter(meterName).Int64Counter(counterName)
+	if err != nil {
+		return syserr.Wrap(err, "could not create counter")
+	}
+
+	var opts []otelMetric.AddOption
+	if labelName != "" {
+		opts = append(opts, otelMetric.WithAttributeSet(attribute.NewSet(attribute.String(labelName, labelValue))))
+	}
+
+	counter.Add(ctx, value, opts...)
+
+	return nil
+}
+
+func (s *Service) RecordInt64Gauge(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64GaugeOption) error {
+	counter, err := otel.GetMeterProvider().Meter(meterName).Int64Gauge(counterName, options...)
+	if err != nil {
+		return syserr.Wrap(err, "could not create gauge")
+	}
+
+	var opts []otelMetric.RecordOption
+	if labelName != "" {
+		opts = append(opts, otelMetric.WithAttributeSet(attribute.NewSet(attribute.String(labelName, labelValue))))
+	}
+
+	counter.Record(ctx, value, opts...)
+
+	return nil
+}
+
+func (s *Service) RecordInt64Histogram(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64HistogramOption) error {
+	counter, err := otel.GetMeterProvider().Meter(meterName).Int64Histogram(counterName, options...)
+	if err != nil {
+		return syserr.Wrap(err, "could not create histogram")
+	}
+
+	var opts []otelMetric.RecordOption
+	if labelName != "" {
+		opts = append(opts, otelMetric.WithAttributeSet(attribute.NewSet(attribute.String(labelName, labelValue))))
+	}
+
+	counter.Record(ctx, value, opts...)
+
+	return nil
 }
 
 func (s *Service) createPrometheusRegistry() *prometheus.Registry {

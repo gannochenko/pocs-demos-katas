@@ -141,6 +141,7 @@ func (f *Factory) GetImageProcessorService() interfaces.ImageProcessorService {
 			f.GetRepositoryFactory().GetImageRepository(),
 			f.GetFaceDetectionService(),
 			f.GetStorageService(),
+			f.GetMonitoringService(),
 		)
 	}
 

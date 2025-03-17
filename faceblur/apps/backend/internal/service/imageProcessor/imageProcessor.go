@@ -17,6 +17,8 @@ import (
 	imageUtil "backend/internal/util/image"
 	typeUtil "backend/internal/util/types"
 
+	otelMetric "go.opentelemetry.io/otel/metric"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -24,6 +26,7 @@ import (
 const (
 	taskBufferThreshold = 5
 	imageProcessingQueueBatchSize = 30
+	meterName = "image_processor"
 )
 
 type Service struct {
@@ -34,6 +37,7 @@ type Service struct {
 	imageRepository interfaces.ImageRepository
 	faceDetectionService interfaces.FaceDetectionService
 	storageService interfaces.StorageService
+	monitoringService interfaces.MonitoringService
 
 	hasNewTasks atomic.Bool
 	taskBuffer sync.Map
@@ -49,6 +53,7 @@ func NewImageProcessor(
 	imageRepository interfaces.ImageRepository,
 	faceDetectionService interfaces.FaceDetectionService,
 	storageService interfaces.StorageService,
+	monitoringService interfaces.MonitoringService,
 ) *Service {
 	result := &Service{
 		configService: configService,
@@ -59,6 +64,7 @@ func NewImageProcessor(
 		channel: make(chan database.ImageProcessingQueue),
 		faceDetectionService: faceDetectionService,
 		storageService: storageService,
+		monitoringService: monitoringService,
 	}
 
 	result.hasNewTasks.Store(true) // upon startup check if there are some tasks
@@ -215,6 +221,8 @@ func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.Wait
 				if err != nil {
 					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not mark image processed"))
 				}
+
+				s.monitoringService.AddInt64Counter(processCtx, meterName, "error", 1, "", "")
 			}
 
 			s.taskBuffer.Delete(task.ID)
@@ -224,6 +232,7 @@ func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.Wait
 
 func (s *Service) processTask(processCtx context.Context, task database.ImageProcessingQueue) error {
 	var err error
+	startTime := time.Now()
 
 	config, err := s.configService.GetConfig()
 	if err != nil {
@@ -309,6 +318,10 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 	}
 
 	s.loggerService.Info(processCtx, "image was processed", logger.F("imageId", task.ID))
+	s.monitoringService.AddInt64Counter(processCtx, meterName, "processed_images", 1, "", "")
+
+	endTime := time.Since(startTime)
+	s.monitoringService.RecordInt64Histogram(processCtx, meterName, "image_processing_duration", endTime.Milliseconds(), "", "", otelMetric.WithExplicitBucketBoundaries(histogramBoundaries...))
 
 	return nil
 }
@@ -340,4 +353,14 @@ func (s *Service) markImageProcessed(ctx context.Context, imageID uuid.UUID, fai
 		IsFailed: &database.FieldValue[*bool]{Value: &failed},
 		URL: &database.FieldValue[*string]{Value: url},
 	})
+}
+
+var histogramBoundaries = []float64{
+	500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3000.0, 3500.0, 4000.0, 4500.0, 5000.0,
+	5500.0, 6000.0, 6500.0, 7000.0, 7500.0, 8000.0, 8500.0, 9000.0, 9500.0, 10000.0,
+	10500.0, 11000.0, 11500.0, 12000.0, 12500.0, 13000.0, 13500.0, 14000.0, 14500.0,
+	15000.0, 15500.0, 16000.0, 16500.0, 17000.0, 17500.0, 18000.0, 18500.0, 19000.0,
+	19500.0, 20000.0, 20500.0, 21000.0, 21500.0, 22000.0, 22500.0, 23000.0, 23500.0,
+	24000.0, 24500.0, 25000.0, 25500.0, 26000.0, 26500.0, 27000.0, 27500.0, 28000.0,
+	28500.0, 29000.0, 29500.0, 30000.0,
 }
