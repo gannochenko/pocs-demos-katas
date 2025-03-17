@@ -4,6 +4,7 @@ import (
 	"context"
 	"image"
 	"io"
+	"net/http"
 	"time"
 
 	"backend/internal/domain"
@@ -56,4 +57,10 @@ type ImageProcessorService interface {
 
 type FaceDetectionService interface {
 	Detect(ctx context.Context, image image.Image) ([]*domain.BoundingBox, error)
+}
+
+type MonitoringService interface {
+	GetHandler() http.Handler
+	Start() error
+	Stop()
 }

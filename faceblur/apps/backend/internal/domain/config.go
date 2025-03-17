@@ -44,9 +44,12 @@ type BackendConfig struct {
 }
 
 type WorkerConfig struct {
+	HTTP     HTTPConfig `envconfig:"HTTP"`
 	ThreadCount int `envconfig:"THREAD_COUNT" default:"2" desc:"worker thread count"`
 	ModelPath   string `envconfig:"MODEL_PATH"`
 	UseCoreML   bool   `envconfig:"USE_COREML"`
+	ServiceName string `envconfig:"SERVICE_NAME"`
+	ServiceVersion string `envconfig:"SERVICE_VERSION"`
 }
 
 type Config struct {
