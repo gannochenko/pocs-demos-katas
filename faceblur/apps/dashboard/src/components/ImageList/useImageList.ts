@@ -127,11 +127,7 @@ export function useImageList(props: PetListProps) {
 
   const { uploads, submit } = useUploader();
 
-  // todo: reconcile images and uploads by id. if id is present in both, take the image, not the upload
-
-  console.log(uploads);
-  console.log(images);
-  let realUploads = uploads.filter(
+  const realUploads = uploads.filter(
     (upload) =>
       images.find((image) => image.id === upload.image?.id) === undefined
   );
@@ -139,7 +135,7 @@ export function useImageList(props: PetListProps) {
   return {
     uploads: realUploads,
     images,
-    empty: !images.length && !uploads.length && !imagesResult.isLoading,
+    empty: !images.length && !realUploads.length && !imagesResult.isLoading,
     uploadButtonProps: {
       onChange: async (files: File[]) => {
         if (files.length) {
