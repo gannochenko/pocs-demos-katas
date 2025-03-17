@@ -9,3 +9,6 @@ import "common/image/v1/image.proto";
 message ImageList {
   repeated common.image.v1.Image images = 1;
 }
+
+message ImageProcessed {
+}

@@ -12,6 +12,8 @@ export const protobufPackage = "faceblur.websocket.payload.server.v1";
 export interface ImageList {
     images: Image[];
 }
+export interface ImageProcessed {
+}
 
 
 
@@ -21,6 +23,12 @@ export const ImageListDecoder = JsonDecoder.object(
 		images: JsonDecoder.array(ImageDecoder, "arrayOfImages"),
     },
     "ImageList"
+);
+
+export const ImageProcessedDecoder = JsonDecoder.object(
+    {
+    },
+    "ImageProcessed"
 );
 
 

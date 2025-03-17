@@ -8,11 +8,12 @@ import { JsonDecoder } from "ts.data.json";
 // source: websocket/v1/websocket.proto
 /* eslint-disable */
 import { type TokenUpdate, TokenUpdateDecoder } from "../payload/client/v1/client";
-import { type ImageList, ImageListDecoder } from "../payload/server/v1/server";
+import { type ImageList, type ImageProcessed, ImageListDecoder, ImageProcessedDecoder } from "../payload/server/v1/server";
 export const protobufPackage = "faceblur.websocket.v1";
 export enum ServerMessageType {
     SERVER_MESSAGE_TYPE_UNSPECIFIED = 0,
     SERVER_MESSAGE_TYPE_IMAGE_LIST = 1,
+    SERVER_MESSAGE_TYPE_IMAGE_PROCESSED = 2,
     UNRECOGNIZED = -1
 }
 export enum ClientMessageType {
@@ -25,6 +26,7 @@ export interface ServerMessage {
     type: ServerMessageType;
     payloadVersion: string;
     imageList?: ImageList | undefined;
+    imageProcessed?: ImageProcessed | undefined;
 }
 export interface ClientMessage {
     timestamp: Date | undefined;
@@ -46,6 +48,7 @@ export const ServerMessageDecoder = JsonDecoder.object(
 		type: ServerMessageTypeDecoder,
 		payloadVersion: JsonDecoder.string,
 		imageList: JsonDecoder.optional(ImageListDecoder),
+		imageProcessed: JsonDecoder.optional(ImageProcessedDecoder),
     },
     "ServerMessage"
 );

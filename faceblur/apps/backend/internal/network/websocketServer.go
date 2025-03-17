@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"backend/interfaces"
 	"backend/internal/domain"
@@ -18,6 +19,7 @@ import (
 	"backend/internal/util/logger"
 	"backend/internal/util/syserr"
 	"backend/internal/util/types"
+	payloadV1 "backend/proto/websocket/payload/server/v1"
 	v1 "backend/proto/websocket/v1"
 )
 
@@ -111,7 +113,7 @@ func NewWebsocketServer(
 func (s *WebsocketServer) Start(ctx context.Context) error {
 	callback := func(event *domain.EventBusEvent) {
 		s.loggerService.Info(ctx, "websocket: new event received", logger.F("event", event))
-		err := s.DispatchMessage(event)
+		err := s.DispatchMessage(ctx, event)
 		if err != nil {
 			s.loggerService.LogError(ctx, syserr.Wrap(err, "could not dispatch event"))
 		}
@@ -133,21 +135,48 @@ func (s *WebsocketServer) Stop() error {
 	return nil
 }
 
-func (s *WebsocketServer) DispatchMessage(event *domain.EventBusEvent) error {
+func (s *WebsocketServer) DispatchMessage(ctx context.Context, event *domain.EventBusEvent) error {
 	s.connections.Range(func(key, value interface{}) bool {
-		// connection, ok := value.(*WebsocketConnection)
-		// if !ok {
-		// 	return true
-		// }
+		connection, ok := value.(*WebsocketConnection)
+		if !ok {
+			return true
+		}
 
-		// connection.outgoingChan <- &v1.ServerMessage{
-		// 	Type: v1.ServerMessageType_SERVER_MESSAGE_TYPE_EVENT,
-		// 	Event: event,
-		// }
+		recepientID, payload, err := s.convertEventToOutgoingMessage(event)
+		if err != nil {
+			s.loggerService.LogError(ctx, syserr.Wrap(err, "could not convert event to outgoing message"))
+			return true
+		}
+
+		if connection.userID != nil && connection.userID.String() == *recepientID {
+			connection.outgoingChan <- payload
+		}
+
 		return true
 	})
 	
 	return nil
+}
+
+// todo: move it out
+func (s *WebsocketServer) convertEventToOutgoingMessage(event *domain.EventBusEvent) (recepientID *string, payload *v1.ServerMessage, err error) {
+	switch event.Type {
+	case domain.EventBusEventTypeImageProcessed:
+		eventPayload := event.Payload.(*domain.EventBusEventPayloadImageProcessed)
+		recepientID = lo.ToPtr(eventPayload.CreatorID)
+		payload = &v1.ServerMessage{
+			Timestamp: timestamppb.Now(),
+			PayloadVersion: "v1",
+			Type: v1.ServerMessageType_SERVER_MESSAGE_TYPE_IMAGE_PROCESSED,
+			Payload: &v1.ServerMessage_ImageProcessed{
+				ImageProcessed: &payloadV1.ImageProcessed{},
+			},
+		}
+	default:
+		return nil, nil, syserr.NewBadInput("unknown event type")
+	}
+
+	return recepientID, payload, nil
 }
 
 func (s *WebsocketServer) GetHandler() types.HTTPHandler {
@@ -204,8 +233,6 @@ func (s *WebsocketServer) GetHandler() types.HTTPHandler {
 }
 
 func (s *WebsocketServer) serveConnection(ctx context.Context, connection *WebsocketConnection) error {
-	s.loggerService.Info(ctx, "started listening to messages")
-
 	for {
 		select {
 		case <-ctx.Done():
