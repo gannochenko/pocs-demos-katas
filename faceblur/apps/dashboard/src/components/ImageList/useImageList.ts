@@ -110,9 +110,6 @@ export function useImageList(props: PetListProps) {
 
   useEffect(() => {
     const handler = (payload: ServerMessage) => {
-      console.log("RECEIVED");
-      console.log(payload);
-      // INVALIDATE!
       queryClient.invalidateQueries([LIST_IMAGES_KEY]);
     };
 
@@ -132,8 +129,15 @@ export function useImageList(props: PetListProps) {
 
   // todo: reconcile images and uploads by id. if id is present in both, take the image, not the upload
 
+  console.log(uploads);
+  console.log(images);
+  let realUploads = uploads.filter(
+    (upload) =>
+      images.find((image) => image.id === upload.image?.id) === undefined
+  );
+
   return {
-    uploads,
+    uploads: realUploads,
     images,
     empty: !images.length && !uploads.length && !imagesResult.isLoading,
     uploadButtonProps: {

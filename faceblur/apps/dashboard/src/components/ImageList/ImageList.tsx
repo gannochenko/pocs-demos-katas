@@ -17,10 +17,6 @@ export function ImageList(props: PetListProps) {
     empty,
   } = useImageList(props);
 
-  // useEffect(() => {
-  //   return () => console.log("UNMOUNT LIST");
-  // }, []);
-
   return (
     <>
       <PortalToID id="page-header-portal">
