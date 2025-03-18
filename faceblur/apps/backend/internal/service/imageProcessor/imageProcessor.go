@@ -191,6 +191,11 @@ func (s *Service) init(ctx context.Context, wg *sync.WaitGroup) error {
 		go s.processImages(ctx, i, wg)
 	}
 
+	// init metric
+	s.recordError(ctx, 0)
+	s.recordSuccess(ctx, 0)
+	s.recordDuration(ctx, 0)
+
 	return nil
 }
 
@@ -222,7 +227,7 @@ func (s *Service) processImages(ctx context.Context, workerId int, wg *sync.Wait
 					s.loggerService.LogError(processCtx, syserr.Wrap(err, "could not mark image processed"))
 				}
 
-				s.monitoringService.AddInt64Counter(processCtx, meterName, "error", 1, "", "")
+				s.recordError(processCtx, 1)
 			}
 
 			s.taskBuffer.Delete(task.ID)
@@ -318,10 +323,10 @@ func (s *Service) processTask(processCtx context.Context, task database.ImagePro
 	}
 
 	s.loggerService.Info(processCtx, "image was processed", logger.F("imageId", task.ID))
-	s.monitoringService.AddInt64Counter(processCtx, meterName, "processed_images", 1, "", "")
+	s.recordSuccess(processCtx, 1)
 
 	endTime := time.Since(startTime)
-	s.monitoringService.RecordInt64Histogram(processCtx, meterName, "image_processing_duration", endTime.Milliseconds(), "", "", otelMetric.WithExplicitBucketBoundaries(histogramBoundaries...))
+	s.recordDuration(processCtx, endTime)
 
 	return nil
 }
@@ -363,4 +368,16 @@ var histogramBoundaries = []float64{
 	19500.0, 20000.0, 20500.0, 21000.0, 21500.0, 22000.0, 22500.0, 23000.0, 23500.0,
 	24000.0, 24500.0, 25000.0, 25500.0, 26000.0, 26500.0, 27000.0, 27500.0, 28000.0,
 	28500.0, 29000.0, 29500.0, 30000.0,
+}
+
+func (s *Service) recordError(ctx context.Context, value int64) {
+	s.monitoringService.AddInt64Counter(ctx, meterName, "error", value, "", "")
+}
+
+func (s *Service) recordSuccess(ctx context.Context, value int64) {
+	s.monitoringService.AddInt64Counter(ctx, meterName, "processed_images", value, "", "")
+}
+
+func (s *Service) recordDuration(ctx context.Context, duration time.Duration) {
+	s.monitoringService.RecordInt64Histogram(ctx, meterName, "image_processing_duration", duration.Milliseconds(), "", "", otelMetric.WithExplicitBucketBoundaries(histogramBoundaries...))
 }

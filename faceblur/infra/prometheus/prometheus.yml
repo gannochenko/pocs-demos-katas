@@ -5,4 +5,4 @@ global:
 scrape_configs:
   - job_name: "backend_worker"
     static_configs:
-      - targets: ["backend_worker:9000"]
+      - targets: ["host.docker.internal:4923"]
