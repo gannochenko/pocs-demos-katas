@@ -1,6 +1,7 @@
+import { Author } from './dto/author';
+
 export class AuthorsService {
-  findOneById(id: number) {
-    // TODO: Implement actual logic
-    return { id, name: `Author ${id}` };
+  findOneById(id: number): Author {
+    return { id, firstName: 'John', lastName: 'Doe' };
   }
 }
