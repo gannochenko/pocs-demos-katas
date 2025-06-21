@@ -9,6 +9,7 @@ type Post {
   id: Int!
   title: String!
   votes: Int
+  author: Author
 }
 
 type Query {

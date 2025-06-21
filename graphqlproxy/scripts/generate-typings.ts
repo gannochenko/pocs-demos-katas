@@ -5,7 +5,7 @@ const definitionsFactory = new GraphQLDefinitionsFactory();
 definitionsFactory
   .generate({
     typePaths: [join(process.cwd(), 'schema.graphql')],
-    path: join(process.cwd(), 'src/graphql.schema.ts'),
+    path: join(process.cwd(), 'src/graphql.ts'),
     outputAs: 'class',
   })
   .catch((err) => {

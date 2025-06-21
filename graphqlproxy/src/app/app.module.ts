@@ -5,7 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { AuthorsModule } from './authors/authors.module';
+import { AuthorsModule } from '../authors/authors.module';
 
 @Module({
   imports: [
@@ -17,8 +17,8 @@ import { AuthorsModule } from './authors/authors.module';
         path: join(process.cwd(), 'src/graphql.ts'),
         outputAs: 'class',
       },
-      playground: false, // todo: enable only in development
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      playground: false,
+      plugins: [ApolloServerPluginLandingPageLocalDefault()], // todo: enable only in development
     }),
   ],
   controllers: [AppController],

@@ -19,6 +19,7 @@ export class Post {
     id: number;
     title: string;
     votes?: Nullable<number>;
+    author?: Nullable<Author>;
 }
 
 export abstract class IQuery {
