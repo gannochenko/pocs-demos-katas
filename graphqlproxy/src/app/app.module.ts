@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import * as depthLimit from 'graphql-depth-limit';
 import { AuthorsModule } from '../authors/authors.module';
 import { PostsModule } from '../posts/posts.module';
 
@@ -21,6 +22,7 @@ import { PostsModule } from '../posts/posts.module';
       },
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()], // todo: enable only in development
+      validationRules: [depthLimit(10)],
     }),
   ],
   controllers: [AppController],
