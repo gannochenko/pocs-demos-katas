@@ -8,7 +8,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import * as depthLimit from 'graphql-depth-limit';
 import { AuthorsModule } from '../authors/authors.module';
 import { PostsModule } from '../posts/posts.module';
-import { complexityRule } from 'src/util/graphql.complexityRule';
+import { ApolloServerPluginComplexity } from 'src/util/graphql.complexityPlugin';
 
 @Module({
   imports: [
@@ -22,7 +22,10 @@ import { complexityRule } from 'src/util/graphql.complexityRule';
         outputAs: 'class',
       },
       playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault()], // todo: enable only in development
+      plugins: [
+        ApolloServerPluginLandingPageLocalDefault(), // todo: enable only in development
+        ApolloServerPluginComplexity(),
+      ],
       validationRules: [depthLimit(10)],
     }),
   ],
