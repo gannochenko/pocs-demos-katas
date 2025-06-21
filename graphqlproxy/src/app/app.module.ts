@@ -8,6 +8,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import * as depthLimit from 'graphql-depth-limit';
 import { AuthorsModule } from '../authors/authors.module';
 import { PostsModule } from '../posts/posts.module';
+import { complexityRule } from 'src/util/graphql.complexityRule';
 
 @Module({
   imports: [
