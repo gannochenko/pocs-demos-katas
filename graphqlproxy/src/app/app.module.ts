@@ -9,11 +9,13 @@ import * as depthLimit from 'graphql-depth-limit';
 import { AuthorsModule } from '../authors/authors.module';
 import { PostsModule } from '../posts/posts.module';
 import { ApolloServerPluginComplexity } from 'src/util/graphql.complexityPlugin';
+import { HealthModule } from 'src/health/health.module';
 
 @Module({
   imports: [
     AuthorsModule,
     PostsModule,
+    HealthModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       typePaths: ['./**/*.graphql'],
@@ -27,6 +29,14 @@ import { ApolloServerPluginComplexity } from 'src/util/graphql.complexityPlugin'
         ApolloServerPluginComplexity(),
       ],
       validationRules: [depthLimit(10)],
+      formatError: (error) => {
+        // don't disclose too much info to the client
+        return {
+          message: error.message,
+          locations: error.locations,
+          path: error.path,
+        };
+      },
     }),
   ],
   controllers: [AppController],
