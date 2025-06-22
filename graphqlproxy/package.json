@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/terminus": "^11.0.0",
     "@types/graphql-depth-limit": "^1.1.6",
+    "axios": "^1.10.0",
     "graphql": "^16.11.0",
     "graphql-depth-limit": "^1.1.0",
     "graphql-query-complexity": "^1.1.0",

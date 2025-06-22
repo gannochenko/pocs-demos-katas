@@ -1,3 +1,6 @@
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
 export class PostsService {
   findAll(filters: { authorId: number }) {
     // TODO: Implement actual logic

@@ -10,6 +10,7 @@ import { AuthorsModule } from '../authors/authors.module';
 import { PostsModule } from '../posts/posts.module';
 import { ApolloServerPluginComplexity } from 'src/util/graphql.complexityPlugin';
 import { HealthModule } from 'src/health/health.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
