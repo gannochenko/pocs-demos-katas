@@ -6,14 +6,14 @@ export const retryRequest = <T>(
   timeoutValue = 5000,
   retryCountValue = 10,
 ): Promise<T> => {
-  const observable$ = response$.pipe(
-    timeout(timeoutValue),
-    retry({
-      count: retryCountValue,
-      delay: (error, retryCount) => timer(retryCount * 1000),
-    }),
-    map((response) => response.data),
+  return firstValueFrom(
+    response$.pipe(
+      timeout(timeoutValue),
+      retry({
+        count: retryCountValue,
+        delay: (error, retryCount) => timer(retryCount * 1000),
+      }),
+      map((response) => response.data),
+    ),
   );
-
-  return firstValueFrom(observable$);
 };

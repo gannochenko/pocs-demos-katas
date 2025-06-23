@@ -1,7 +1,7 @@
 import { Author } from './dto/author';
 import { HttpService } from '@nestjs/axios';
 import { JsonPlaceholderUser } from 'src/jsonplaceholder/jsonplaceholder.types';
-import { retryRequest } from 'src/util/retry';
+import { retryRequest } from 'src/util/retryRequest';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
