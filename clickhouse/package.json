@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"@clickhouse/client": "^1.11.2",
+		"body-parser": "^2.2.0"
+	}
+}
