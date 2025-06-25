@@ -23,7 +23,7 @@ app.post("/sensor-data", async (req, res) => {
   // todo: validate data
 
   await insertSensorData({
-    timestamp: getCurrentTimestamp(),
+    timestamp: prepareTimestamp(new Date()),
     device_id,
     temperature,
     humidity,
@@ -37,12 +37,14 @@ app.post("/sensor-data", async (req, res) => {
 app.get("/sensor-data-average", async (req, res) => {
   const { device_id, timestamp } = req.query;
 
+  if (!device_id) {
+    res.status(400).send("device_id is required");
+    return;
+  }
+
   // Convert timestamp to Date object and subtract 1 day
   const endTimestamp = timestamp ? new Date(timestamp as string) : new Date();
   const startTimestamp = new Date(endTimestamp.getTime() - 24 * 60 * 60 * 1000); // Subtract 1 day in milliseconds
-
-  console.log("startTimestamp", startTimestamp);
-  console.log("endTimestamp", endTimestamp);
 
   const resultSet = await clickhouse.query({
     query: `
@@ -56,8 +58,8 @@ app.get("/sensor-data-average", async (req, res) => {
     `,
     query_params: {
       device_id,
-      start_timestamp: formatTimestampToDB(startTimestamp),
-      end_timestamp: formatTimestampToDB(endTimestamp),
+      start_timestamp: prepareTimestamp(startTimestamp),
+      end_timestamp: prepareTimestamp(endTimestamp),
     },
   });
 
@@ -80,8 +82,8 @@ app.get("/sensor-data", async (req, res) => {
   const endTimestamp = timestamp ? new Date(timestamp as string) : new Date();
   const startTimestamp = new Date(endTimestamp.getTime() - 24 * 60 * 60 * 1000); // Subtract 1 day in milliseconds
 
-  console.log("startTimestamp", formatTimestampToDB(startTimestamp));
-  console.log("endTimestamp", formatTimestampToDB(endTimestamp));
+  console.log("startTimestamp", prepareTimestamp(startTimestamp));
+  console.log("endTimestamp", prepareTimestamp(endTimestamp));
   console.log("device_id", device_id);
 
   const resultSet = await clickhouse.query({
@@ -95,8 +97,8 @@ app.get("/sensor-data", async (req, res) => {
       `,
     query_params: {
       device_id,
-      start_timestamp: formatTimestampToDB(startTimestamp),
-      end_timestamp: formatTimestampToDB(endTimestamp),
+      start_timestamp: prepareTimestamp(startTimestamp),
+      end_timestamp: prepareTimestamp(endTimestamp),
     },
   });
 
@@ -135,19 +137,18 @@ function formatTimestampToDB(timestamp: Date) {
   return timestamp.toISOString().slice(0, 19).replace("T", " ");
 }
 
-function getCurrentTimestamp() {
-  const now = new Date();
+function prepareTimestamp(date: Date) {
   return (
-    now.getFullYear() +
+    date.getUTCFullYear() +
     "-" +
-    String(now.getMonth() + 1).padStart(2, "0") +
+    String(date.getUTCMonth() + 1).padStart(2, "0") +
     "-" +
-    String(now.getDate()).padStart(2, "0") +
+    String(date.getUTCDate()).padStart(2, "0") +
     " " +
-    String(now.getHours()).padStart(2, "0") +
+    String(date.getUTCHours()).padStart(2, "0") +
     ":" +
-    String(now.getMinutes()).padStart(2, "0") +
+    String(date.getUTCMinutes()).padStart(2, "0") +
     ":" +
-    String(now.getSeconds()).padStart(2, "0")
+    String(date.getUTCSeconds()).padStart(2, "0")
   );
 }
