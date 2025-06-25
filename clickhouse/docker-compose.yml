@@ -14,6 +14,8 @@ services:
         hard: 262144
     env_file:
       - ./env.local
+    networks:
+      - clickhouse-network
   bytebase:
     image: bytebase/bytebase:latest
     container_name: bytebase
@@ -25,6 +27,13 @@ services:
       - BYTEBASE_ADMIN_PASSWORD=admin
     depends_on:
       - clickhouse
+    networks:
+      - clickhouse-network
 
 volumes:
   clickhouse_data:
+
+networks:
+  clickhouse-network:
+    driver: bridge
+    name: clickhouse-network

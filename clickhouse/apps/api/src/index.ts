@@ -35,7 +35,15 @@ app.post("/sensor-data", async (req, res) => {
 });
 
 app.get("/sensor-data-average", async (req, res) => {
-  const { device_id } = req.query;
+  const { device_id, timestamp } = req.query;
+
+  // Convert timestamp to Date object and subtract 1 day
+  const endTimestamp = timestamp ? new Date(timestamp as string) : new Date();
+  const startTimestamp = new Date(endTimestamp.getTime() - 24 * 60 * 60 * 1000); // Subtract 1 day in milliseconds
+
+  console.log("startTimestamp", startTimestamp);
+  console.log("endTimestamp", endTimestamp);
+
   const resultSet = await clickhouse.query({
     query: `
       SELECT 
@@ -43,11 +51,13 @@ app.get("/sensor-data-average", async (req, res) => {
         AVG(humidity) AS average_humidity
       FROM sensor_data
       WHERE device_id = {device_id:String}
-        AND timestamp >= toStartOfDay(now())
-        AND timestamp <= now()
+        AND timestamp >= {start_timestamp:DateTime}
+        AND timestamp <= {end_timestamp:DateTime}
     `,
     query_params: {
       device_id,
+      start_timestamp: formatTimestampToDB(startTimestamp),
+      end_timestamp: formatTimestampToDB(endTimestamp),
     },
   });
 
@@ -56,6 +66,45 @@ app.get("/sensor-data-average", async (req, res) => {
   console.log("sensor data average", rows);
 
   res.status(200).send(rows);
+});
+
+app.get("/sensor-data", async (req, res) => {
+  const { device_id, timestamp } = req.query;
+
+  if (!device_id) {
+    res.status(400).send("device_id is required");
+    return;
+  }
+
+  // Convert timestamp to Date object and subtract 1 day
+  const endTimestamp = timestamp ? new Date(timestamp as string) : new Date();
+  const startTimestamp = new Date(endTimestamp.getTime() - 24 * 60 * 60 * 1000); // Subtract 1 day in milliseconds
+
+  console.log("startTimestamp", formatTimestampToDB(startTimestamp));
+  console.log("endTimestamp", formatTimestampToDB(endTimestamp));
+  console.log("device_id", device_id);
+
+  const resultSet = await clickhouse.query({
+    query: `
+        SELECT 
+          *
+        FROM sensor_data
+        WHERE device_id = {device_id:String}
+          AND timestamp >= {start_timestamp:DateTime}
+          AND timestamp <= {end_timestamp:DateTime}
+      `,
+    query_params: {
+      device_id,
+      start_timestamp: formatTimestampToDB(startTimestamp),
+      end_timestamp: formatTimestampToDB(endTimestamp),
+    },
+  });
+
+  const result = await resultSet.json();
+
+  console.log("sensor data", result.data, result.rows);
+
+  res.status(200).send(result);
 });
 
 app.listen(port, () => {
@@ -80,6 +129,10 @@ async function insertSensorData(data: SensorData) {
   });
 
   console.log("insert result", result);
+}
+
+function formatTimestampToDB(timestamp: Date) {
+  return timestamp.toISOString().slice(0, 19).replace("T", " ");
 }
 
 function getCurrentTimestamp() {
