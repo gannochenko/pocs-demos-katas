@@ -1,0 +1,27 @@
+{
+  "name": "Weather API MCP Server",
+  "version": "0.1.0",
+  "description": "An MCP server that provides weather data and forecasts",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "Weather API MCP Server": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "0.6.0",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  }
+}

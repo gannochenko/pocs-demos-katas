@@ -1,0 +1,6 @@
+# Weather API MCP Configuration File
+# Copy this file to ~/.weather-api-mcp.yml and update with your actual API key
+
+# Your WeatherAPI.com API key
+# Sign up at https://www.weatherapi.com/ to get a free API key
+weather_api_key: "your_api_key_here" 
