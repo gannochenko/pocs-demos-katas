@@ -1,0 +1,45 @@
+services:
+  n8n:
+    build: .
+    container_name: n8n
+    env_file:
+      - .env
+    ports:
+      - "5678:5678"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_SCHEMA=public
+      - DB_POSTGRESDB_PASSWORD=n8n_password
+      # - N8N_BASIC_AUTH_ACTIVE=true
+      # - N8N_BASIC_AUTH_USER=admin
+      # - N8N_BASIC_AUTH_PASSWORD=somepassword
+      - GENERIC_TIMEZONE=Europe/Berlin
+      - TZ=Europe/Berlin
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - /Users/gannochenko/proj:/Users/gannochenko/proj
+      - /Users/gannochenko/Documents/Photos:/Users/gannochenko/Documents/Photos
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: n8n_postgres
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=n8n_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  n8n_data:
+  postgres_data:
