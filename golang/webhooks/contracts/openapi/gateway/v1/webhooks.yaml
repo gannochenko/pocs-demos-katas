@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: Webhooks API
+  description: A simple REST API for managing webhooks
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /v1/acme-corporation/webhooks:
+    post:
+      summary: Accept Acme Corporation webhook
+      description: Accepts a webhook from an Acme Corporation service
+      operationId: acceptAcmeCorporationWebhook
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcceptAcmeCorporationWebhookRequest"
+      responses:
+        "200":
+          description: Webhook accepted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptAcmeCorporationWebhookResponse"
+              example:
+                data:
+                  message: "Webhook accepted successfully"
+        "400":
+          description: Bad request - invalid webhook
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptAcmeCorporationWebhookError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptAcmeCorporationWebhookError"
+
+components:
+  schemas:
+    AcceptAcmeCorporationWebhookRequest:
+      type: object
+      required:
+        - event_id
+        - event_timestamp
+        - event_type
+        - payload
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the webhook event
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        event_timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the event occurred
+          example: "2025-01-15T14:30:00Z"
+        event_type:
+          type: string
+          description: Type of the webhook event
+          enum:
+            - user.created
+            - user.updated
+            - user.deleted
+            - order.created
+            - order.completed
+            - order.cancelled
+          example: "order.created"
+        payload:
+          type: object
+          description: Event-specific payload data
+          additionalProperties: true
+          example:
+            order_id: "ORD-12345"
+            customer_id: "CUST-67890"
+            total_amount: 99.99
+            currency: "USD"
+      additionalProperties: false
+
+    AcceptAcmeCorporationWebhookResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Message
+          example: "Webhook accepted successfully"
+      additionalProperties: false
+
+    AcceptAcmeCorporationWebhookError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Message
+          example: "Webhook accepted successfully"
+      additionalProperties: false
+
+  securitySchemes:
+    # Add security schemes here if authentication is implemented
+    # apiKey:
+    #   type: apiKey
+    #   in: header
+    #   name: X-API-Key
+
+tags:
+  - name: Tasks
+    description: Operations related to task management
+  - name: Statistics
+    description: Operations related to task statistics
