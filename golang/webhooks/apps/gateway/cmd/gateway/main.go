@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gateway/internal/controller"
 	webhooksV1Handlers "gateway/internal/controller/v1/webhooks"
+	"gateway/internal/database"
 	webhooksV1 "gateway/internal/http/v1"
 	"gateway/internal/middleware"
 	"gateway/internal/service/config"
@@ -35,7 +36,12 @@ func run(w io.Writer) error {
 		return errors.Wrap(err, "could not load config")
 	}
 
-	// todo: add config validation
+	db := database.NewDatabase(&configService.Config.Database, log)
+	closeDb, err := db.Connect();
+	if err != nil {
+		return errors.Wrap(err, "could not connect to database")
+	}
+	defer closeDb()
 
 	e := echo.New()
 
@@ -83,6 +89,10 @@ func run(w io.Writer) error {
 		}
 
 		monitoringService.Stop()
+
+		if err := closeDb(); err != nil {
+			logger.Error(ctx, log, errors.Wrap(err, "could not close database connection").Error())
+		}
 
 		return nil
 	})

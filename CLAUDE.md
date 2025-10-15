@@ -1,0 +1,1 @@
+- When writing Golang code, don't use fmt.Errorf(), use errors.Wrap()

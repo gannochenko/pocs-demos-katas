@@ -12,7 +12,10 @@ bootstrap:
 	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 
 run_gateway:
-	cd apps/gateway && godotenv -f ../../env.local go run cmd/gateway/main.go
+	@cd apps/gateway && godotenv -f ../../env.local go run cmd/gateway/main.go
+
+migrate_gateway:
+	@cd apps/gateway && godotenv -f ../../env.local go run ./cmd/migrate/main.go
 
 generate_gateway_openapi:
 	@find $(OPENAPI_DIR) \( -name "*.yaml" -o -name "*.yml" \) -exec sh -c ' \
