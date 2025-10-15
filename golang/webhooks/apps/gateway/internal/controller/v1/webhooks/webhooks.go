@@ -4,18 +4,20 @@ import (
 	"net/http"
 
 	webhooksV1 "gateway/internal/http/v1"
+	"gateway/internal/interfaces"
 
 	"github.com/labstack/echo/v4"
 )
 
 // WebhooksHandler implements the ServerInterface for webhooks operations
 type WebhooksHandler struct {
-
+	webhookDeduplicator interfaces.WebhookDeduplicator
 }
 
 // NewWebhooksHandler creates a new WebhooksHandler instance
-func NewWebhooksHandler() *WebhooksHandler {
+func NewWebhooksHandler(webhookDeduplicator interfaces.WebhookDeduplicator) *WebhooksHandler {
 	return &WebhooksHandler{
+		webhookDeduplicator: webhookDeduplicator,
 	}
 }
 
