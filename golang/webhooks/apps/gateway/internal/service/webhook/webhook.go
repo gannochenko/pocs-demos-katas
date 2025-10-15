@@ -2,6 +2,8 @@ package webhook
 
 import (
 	"context"
+	"encoding/json"
+	"gateway/internal/database"
 	"gateway/internal/domain"
 	"gateway/internal/interfaces"
 
@@ -33,8 +35,18 @@ func (s *Service) HandleWebhook(ctx context.Context, webhook *domain.WebhookEven
 	}
 
 	// todo: enqueue the event
-	
-	err = s.webhookDeduplicator.SetEventProcessed(ctx, tx, webhook.EventID)
+
+	payload, err := json.Marshal(webhook.Payload)
+	if err != nil {
+		return errors.Wrap(err, "could not marshal payload")
+	}
+
+	err = s.webhookDeduplicator.SetEventProcessed(ctx, tx, &database.WebhookEvent{
+		EventID: webhook.EventID,
+		EventTimestamp: webhook.EventTimestamp,
+		EventType: webhook.EventType,
+		Payload: string(payload),
+	})
 	if err != nil {
 		return errors.Wrap(err, "could not set event as processed")
 	}

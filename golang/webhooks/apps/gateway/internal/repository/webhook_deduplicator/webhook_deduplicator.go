@@ -33,12 +33,8 @@ func (r *Repository) IsEventProcessed(ctx context.Context, tx *gorm.DB, eventID 
 	return true, nil
 }
 
-func (r *Repository) SetEventProcessed(ctx context.Context, tx *gorm.DB, eventID string) error {
+func (r *Repository) SetEventProcessed(ctx context.Context, tx *gorm.DB, event *database.WebhookEvent) error {
 	db := r.getRunner(tx)
-
-	event := database.WebhookEvent{
-		EventID: eventID,
-	}
 
 	err := db.WithContext(ctx).Create(&event).Error
 	if err != nil {
