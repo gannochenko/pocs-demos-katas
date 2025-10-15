@@ -24,3 +24,6 @@ generate_gateway_openapi:
 			oapi-codegen -package "$$base" -generate types,server,strict-server "$$spec" > "$$output"; \
 		done \
 	' sh {} +
+
+run_infra:
+	@docker compose up
