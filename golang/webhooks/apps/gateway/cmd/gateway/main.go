@@ -7,6 +7,7 @@ import (
 	webhooksV1Handlers "gateway/internal/controller/v1/webhooks"
 	"gateway/internal/database"
 	"gateway/internal/factory/repository"
+	"gateway/internal/factory/service"
 	webhooksV1 "gateway/internal/http/v1"
 	"gateway/internal/middleware"
 	"gateway/internal/service/config"
@@ -45,6 +46,7 @@ func run(w io.Writer) error {
 	defer closeDb()
 
 	repositoryFactory := repository.New(db.DB)
+	serviceFactory := service.NewFactory(db.DB, repositoryFactory)
 
 	e := echo.New()
 
@@ -73,7 +75,7 @@ func run(w io.Writer) error {
 	// To see the UI: go tool pprof -http=:8080 http://localhost:2024/debug/pprof/profile
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
-	webhooksHandler := webhooksV1Handlers.NewWebhooksHandler(repositoryFactory.GetWebhookDeduplicator())
+	webhooksHandler := webhooksV1Handlers.NewWebhooksHandler(serviceFactory.GetWebhookService())
 	webhooksV1.RegisterHandlers(e, webhooksHandler)
 
 	return util.Run(ctx, func() error {

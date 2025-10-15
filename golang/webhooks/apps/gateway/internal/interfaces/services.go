@@ -22,3 +22,7 @@ type MonitoringService interface {
 	RecordInt64Gauge(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64GaugeOption) error
 	RecordInt64Histogram(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64HistogramOption) error
 }
+
+type WebhookService interface {
+	HandleWebhook(ctx context.Context, webhook *domain.WebhookEvent) error
+}
