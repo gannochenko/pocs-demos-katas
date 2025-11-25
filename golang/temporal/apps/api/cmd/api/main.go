@@ -91,7 +91,7 @@ func run(w io.Writer) error {
 		logger.Info(ctx, log, "Application started")
 
 		return nil
-	}, func() error {
+	}, func() {
 		cancel()
 		err := e.Shutdown(ctx)
 		if err != nil {
@@ -101,8 +101,6 @@ func run(w io.Writer) error {
 		monitoringService.Stop()
 
 		logger.Info(ctx, log, "Application stopped")
-
-		return nil
 	})
 }
 

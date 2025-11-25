@@ -9,31 +9,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Run(ctx context.Context, quitChan <-chan struct{}, start func(chan os.Signal) error, stop func() error) error {
+func Run(ctx context.Context, quitChan <-chan struct{}, start func(chan os.Signal) error, stop func()) error {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 
 	if err := start(sigChan); err != nil {
-		// couldn't start, let's try to stop
-		if err := stop(); err != nil {
-			return errors.Wrap(err, "could not stop application")
-		}
+		stop()
 		return errors.Wrap(err, "could not start application")
 	}
 
 	select {
 	case <-sigChan:
-		if err := stop(); err != nil {
-			return errors.Wrap(err, "could not stop application")
-		}
+		stop()
 	case <-quitChan:
-		if err := stop(); err != nil {
-			return errors.Wrap(err, "could not stop application")
-		}
+		stop()
 	case <-ctx.Done():
-		if err := stop(); err != nil {
-			return errors.Wrap(err, "could not stop application")
-		}
+		stop()
 	}
 
 	return nil
