@@ -1,10 +1,10 @@
 package main
 
 import (
-	"gateway/internal/database"
-	"gateway/internal/service/config"
 	"log/slog"
 	"os"
+	"worker/internal/database"
+	"worker/internal/service/config"
 
 	"github.com/pkg/errors"
 )

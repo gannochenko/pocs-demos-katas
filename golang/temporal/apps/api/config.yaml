@@ -1,0 +1,12 @@
+service:
+  name: api
+  version: 1.0.0
+
+http:
+  addr: :2024
+
+log_level: info
+
+temporal:
+  addr: localhost:7233
+  tls: false

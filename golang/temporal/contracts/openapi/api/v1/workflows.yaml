@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: Workflows API
+  description: A simple REST API for managing workflows
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /v1/workflows:
+    post:
+      summary: Manage a workflow
+      description: Manages a workflow to be executed
+      operationId: manageWorkflow
+      tags:
+        - Workflows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkflowRequest"
+      responses:
+        "200":
+          description: Operation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowResponse"
+              example:
+                data:
+                  message: "Workflow managed successfully"
+        "400":
+          description: Bad request - invalid workflow
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowErrorResponse"
+
+components:
+  schemas:
+    WorkflowRequest:
+      type: object
+      required:
+        - type
+        - action
+      properties:
+        type:
+          type: string
+          description: Type of the workflow
+          example: "order.create"
+        input:
+          type: object
+          description: Input data for the workflow
+          additionalProperties: true
+          example:
+            order_id: "ORD-12345"
+        action:
+          type: string
+          description: Action to be performed on the workflow
+          enum:
+            - start
+            - stop
+          example: "start"
+      additionalProperties: false
+
+    WorkflowResponse:
+      type: object
+      required:
+        - message
+      properties:
+        workflow_type:
+          type: string
+          description: Type of the workflow
+        workflow_id:
+          type: string
+          description: ID of the workflow
+      additionalProperties: false
+
+    WorkflowErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Message
+          example: "Wrong workflow type"
+      additionalProperties: false
+
+  securitySchemes:
+    # Add security schemes here if authentication is implemented
+    # apiKey:
+    #   type: apiKey
+    #   in: header
+    #   name: X-API-Key
+
+tags:
+  - name: Workflows
+    description: Operations related to workflow management
