@@ -76,12 +76,19 @@ func run(w io.Writer) error {
 	workflowsHandler := workflowsV1Handlers.NewWorkflowsHandler(depFactory.GetTemporalService())
 	workflowsV1.RegisterHandlers(e, workflowsHandler)
 
-	return util.Run(ctx, nil, func() error {
+	return util.Run(ctx, nil, func(sigChan chan os.Signal) error {
 		go func() {
 			if err := e.Start(configService.Config.HTTP.Addr); err != nil {
+				if errors.Is(err, http.ErrServerClosed) {
+					// this is just a normal shutdown, so we can ignore it
+					return
+				}
 				logger.Error(ctx, log, err.Error())
+				sigChan <- nil // server couldn't start, exiting
 			}
 		}()
+
+		logger.Info(ctx, log, "Application started")
 
 		return nil
 	}, func() error {
@@ -92,6 +99,8 @@ func run(w io.Writer) error {
 		}
 
 		monitoringService.Stop()
+
+		logger.Info(ctx, log, "Application stopped")
 
 		return nil
 	})
