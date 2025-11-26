@@ -23,6 +23,6 @@ type MonitoringService interface {
 	RecordInt64Histogram(ctx context.Context, meterName string, counterName string, value int64, labelName, labelValue string, options ...otelMetric.Int64HistogramOption) error
 }
 
-type WebhookService interface {
-	HandleWebhook(ctx context.Context, webhook *domain.WebhookEvent) error
+type TemporalService interface {
+	CreateWorker(ctx context.Context) error
 }

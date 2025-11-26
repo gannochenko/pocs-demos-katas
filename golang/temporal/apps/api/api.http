@@ -3,13 +3,26 @@
 GET http://localhost:2024/ping
 
 ###
-# Manage GitHub workflow
+# Manage GitHub workflow: start
 POST http://localhost:2024/v1/workflows/github
 Content-Type: application/json
 
 {
   "workflow_type": "GenerateReportGithubWorkflow",
   "action": "start",
+  "parameters": {
+    "repository": "https://github.com/temporalio/samples-go"
+  }
+}
+
+###
+# Manage GitHub workflow: stop
+POST http://localhost:2024/v1/workflows/github
+Content-Type: application/json
+
+{
+  "workflow_type": "GenerateReportGithubWorkflow",
+  "action": "stop",
   "parameters": {
     "repository": "https://github.com/temporalio/samples-go"
   }

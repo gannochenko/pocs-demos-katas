@@ -1,7 +1,6 @@
 package main
 
 import (
-	"api/internal/client/temporal"
 	"api/internal/controller"
 	"api/internal/factory"
 	"api/internal/middleware"
@@ -23,6 +22,7 @@ import (
 	workflowsV1 "api/internal/http/v1"
 	"lib/logger"
 	libMiddleware "lib/middleware"
+	libTemporal "lib/temporal"
 	"lib/util"
 )
 
@@ -64,7 +64,7 @@ func run(w io.Writer) error {
 	// To see the UI: go tool pprof -http=:8080 http://localhost:2024/debug/pprof/profile
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
-	temporalClient, err := temporal.GetTemporalClient(configService.Config)
+	temporalClient, err := libTemporal.GetTemporalClient(configService.Config.Temporal.ToClientOptions())
 	if err != nil {
 		return errors.Wrap(err, "could not get temporal client")
 	}
@@ -99,6 +99,7 @@ func run(w io.Writer) error {
 		}
 
 		monitoringService.Stop()
+		temporalClient.Close()
 
 		logger.Info(ctx, log, "Application stopped")
 	})

@@ -3,18 +3,16 @@ package temporal
 import (
 	"time"
 
-	"api/internal/domain"
-
 	"github.com/cenkalti/backoff/v4"
 	"go.temporal.io/sdk/client"
 )
 
-func GetTemporalClient(config *domain.Config) (client.Client, error) {
+func GetTemporalClient(options client.Options) (client.Client, error) {
 	var temporalClient client.Client
 
 	operation := func() error {
 		var err error
-		temporalClient, err = client.Dial(config.Temporal.ToClientOptions())
+		temporalClient, err = client.Dial(options)
 		return err
 	}
 

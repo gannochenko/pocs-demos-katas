@@ -8,23 +8,21 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"worker/internal/controller"
-	webhooksV1Handlers "worker/internal/controller/v1/webhooks"
-	"worker/internal/database"
-	"worker/internal/factory/repository"
-	"worker/internal/factory/service"
-	webhooksV1 "worker/internal/http/v1"
-	"worker/internal/middleware"
+	"worker/internal/factory"
+	"worker/internal/interfaces"
 	"worker/internal/service/config"
 	"worker/internal/service/monitoring"
+	"worker/internal/temporal"
+	"worker/internal/temporal/workflows"
 
 	"github.com/labstack/echo/v4"
-	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
 
 	"lib/logger"
 	libMiddleware "lib/middleware"
+	libTemporal "lib/temporal"
 	"lib/util"
+	"worker/internal/controller"
 )
 
 func run(w io.Writer) error {
@@ -38,16 +36,6 @@ func run(w io.Writer) error {
 		return errors.Wrap(err, "could not load config")
 	}
 
-	db := database.NewDatabase(&configService.Config.Database, log)
-	closeDb, err := db.Connect();
-	if err != nil {
-		return errors.Wrap(err, "could not connect to database")
-	}
-	defer closeDb()
-
-	repositoryFactory := repository.New(db.DB)
-	serviceFactory := service.NewFactory(db.DB, repositoryFactory)
-
 	e := echo.New()
 
 	monitoringService := monitoring.NewService(configService)
@@ -56,13 +44,6 @@ func run(w io.Writer) error {
 	}
 
 	e.HTTPErrorHandler = libMiddleware.ErrorHandler(log)
-	e.Use(libMiddleware.LoggerMiddleware(log))
-	e.Use(middleware.ObservabilityMiddleware(monitoringService))
-	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
-		AllowOrigins: []string{"*"}, // todo: restrict to only the frontend domain
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.PATCH, echo.OPTIONS},
-	}))
 
 	// Register system endpoints
 	healthHandler := controller.NewHealthHandler()
@@ -75,31 +56,48 @@ func run(w io.Writer) error {
 	// To see the UI: go tool pprof -http=:8080 http://localhost:2024/debug/pprof/profile
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
-	webhooksHandler := webhooksV1Handlers.NewWebhooksHandler(serviceFactory.GetWebhookService())
-	webhooksV1.RegisterHandlers(e, webhooksHandler)
+	temporalClient, err := libTemporal.GetTemporalClient(configService.Config.Temporal.ToClientOptions())
+	if err != nil {
+		return errors.Wrap(err, "could not get temporal client")
+	}
 
-	return util.Run(ctx, func() error {
-		go func() {
-			if err := e.Start(configService.Config.HTTP.Addr); err != nil {
-				logger.Error(ctx, log, err.Error())
-			}
-		}()
+	quitCh := make(chan struct{})
+
+	startWorker, stopWorker, err := temporal.CreateWorker(
+		ctx,
+		temporalClient,
+		log,
+		configService.GetConfig(),
+		[]interfaces.TemporalWorkflowGroup{
+			workflows.NewGithubWorkflow(),
+		},
+		quitCh,
+	)
+
+	depFactory := factory.NewFactory()
+	depFactory.SetTemporalClient(temporalClient)
+
+	return util.Run(ctx, quitCh, func(_ chan os.Signal) error {
+		if err := startWorker(); err != nil {
+			return errors.Wrap(err, "could not start temporal worker")
+		}
+
+		logger.Info(ctx, log, "Application started")
 
 		return nil
-	}, func() error {
+	}, func() {
 		cancel()
+		stopWorker()
+
 		err := e.Shutdown(ctx)
 		if err != nil {
 			logger.Error(ctx, log, errors.Wrap(err, "could not shutdown echo server").Error())
 		}
 
+		temporalClient.Close()
 		monitoringService.Stop()
 
-		if err := closeDb(); err != nil {
-			logger.Error(ctx, log, errors.Wrap(err, "could not close database connection").Error())
-		}
-
-		return nil
+		logger.Info(ctx, log, "Application stopped")
 	})
 }
 

@@ -3,7 +3,9 @@ package config
 import (
 	"sync"
 
-	"github.com/kelseyhightower/envconfig"
+	"github.com/creasty/defaults"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
 
 	"worker/internal/domain"
 )
@@ -29,9 +31,30 @@ func (s *Service) LoadConfig() error {
 	s.initMu.Lock()
 	defer s.initMu.Unlock()
 
+	v := viper.New()
+	v.SetConfigName("config")
+	v.SetConfigType("yaml")
+	v.AddConfigPath(".")
+	v.AddConfigPath("/etc/config")
+
+	if err := v.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			return err
+		}
+	}
+
 	var config domain.Config
-	err := envconfig.Process("GATEWAY", &config)
-	if err != nil {
+
+	if err := defaults.Set(&config); err != nil {
+		return err
+	}
+
+	if err := v.Unmarshal(&config); err != nil {
+		return err
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(&config); err != nil {
 		return err
 	}
 

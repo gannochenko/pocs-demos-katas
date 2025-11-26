@@ -1,9 +1,10 @@
 package temporal
 
 import (
-	"api/internal/domain"
 	"context"
 	"time"
+
+	libtemporal "lib/temporal"
 
 	"github.com/pkg/errors"
 	"go.temporal.io/api/enums/v1"
@@ -30,7 +31,7 @@ func (s *Service) ExecuteWorkflow(ctx context.Context, workflowName string, work
 
 	options := client.StartWorkflowOptions{
 		ID: workflowID,
-		TaskQueue: domain.WorkflowsTaskQueue,
+		TaskQueue: libtemporal.DemoWorkflowsTaskQueue,
 		WorkflowIDReusePolicy: enums.WORKFLOW_ID_REUSE_POLICY_TERMINATE_IF_RUNNING,
 		StartDelay: delay,
 	}

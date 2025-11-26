@@ -31,4 +31,4 @@ func (h *HealthHandler) Health(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, response)
-} 
+}

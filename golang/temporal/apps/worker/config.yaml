@@ -1,0 +1,17 @@
+service:
+  name: worker
+  version: 1.0.0
+
+http:
+  addr: :2025
+
+log_level: info
+
+temporal:
+  addr: localhost:7233
+  tls: false
+  worker:
+    max_concurrent_workflow_task_pollers: 2
+    max_concurrent_workflow_task_execution_size: 10
+    max_concurrent_activity_task_pollers: 2
+    max_concurrent_activity_execution_size: 10
