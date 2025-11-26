@@ -17,11 +17,11 @@ servers:
     description: Production server
 
 paths:
-  /v1/workflows:
+  /v1/workflows/github:
     post:
-      summary: Manage a workflow
-      description: Manages a workflow to be executed
-      operationId: manageWorkflow
+      summary: Manage a GitHub workflow
+      description: Manages a GitHub workflow to be executed
+      operationId: manageGithubWorkflow
       tags:
         - Workflows
       requestBody:
@@ -29,14 +29,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/WorkflowRequest"
+              $ref: "#/components/schemas/GithubWorkflowRequest"
       responses:
         "200":
           description: Operation completed successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WorkflowResponse"
+                $ref: "#/components/schemas/GithubWorkflowResponse"
               example:
                 data:
                   message: "Workflow managed successfully"
@@ -45,55 +45,46 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WorkflowErrorResponse"
+                $ref: "#/components/schemas/GithubWorkflowErrorResponse"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WorkflowErrorResponse"
+                $ref: "#/components/schemas/GithubWorkflowErrorResponse"
 
 components:
   schemas:
-    WorkflowRequest:
+    GithubWorkflowRequest:
       type: object
       required:
-        - type
+        - workflow_type
         - action
       properties:
-        type:
-          type: string
-          description: Type of the workflow
-          example: "order.create"
-        input:
-          type: object
-          description: Input data for the workflow
-          additionalProperties: true
-          example:
-            order_id: "ORD-12345"
+        workflow_type:
+          $ref: "#/components/schemas/GithubWorkflowType"
         action:
-          type: string
-          description: Action to be performed on the workflow
-          enum:
-            - start
-            - stop
-          example: "start"
+          $ref: "#/components/schemas/WorkflowActionType"
+        parameters:
+          $ref: "#/components/schemas/GithubWorkflowRequestParameters"
       additionalProperties: false
 
-    WorkflowResponse:
+    GithubWorkflowResponse:
       type: object
       required:
-        - message
+        - workflow_type
+        - workflow_id
       properties:
         workflow_type:
-          type: string
-          description: Type of the workflow
+          $ref: "#/components/schemas/GithubWorkflowType"
         workflow_id:
           type: string
           description: ID of the workflow
+        action:
+          $ref: "#/components/schemas/WorkflowActionType"
       additionalProperties: false
 
-    WorkflowErrorResponse:
+    GithubWorkflowErrorResponse:
       type: object
       required:
         - message
@@ -103,6 +94,29 @@ components:
           description: Message
           example: "Wrong workflow type"
       additionalProperties: false
+
+    GithubWorkflowRequestParameters:
+      type: object
+      required:
+        - repository
+      properties:
+        repository:
+          type: string
+          description: Repository name
+      additionalProperties: false
+
+    GithubWorkflowType:
+      type: string
+      description: Type of the workflow
+      enum:
+        - GenerateReportGithubWorkflow
+
+    WorkflowActionType:
+      type: string
+      description: Action to be performed on the workflow
+      enum:
+        - start
+        - stop
 
   securitySchemes:
     # Add security schemes here if authentication is implemented

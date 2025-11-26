@@ -1,13 +1,14 @@
 package workflows
 
 import (
+	"fmt"
 	"net/http"
 
-	workflowsV1 "api/internal/http/v1"
+	v1 "api/internal/http/v1"
 	"api/internal/interfaces"
 
 	"github.com/labstack/echo/v4"
-	"github.com/samber/lo"
+	"github.com/pkg/errors"
 )
 
 // WorkflowsHandler implements the ServerInterface for webhooks operations
@@ -22,11 +23,13 @@ func NewWorkflowsHandler(temporalService interfaces.TemporalService) *WorkflowsH
 	}
 }
 
-func (h *WorkflowsHandler) ManageWorkflow(ctx echo.Context) error {
-	// var request webhooksV1.AcceptAcmeCorporationWebhookRequest
-	// if err := ctx.Bind(&request); err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, errors.Wrap(err, "failed to bind request"))
-	// }
+func (h *WorkflowsHandler) ManageGithubWorkflow(ctx echo.Context) error {
+	var request v1.GithubWorkflowRequest
+	if err := ctx.Bind(&request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.Wrap(err, "failed to bind request"))
+	}
+
+	fmt.Printf("%+v\n", request)
 
 	// // Validate request fields
 	// if err := h.validateWebhookRequest(&request); err != nil {
@@ -44,9 +47,10 @@ func (h *WorkflowsHandler) ManageWorkflow(ctx echo.Context) error {
 	// 	return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to handle webhook"))
 	// }
 
-	return ctx.JSON(http.StatusOK, workflowsV1.ManageWorkflow200JSONResponse{
-		WorkflowType: lo.ToPtr("order.create"),
-		WorkflowId:   lo.ToPtr("1234567890"),
+	return ctx.JSON(http.StatusOK, v1.GithubWorkflowResponse{
+		WorkflowType: request.WorkflowType,
+		WorkflowId:   "1234567890",
+		Action:       &request.Action,
 	})
 }
 

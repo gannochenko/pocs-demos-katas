@@ -8,6 +8,9 @@
 *.out
 go.work
 
+# Go debug binaries
+__debug_bin*
+
 # Go workspace file
 go.work.sum
 

@@ -13,50 +13,65 @@ import (
 	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
 )
 
-// Defines values for WorkflowRequestAction.
+// Defines values for GithubWorkflowType.
 const (
-	Start WorkflowRequestAction = "start"
-	Stop  WorkflowRequestAction = "stop"
+	GenerateReportGithubWorkflow GithubWorkflowType = "GenerateReportGithubWorkflow"
 )
 
-// WorkflowErrorResponse defines model for WorkflowErrorResponse.
-type WorkflowErrorResponse struct {
+// Defines values for WorkflowActionType.
+const (
+	Start WorkflowActionType = "start"
+	Stop  WorkflowActionType = "stop"
+)
+
+// GithubWorkflowErrorResponse defines model for GithubWorkflowErrorResponse.
+type GithubWorkflowErrorResponse struct {
 	// Message Message
 	Message string `json:"message"`
 }
 
-// WorkflowRequest defines model for WorkflowRequest.
-type WorkflowRequest struct {
+// GithubWorkflowRequest defines model for GithubWorkflowRequest.
+type GithubWorkflowRequest struct {
 	// Action Action to be performed on the workflow
-	Action WorkflowRequestAction `json:"action"`
-
-	// Input Input data for the workflow
-	Input *map[string]interface{} `json:"input,omitempty"`
-
-	// Type Type of the workflow
-	Type string `json:"type"`
-}
-
-// WorkflowRequestAction Action to be performed on the workflow
-type WorkflowRequestAction string
-
-// WorkflowResponse defines model for WorkflowResponse.
-type WorkflowResponse struct {
-	// WorkflowId ID of the workflow
-	WorkflowId *string `json:"workflow_id,omitempty"`
+	Action     WorkflowActionType               `json:"action"`
+	Parameters *GithubWorkflowRequestParameters `json:"parameters,omitempty"`
 
 	// WorkflowType Type of the workflow
-	WorkflowType *string `json:"workflow_type,omitempty"`
+	WorkflowType GithubWorkflowType `json:"workflow_type"`
 }
 
-// ManageWorkflowJSONRequestBody defines body for ManageWorkflow for application/json ContentType.
-type ManageWorkflowJSONRequestBody = WorkflowRequest
+// GithubWorkflowRequestParameters defines model for GithubWorkflowRequestParameters.
+type GithubWorkflowRequestParameters struct {
+	// Repository Repository name
+	Repository string `json:"repository"`
+}
+
+// GithubWorkflowResponse defines model for GithubWorkflowResponse.
+type GithubWorkflowResponse struct {
+	// Action Action to be performed on the workflow
+	Action *WorkflowActionType `json:"action,omitempty"`
+
+	// WorkflowId ID of the workflow
+	WorkflowId string `json:"workflow_id"`
+
+	// WorkflowType Type of the workflow
+	WorkflowType GithubWorkflowType `json:"workflow_type"`
+}
+
+// GithubWorkflowType Type of the workflow
+type GithubWorkflowType string
+
+// WorkflowActionType Action to be performed on the workflow
+type WorkflowActionType string
+
+// ManageGithubWorkflowJSONRequestBody defines body for ManageGithubWorkflow for application/json ContentType.
+type ManageGithubWorkflowJSONRequestBody = GithubWorkflowRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Manage a workflow
-	// (POST /v1/workflows)
-	ManageWorkflow(ctx echo.Context) error
+	// Manage a GitHub workflow
+	// (POST /v1/workflows/github)
+	ManageGithubWorkflow(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -64,12 +79,12 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// ManageWorkflow converts echo context to params.
-func (w *ServerInterfaceWrapper) ManageWorkflow(ctx echo.Context) error {
+// ManageGithubWorkflow converts echo context to params.
+func (w *ServerInterfaceWrapper) ManageGithubWorkflow(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ManageWorkflow(ctx)
+	err = w.Handler.ManageGithubWorkflow(ctx)
 	return err
 }
 
@@ -101,39 +116,39 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.POST(baseURL+"/v1/workflows", wrapper.ManageWorkflow)
+	router.POST(baseURL+"/v1/workflows/github", wrapper.ManageGithubWorkflow)
 
 }
 
-type ManageWorkflowRequestObject struct {
-	Body *ManageWorkflowJSONRequestBody
+type ManageGithubWorkflowRequestObject struct {
+	Body *ManageGithubWorkflowJSONRequestBody
 }
 
-type ManageWorkflowResponseObject interface {
-	VisitManageWorkflowResponse(w http.ResponseWriter) error
+type ManageGithubWorkflowResponseObject interface {
+	VisitManageGithubWorkflowResponse(w http.ResponseWriter) error
 }
 
-type ManageWorkflow200JSONResponse WorkflowResponse
+type ManageGithubWorkflow200JSONResponse GithubWorkflowResponse
 
-func (response ManageWorkflow200JSONResponse) VisitManageWorkflowResponse(w http.ResponseWriter) error {
+func (response ManageGithubWorkflow200JSONResponse) VisitManageGithubWorkflowResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type ManageWorkflow400JSONResponse WorkflowErrorResponse
+type ManageGithubWorkflow400JSONResponse GithubWorkflowErrorResponse
 
-func (response ManageWorkflow400JSONResponse) VisitManageWorkflowResponse(w http.ResponseWriter) error {
+func (response ManageGithubWorkflow400JSONResponse) VisitManageGithubWorkflowResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type ManageWorkflow500JSONResponse WorkflowErrorResponse
+type ManageGithubWorkflow500JSONResponse GithubWorkflowErrorResponse
 
-func (response ManageWorkflow500JSONResponse) VisitManageWorkflowResponse(w http.ResponseWriter) error {
+func (response ManageGithubWorkflow500JSONResponse) VisitManageGithubWorkflowResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
@@ -142,9 +157,9 @@ func (response ManageWorkflow500JSONResponse) VisitManageWorkflowResponse(w http
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// Manage a workflow
-	// (POST /v1/workflows)
-	ManageWorkflow(ctx context.Context, request ManageWorkflowRequestObject) (ManageWorkflowResponseObject, error)
+	// Manage a GitHub workflow
+	// (POST /v1/workflows/github)
+	ManageGithubWorkflow(ctx context.Context, request ManageGithubWorkflowRequestObject) (ManageGithubWorkflowResponseObject, error)
 }
 
 type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
@@ -159,29 +174,29 @@ type strictHandler struct {
 	middlewares []StrictMiddlewareFunc
 }
 
-// ManageWorkflow operation middleware
-func (sh *strictHandler) ManageWorkflow(ctx echo.Context) error {
-	var request ManageWorkflowRequestObject
+// ManageGithubWorkflow operation middleware
+func (sh *strictHandler) ManageGithubWorkflow(ctx echo.Context) error {
+	var request ManageGithubWorkflowRequestObject
 
-	var body ManageWorkflowJSONRequestBody
+	var body ManageGithubWorkflowJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
 		return err
 	}
 	request.Body = &body
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ManageWorkflow(ctx.Request().Context(), request.(ManageWorkflowRequestObject))
+		return sh.ssi.ManageGithubWorkflow(ctx.Request().Context(), request.(ManageGithubWorkflowRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ManageWorkflow")
+		handler = middleware(handler, "ManageGithubWorkflow")
 	}
 
 	response, err := handler(ctx, request)
 
 	if err != nil {
 		return err
-	} else if validResponse, ok := response.(ManageWorkflowResponseObject); ok {
-		return validResponse.VisitManageWorkflowResponse(ctx.Response())
+	} else if validResponse, ok := response.(ManageGithubWorkflowResponseObject); ok {
+		return validResponse.VisitManageGithubWorkflowResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
