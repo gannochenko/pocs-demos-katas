@@ -41,7 +41,7 @@ func (w *ReportWorkflowGroup) GenerateReportGithubWorkflow(ctx workflow.Context,
 		return errors.Wrap(err, "failed to execute activity")
 	}
 
-	err = workflow.Sleep(ctx, 5*time.Minute)
+	err = workflow.Sleep(ctx, w.getDurationToNext9AM(workflow.Now(ctx)))
 	if err != nil {
 		return errors.Wrap(err, "failed to sleep")
 	}
@@ -55,4 +55,14 @@ func (w *ReportWorkflowGroup) GetWorkflows() map[string]any {
 	schema[domain.GenerateReportGithubWorkflowName] = w.GenerateReportGithubWorkflow
 
 	return schema
+}
+
+func (w *ReportWorkflowGroup) getDurationToNext9AM(now time.Time) time.Duration {
+	next9AM := time.Date(now.Year(), now.Month(), now.Day(), 9, 0, 0, 0, now.Location())
+
+	if now.Hour() >= 9 {
+		next9AM = next9AM.Add(24 * time.Hour)
+	}
+
+	return next9AM.Sub(now)
 }

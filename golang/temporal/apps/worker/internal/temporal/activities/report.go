@@ -6,6 +6,9 @@ import (
 	"time"
 	"worker/internal/domain"
 	"worker/internal/interfaces"
+
+	"github.com/google/go-github/v62/github"
+	"github.com/samber/lo"
 )
 
 type ReportActivityGroup struct {
@@ -28,12 +31,15 @@ func (a *ReportActivityGroup) GetRepositoryStatsActivity(ctx context.Context, in
 
 	for i, commit := range commits {
 		comm := commit.Commit
+
+		author := lo.FromPtrOr(comm.Author, github.CommitAuthor{})
+
 		commitItems[i] = domain.Commit{
-			SHA: *comm.SHA,
-			Message: *comm.Message,
-			AuthorName: *comm.Author.Name,
-			AuthorEmail: *comm.Author.Email,
-			Date: comm.Author.Date.Format(time.RFC3339),
+			SHA: lo.FromPtrOr(comm.SHA, ""),
+			Message: lo.FromPtrOr(comm.Message, ""),
+			AuthorName: lo.FromPtrOr(author.Name, ""),
+			AuthorEmail: lo.FromPtrOr(author.Email, ""),
+			Date: lo.FromPtrOr(author.Date, github.Timestamp{}).Format(time.RFC3339),
 		}
 	}
 
