@@ -247,3 +247,5 @@ Thumbs.db
 *.local 
 
 .db
+
+config.yaml
