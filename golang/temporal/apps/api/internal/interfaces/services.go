@@ -4,6 +4,7 @@ import (
 	"api/internal/domain"
 	"context"
 	"net/http"
+	"time"
 
 	otelMetric "go.opentelemetry.io/otel/metric"
 )
@@ -24,5 +25,6 @@ type MonitoringService interface {
 }
 
 type TemporalService interface {
-	
+	ExecuteWorkflow(ctx context.Context, workflowName string, workflowID string, workflowInput any, executeAt *time.Time) error
+	CancelWorkflow(ctx context.Context, workflowID string) error
 }
