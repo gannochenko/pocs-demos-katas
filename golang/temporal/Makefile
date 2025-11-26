@@ -12,13 +12,10 @@ bootstrap:
 	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 
 run_worker:
-	@cd apps/worker && godotenv -f ../../env.local go run cmd/worker/main.go
-
-migrate_worker:
-	@cd apps/worker && godotenv -f ../../env.local go run ./cmd/migrate/main.go
+	@cd apps/worker && go run cmd/worker/main.go
 
 run_api:
-	@cd apps/api && godotenv -f ../../env.local go run cmd/api/main.go
+	@cd apps/api && go run cmd/api/main.go
 
 generate_api_openapi:
 	@rm -rf $(OPENAPI_OUT_DIR)/v1

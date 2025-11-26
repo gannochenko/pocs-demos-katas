@@ -44,7 +44,12 @@ func (c *TemporalConfig) ToClientOptions() client.Options {
 	return opts
 }
 
+type GitHubConfig struct {
+	Token string `mapstructure:"token" default:"" validate:"required"`
+}
+
 type Config struct {
+	GitHub GitHubConfig `mapstructure:"github"`
 	LogLevel string        `mapstructure:"log_level" default:"info" validate:"required,oneof=debug info warn error"`
 	HTTP     HTTPConfig    `mapstructure:"http"`
 	Service  ServiceConfig `mapstructure:"service"`

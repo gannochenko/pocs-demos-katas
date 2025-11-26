@@ -11,7 +11,7 @@ Content-Type: application/json
   "workflow_type": "GenerateReportGithubWorkflow",
   "action": "start",
   "parameters": {
-    "repository": "https://github.com/temporalio/samples-go"
+    "repository": "blender/blender"
   }
 }
 
@@ -24,6 +24,6 @@ Content-Type: application/json
   "workflow_type": "GenerateReportGithubWorkflow",
   "action": "stop",
   "parameters": {
-    "repository": "https://github.com/temporalio/samples-go"
+    "repository": "blender/blender"
   }
 }

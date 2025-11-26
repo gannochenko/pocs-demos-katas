@@ -5,7 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Temporal API",
+      "name": "Debug Temporal Worker",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/golang/temporal/apps/worker/cmd/worker/main.go",
+      "cwd": "${workspaceFolder}/golang/temporal/apps/worker/"
+    },
+    {
+      "name": "Debug Temporal API",
       "type": "go",
       "request": "launch",
       "mode": "auto",

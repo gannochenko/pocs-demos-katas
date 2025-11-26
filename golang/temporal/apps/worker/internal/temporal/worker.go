@@ -9,12 +9,14 @@ import (
 	"worker/internal/domain"
 	"worker/internal/interfaces"
 
+	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/interceptor"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 )
 
-func CreateWorker(ctx context.Context, client client.Client, log *slog.Logger, config *domain.Config, workflows []interfaces.TemporalWorkflowGroup, quitCh chan<- struct{}) (func() error, func(), error) {
+func CreateWorker(ctx context.Context, client client.Client, log *slog.Logger, config *domain.Config, workflows []interfaces.TemporalWorkflowGroup, activities []interfaces.TemporalActivityGroup, quitCh chan<- struct{}) (func() error, func(), error) {
 	if client == nil {
 		return nil, nil, errors.New("client is not initialized")
 	}
@@ -28,12 +30,23 @@ func CreateWorker(ctx context.Context, client client.Client, log *slog.Logger, c
 			logger.Error(ctx, log, "Worker fatal error", logger.F("error", err.Error()))
 			quitCh <- struct{}{}
 		},
+		Interceptors: []interceptor.WorkerInterceptor{
+			NewLoggingInterceptor(ctx, log),
+		},
 	})
 
 	for _, wf := range workflows {
 		for workflowName, workflowFunc := range wf.GetWorkflows() {
 			w.RegisterWorkflowWithOptions(workflowFunc, workflow.RegisterOptions{
 				Name: workflowName,
+			})
+		}
+	}
+
+	for _, act := range activities {
+		for activityName, activityFunc := range act.GetActivities() {
+			w.RegisterActivityWithOptions(activityFunc, activity.RegisterOptions{
+				Name: activityName,
 			})
 		}
 	}

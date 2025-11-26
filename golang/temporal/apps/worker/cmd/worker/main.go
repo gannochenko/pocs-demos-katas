@@ -9,10 +9,12 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"worker/internal/factory"
+	"worker/internal/github"
 	"worker/internal/interfaces"
 	"worker/internal/service/config"
 	"worker/internal/service/monitoring"
 	"worker/internal/temporal"
+	"worker/internal/temporal/activities"
 	"worker/internal/temporal/workflows"
 
 	"github.com/labstack/echo/v4"
@@ -56,12 +58,15 @@ func run(w io.Writer) error {
 	// To see the UI: go tool pprof -http=:8080 http://localhost:2024/debug/pprof/profile
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
+	quitCh := make(chan struct{})
+
 	temporalClient, err := libTemporal.GetTemporalClient(configService.Config.Temporal.ToClientOptions())
 	if err != nil {
 		return errors.Wrap(err, "could not get temporal client")
 	}
 
-	quitCh := make(chan struct{})
+	githubClient := github.NewClient(configService.GetConfig())
+	githubClient.Connect(ctx)
 
 	startWorker, stopWorker, err := temporal.CreateWorker(
 		ctx,
@@ -69,7 +74,10 @@ func run(w io.Writer) error {
 		log,
 		configService.GetConfig(),
 		[]interfaces.TemporalWorkflowGroup{
-			workflows.NewGithubWorkflow(),
+			workflows.NewReportWorkflowGroup(),
+		},
+		[]interfaces.TemporalActivityGroup{
+			activities.NewReportActivityGroup(githubClient),
 		},
 		quitCh,
 	)
