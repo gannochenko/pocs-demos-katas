@@ -1,13 +1,20 @@
 package temporal
 
 import (
+	"context"
+	"log/slog"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	"go.temporal.io/sdk/client"
 )
 
-func GetTemporalClient(options client.Options) (client.Client, error) {
+func GetTemporalClient(ctx context.Context, log *slog.Logger, options client.Options) (client.Client, error) {
+	// Add logger to options
+	if log != nil {
+		options.Logger = NewTemporalLogger(ctx, log)
+	}
+
 	var temporalClient client.Client
 
 	operation := func() error {

@@ -64,7 +64,7 @@ func run(w io.Writer) error {
 	// To see the UI: go tool pprof -http=:8080 http://localhost:2024/debug/pprof/profile
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
-	temporalClient, err := libTemporal.GetTemporalClient(configService.Config.Temporal.ToClientOptions())
+	temporalClient, err := libTemporal.GetTemporalClient(ctx, log, configService.Config.Temporal.ToClientOptions())
 	if err != nil {
 		return errors.Wrap(err, "could not get temporal client")
 	}

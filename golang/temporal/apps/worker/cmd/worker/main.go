@@ -61,7 +61,7 @@ func run(w io.Writer) error {
 
 	quitCh := make(chan struct{})
 
-	temporalClient, err := libTemporal.GetTemporalClient(configService.Config.Temporal.ToClientOptions())
+	temporalClient, err := libTemporal.GetTemporalClient(ctx, log, configService.Config.Temporal.ToClientOptions())
 	if err != nil {
 		return errors.Wrap(err, "could not get temporal client")
 	}
