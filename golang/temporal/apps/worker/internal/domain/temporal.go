@@ -51,10 +51,12 @@ type MakeHumanReadableSummaryActivityInput struct {
 }
 
 type MakeHumanReadableSummaryActivityOutput struct {
+	Summary string `json:"summary"`
 }
 
 type PostToSlackActivityInput struct {
 	Repository string `json:"repository"`
+	Summary string `json:"summary"`
 }
 
 type PostToSlackActivityOutput struct {

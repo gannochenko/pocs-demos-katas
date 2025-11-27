@@ -48,10 +48,22 @@ type GitHubConfig struct {
 	Token string `mapstructure:"token" default:"" validate:"required"`
 }
 
+type OpenAIConfig struct {
+	APIKey string `mapstructure:"api_key" default:"" validate:"required"`
+	Model string `mapstructure:"model" default:"gpt-4o-mini" validate:"required"`
+}
+
+type SlackConfig struct {
+	Token string `mapstructure:"token" default:"" validate:"required"`
+	Channel string `mapstructure:"channel" default:"" validate:"required"`
+}
+
 type Config struct {
 	GitHub GitHubConfig `mapstructure:"github"`
 	LogLevel string        `mapstructure:"log_level" default:"info" validate:"required,oneof=debug info warn error"`
 	HTTP     HTTPConfig    `mapstructure:"http"`
 	Service  ServiceConfig `mapstructure:"service"`
 	Temporal TemporalConfig `mapstructure:"temporal"`
+	OpenAI OpenAIConfig `mapstructure:"openai"`
+	Slack SlackConfig `mapstructure:"slack"`
 }

@@ -8,11 +8,12 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"worker/internal/factory"
 	"worker/internal/github"
 	"worker/internal/interfaces"
+	"worker/internal/openai"
 	"worker/internal/service/config"
 	"worker/internal/service/monitoring"
+	"worker/internal/slack"
 	"worker/internal/temporal"
 	"worker/internal/temporal/activities"
 	"worker/internal/temporal/workflows"
@@ -68,6 +69,10 @@ func run(w io.Writer) error {
 	githubClient := github.NewClient(configService.GetConfig())
 	githubClient.Connect(ctx)
 
+	openaiClient := openai.NewClient(configService.GetConfig())
+
+	slackClient := slack.NewClient(configService.GetConfig())
+
 	startWorker, stopWorker, err := temporal.CreateWorker(
 		ctx,
 		temporalClient,
@@ -77,13 +82,10 @@ func run(w io.Writer) error {
 			workflows.NewReportWorkflowGroup(),
 		},
 		[]interfaces.TemporalActivityGroup{
-			activities.NewReportActivityGroup(githubClient),
+			activities.NewReportActivityGroup(configService.GetConfig(), githubClient, openaiClient, slackClient),
 		},
 		quitCh,
 	)
-
-	depFactory := factory.NewFactory()
-	depFactory.SetTemporalClient(temporalClient)
 
 	return util.Run(ctx, quitCh, func(_ chan os.Signal) error {
 		if err := startWorker(); err != nil {

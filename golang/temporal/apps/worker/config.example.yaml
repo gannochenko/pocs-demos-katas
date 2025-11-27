@@ -18,3 +18,11 @@ temporal:
 
 github:
   token: "your-github-token"
+
+openai:
+  api_key: "your-openai-api-key"
+  model: "gpt-4o-mini"
+
+slack:
+  token: "xoxb-your-slack-token"
+  channel: "C08080808080808080"

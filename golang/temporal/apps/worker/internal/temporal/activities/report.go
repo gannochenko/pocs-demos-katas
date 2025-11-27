@@ -2,7 +2,6 @@ package activities
 
 import (
 	"context"
-	"fmt"
 	"time"
 	"worker/internal/domain"
 	"worker/internal/interfaces"
@@ -12,12 +11,18 @@ import (
 )
 
 type ReportActivityGroup struct {
+	config *domain.Config
 	githubClient interfaces.GitHubClient
+	openaiClient interfaces.OpenAIClient
+	slackClient interfaces.SlackClient
 }
 
-func NewReportActivityGroup(githubClient interfaces.GitHubClient) interfaces.TemporalActivityGroup {
+func NewReportActivityGroup(config *domain.Config, githubClient interfaces.GitHubClient, openaiClient interfaces.OpenAIClient, slackClient interfaces.SlackClient) interfaces.TemporalActivityGroup {
 	return &ReportActivityGroup{
+		config: config,
 		githubClient: githubClient,
+		openaiClient: openaiClient,
+		slackClient: slackClient,
 	}
 }
 
@@ -49,11 +54,26 @@ func (a *ReportActivityGroup) GetRepositoryStatsActivity(ctx context.Context, in
 }
 
 func (a *ReportActivityGroup) MakeHumanReadableSummaryActivity(ctx context.Context, input domain.MakeHumanReadableSummaryActivityInput) (domain.MakeHumanReadableSummaryActivityOutput, error) {
-	fmt.Println(input.Text)
-	return domain.MakeHumanReadableSummaryActivityOutput{}, nil
+	summary, err := a.openaiClient.Complete(
+		ctx,
+		"You are a helpful assistant that summarizes text. The text is a list of commits from a repository. Return a summary of the commits in a human readable format and in markdown. Dont use ordered lists for formatting. Use emoji to make lists. Make it sound exciting! Don't mention every commit, just the most important ones. Conduct the generic yet precise summary. Menion the champion contributor(s) of this round.",
+		input.Text,
+	)
+	if err != nil {
+		return domain.MakeHumanReadableSummaryActivityOutput{}, err
+	}
+
+	return domain.MakeHumanReadableSummaryActivityOutput{
+		Summary: summary,
+	}, nil
 }
 
 func (a *ReportActivityGroup) PostToSlackActivity(ctx context.Context, input domain.PostToSlackActivityInput) (domain.PostToSlackActivityOutput, error) {
+	err := a.slackClient.SendMessage(ctx, a.config.Slack.Channel, input.Summary)
+	if err != nil {
+		return domain.PostToSlackActivityOutput{}, err
+	}
+
 	return domain.PostToSlackActivityOutput{}, nil
 }
 
