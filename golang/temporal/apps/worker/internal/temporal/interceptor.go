@@ -47,17 +47,20 @@ func (w *workflowInterceptor) ExecuteWorkflow(ctx workflow.Context, in *intercep
 	result, err := w.Next.ExecuteWorkflow(ctx, in)
 
 	if err != nil {
-		workflowInfo := workflow.GetInfo(ctx)
-		logger.Error(
-			w.ctx,
-			w.log,
-			"Workflow failed",
-			logger.F("type", workflowInfo.WorkflowType.Name),
-			logger.F("workflow_id", workflowInfo.WorkflowExecution.ID),
-			logger.F("run_id", workflowInfo.WorkflowExecution.RunID),
-			logger.F("attempt", workflowInfo.Attempt),
-			logger.F("error", err.Error()),
-		)
+		// Don't log ContinueAsNewError as it's not a failure but a normal workflow continuation pattern
+		if _, isContinueAsNew := err.(*workflow.ContinueAsNewError); !isContinueAsNew {
+			workflowInfo := workflow.GetInfo(ctx)
+			logger.Error(
+				w.ctx,
+				w.log,
+				"Workflow failed",
+				logger.F("type", workflowInfo.WorkflowType.Name),
+				logger.F("workflow_id", workflowInfo.WorkflowExecution.ID),
+				logger.F("run_id", workflowInfo.WorkflowExecution.RunID),
+				logger.F("attempt", workflowInfo.Attempt),
+				logger.F("error", err.Error()),
+			)
+		}
 	}
 
 	return result, err
