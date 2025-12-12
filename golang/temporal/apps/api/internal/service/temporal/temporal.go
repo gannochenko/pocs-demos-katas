@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.temporal.io/api/enums/v1"
+	"go.temporal.io/api/serviceerror"
 	"go.temporal.io/sdk/client"
 )
 
@@ -49,6 +50,12 @@ func (s *Service) CancelWorkflow(ctx context.Context, workflowID string) error {
 
 	err := s.client.CancelWorkflow(ctx, workflowID, "")
 	if err != nil {
+		var temporalErr *serviceerror.NotFound
+		if errors.As(err, &temporalErr) {
+			// workflow didn't exist before, so we can safely ignore 404
+			return nil
+		}
+
 		return errors.Wrap(err, "failed to cancel workflow")
 	}
 	return nil
